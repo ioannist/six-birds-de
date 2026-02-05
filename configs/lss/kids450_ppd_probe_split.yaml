@@ -1,0 +1,27 @@
+schema_version: 0
+seed: 0
+
+dataset:
+  key: kids450_vuitert18_3x2pt_bandpowers
+  file: vUitert18_KiDS450_data.tar.gz
+  kind: kids450_bandpowers
+
+run:
+  exp_name: kids450_ppd_probe_split
+  note: "PPD split on KiDS-450 vUitert18 bandpowers: shear vs (ggl+clustering)."
+
+ppd:
+  split: shear_vs_rest
+  models:
+    - name: lcdm_like
+      k: 1
+    - name: rewrite_like
+      k: 2
+
+surrogate_theory:
+  frac_sigma: 0.1
+  beta_x: 0.10
+  kappa_probe:
+    shear: 0.0
+    clustering: 0.4
+    ggl: -0.2

@@ -1,0 +1,62 @@
+schema_version: 0
+seed: 0
+
+dataset:
+  key: des_y3a2_datavectors_2pt
+  file: 2pt_maglim_covupdate.fits
+  kind: fits_2pt
+
+run:
+  exp_name: y3_ppd_with_geometry
+  note: "PPD probe split with/without geometry anchors (SN+BAO). Surrogate LSS objective."
+
+ppd:
+  split: shear_vs_clust_ggl
+  directions: ["AtoB", "BtoA"]
+  anchors_modes: ["none", "sn+bao"]
+
+surrogate_lss:
+  frac_sigma: 0.1
+  beta_x: 0.10
+  kappa_probe:
+    shear: 0.0
+    clustering: 0.4
+    ggl: -0.2
+  z0: 0.3
+  dz: 0.2
+  p_probe:
+    shear: 2.0
+    clustering: 1.0
+    ggl: 1.5
+  fiducial:
+    H0: 70.0
+    lcdm:
+      om: 0.3
+    rewrite:
+      om: 0.3
+      A: 0.7
+      m: 0.0
+
+models:
+  lcdm:
+    name: lcdm
+    bounds:
+      om: [0.05, 0.8]
+  rewrite:
+    name: rewrite
+    bounds:
+      om: [0.05, 0.8]
+      A: [0.0, 2.0]
+      m: [0.0, 6.0]
+
+anchors:
+  sn:
+    dataset_key: des_sn5yr_distances
+    cov_kind: total
+    H0: 70.0
+  bao:
+    dataset_key: des_y6_bao_release
+    curve_kind: combined
+    H0_fid: 67.4
+    om_fid: 0.315
+    ol_fid: 0.685

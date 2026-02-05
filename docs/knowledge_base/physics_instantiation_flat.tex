@@ -1,0 +1,992 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{pdflscape}
+\usepackage{enumitem}
+\usepackage{placeins}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{fancyhdr}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\title{To Become a Stone with Six Birds:\\ A Physics is A Theory}
+\author{Ioannis Tsiokos\\\texttt{ioannis@automorph.io}}
+\date{January 29, 2026}
+
+\fancypagestyle{firstpage}{\fancyhf{}
+  \fancyfoot[C]{\scriptsize DOI: \href{https://doi.org/10.5281/zenodo.18412131}{10.5281/zenodo.18412131} \quad \textcopyright\ 2026 Automorph Inc.}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+\providecommand{\Z}{Z}
+\providecommand{\X}{X}
+\providecommand{\Dist}[1]{\Delta(#1)}
+\providecommand{\Lens}{f}
+\providecommand{\Fiber}[1]{B_{#1}}
+\providecommand{\Qf}{Q_f}
+\providecommand{\Uf}{U_f}
+\providecommand{\Etauf}{E_{\tau,f}}
+\providecommand{\Dirac}[1]{\delta_{#1}}
+\providecommand{\TVnorm}[1]{\lVert #1\rVert_{\mathrm{TV}}}
+\providecommand{\DKL}[2]{D_{\mathrm{KL}}\!\left(#1\,\|\,#2\right)}
+  \newcommand{\figSmokeCore}{figures/smoke_core.png}
+\newcommand{\figQuantumDpiHist}{figures/quantum_dpi_hist.png}
+\newcommand{\figQuantumClosureIdempotence}{figures/quantum_closure_idempotence.png}
+\newcommand{\figQuantumRouteMismatch}{figures/quantum_route_mismatch.png}
+\newcommand{\figBgkIdempotenceDefect}{figures/bgk_idempotence_defect.png}
+\newcommand{\figBgkFailureModes}{figures/bgk_failure_modes.png}
+\newcommand{\figLesRouteMismatch}{figures/les_route_mismatch.png}
+\newcommand{\figLesSubgridTerm}{figures/les_subgrid_term.png}
+\newcommand{\figGravityBackreaction}{figures/gravity_backreaction.png}
+\newcommand{\figGravityPackagingMismatch}{figures/gravity_packaging_mismatch.png}
+ 
+\begin{document}
+\maketitle
+\thispagestyle{firstpage}
+
+\begin{abstract}
+Existing physics practice treats quantum, kinetic, fluid, and gravitational models as separate ``theories,'' yet we lack a checkable way to view them as scale-dependent \emph{closures} that can be compared across domains. We instantiate the Six-Birds lens/completion/closure dictionary as a multi-scale layer template, centering three cross-domain certificates: closure coherence (idempotence), audit monotonicity (data processing), and route mismatch (noncommutation). We operationalize this calculus via a reproducible workflow (Python artifacts + Lean-certified lemmas) and demonstrate it on four instantiations: quantum dephasing, discrete BGK-like kinetic closure, filtered Burgers (LES toy), and nonlinear averaging (backreaction toy).
+
+Under null conditions (no coarse-graining, zero heterogeneity, or exact projections), idempotence defects and route mismatches are $\approx 0$; under controlled interventions they separate cleanly. Dephasing is exactly idempotent; sampled CPTP channels satisfy quantum relative-entropy DPI with no violations beyond tolerance; unitary evolution produces nonzero mismatch that grows with dephasing strength. In the BGK model, packaging coherence improves as collision strength increases, with explicit failure modes when the equilibrium family or retained moments are misspecified. In LES and averaging toys, mismatch grows with filter width or heterogeneity and yields canonical subgrid/backreaction correction terms.
+
+This reframes ``physics theories'' as comparable closure layers and localizes which effective terms are forced by a chosen scale and audit. We do not derive continuum theories or prove analytic bounds; we report Lean-certified algebraic facts and numerical certificates under stated controls.
+\end{abstract}
+
+\vspace{1ex}
+\noindent\textbf{Keywords:} emergence calculus, closure layers, coarse-graining, audit monotonicity, route mismatch, quantum-to-classical, BGK, LES, backreaction, reproducibility
+ \section{Introduction}
+\label{sec:introduction}
+
+To ``become a stone'' in physics is to pass from a detailed microdescription to a stable macro layer that can be treated as its own theory: the high-frequency degrees of freedom are discarded, the retained macro information becomes actionable, and the resulting description behaves coherently on the scale of interest. This is precisely the closure move.
+
+Many physics ``theory transitions'' are implemented as scale choices: retain some macro information, discard the rest, and add a closure rule to make the reduced description usable.
+
+What is often missing is a \emph{checkable, cross-domain way} to compare such closures: when does a proposed macro layer behave coherently, when does it preserve a chosen audit (data-processing), and when does it necessarily induce a structured mismatch term?
+
+This paper is a follow-up instantiation of the Six-Birds dictionary in several physics settings \citep{SixBirdsFramework}. We treat a layer as a choice of lens $\Qf$ (what is retained), completion $\Uf$ (how discarded information is completed), and a timescale evolution operator $T_\tau$, inducing a packaging operator $\Etauf=\Uf\circ\Qf\circ T_\tau$. The same three diagnostics recur across domains: closure coherence (idempotence), audit monotonicity, and route mismatch (noncommutation).
+
+\paragraph{Contributions (three-layer stack).}
+We (A) introduce a reusable closure-layer template aligned with the Six-Birds certificate loop, (B) operationalize it as a reproducible workflow that exports figures/tables from deterministic scripts and records Lean-certified backbone lemmas, and (C) demonstrate controlled null-vs-intervention separations in four instantiations (quantum dephasing, BGK-like moment closure, filtering/LES on Burgers, and nonlinear averaging/backreaction toy).
+
+\paragraph{Code availability.}
+The physics-instantiation repository is available at:
+\begin{itemize}[noitemsep,topsep=2pt]
+\item \url{https://github.com/ioannist/six-birds-physics}
+\end{itemize}
+
+\paragraph{How to read the paper.}
+Section~\ref{sec:dictionary} fixes the dictionary and notation; Section~\ref{sec:layers-closures} states the thesis and the cross-domain invariants.
+Sections~\ref{sec:quantum-classical}--\ref{sec:gravity} present instantiations.
+Appendix~\ref{app:lean} lists Lean-certified lemmas used as algebraic anchors, and Appendix~\ref{app:sims} records the discrepancy metrics and default run settings for the numerical certificates.
+ \section{Recap and dictionary alignment}
+\label{sec:dictionary}
+
+This paper instantiates the Six-Birds framework \citep{SixBirdsFramework} in several physics settings. We reuse the Six-Birds dictionary and notation: \emph{lens}, \emph{completion}, \emph{closure/packaging}, \emph{audit}, and \emph{route mismatch} mean exactly what they mean in the original paper, specialized to the physics examples in Sections~\ref{sec:quantum-classical}--\ref{sec:gravity}. This section pins down the symbols we use throughout.
+
+\subsection{Micro/macro state spaces and lenses}
+We write $\Z$ for a micro state space and $\X$ for a macro state space. In our finite-state instantiations, a state of knowledge is a distribution $\mu \in \Dist{\Z}$ (resp.\ $\nu \in \Dist{\X}$).
+
+\paragraph{A type-generic viewpoint (why we reuse $\Dist{\cdot}$).}
+The Six-Birds dictionary is not limited to classical probability distributions: a ``state space'' can be any convex set of states, and a lens/completion are typically affine maps between such sets. For consistency, we reuse the notation
+$\Dist{\Z}\xrightarrow{\Qf}\Dist{\X}\xrightarrow{\Uf}\Dist{\Z}$
+even when the objects are not literally finite PMFs (e.g.\ density matrices in Section~\ref{sec:quantum-classical} or fields in Section~\ref{sec:les}). When a statement is genuinely specific to finite PMFs (notably the Lean development in Appendix~\ref{app:lean}), we say so explicitly.
+
+\paragraph{Instantiations at a glance.}
+\begin{itemize}
+  \item \textbf{Classical finite (Lean anchor):} $\Dist{\Z}$ and $\Dist{\X}$ are PMFs on finite types, $\Lens:\Z\to\X$ is a deterministic partition lens, $\Uf$ is the uniform-on-fibers completion, and $E=\Uf\circ\Qf$ is exactly idempotent.
+
+  \item \textbf{Quantum $\to$ classical (Section~\ref{sec:quantum-classical}):} micro states are density matrices; the lens retains diagonal information in a chosen basis; the completion embeds a classical distribution as a diagonal density matrix; the resulting closure is the dephasing channel.
+
+  \item \textbf{Kinetic $\to$ fluids (Section~\ref{sec:kinetic-fluids}):} micro states are discrete kinetic densities $f(x,v)$; the lens extracts low-order moments; the completion reconstructs a local-equilibrium family; discrepancies are measured with a normalized $L^1$-style distance on the discrete arrays.
+
+  \item \textbf{LES/filtering (Section~\ref{sec:les}):} micro states are fine-scale fields; the lens is a spatial filter; there is no canonical completion $U$; the closure problem is expressed as a structured rewrite/subgrid term induced by noncommutation.
+
+  \item \textbf{Gravity toy (Section~\ref{sec:gravity}):} micro states are heterogeneous ensembles; the lens is averaging/coarse statistics; the completion is a canonical distribution matching those statistics; route mismatch under nonlinear evolution is the backreaction-style diagnostic.
+\end{itemize}
+
+\subsection{Six birds as roles (P1--P6)}
+The Six-Birds primitives are \emph{roles} played by concrete objects in an instantiation, not topics. In the physics setting, a compact reading is:
+\begin{enumerate}
+  \item \textbf{P1 (operator rewrite).} When a macro evolution is not closed, route mismatch diagnoses the needed rewrite/correction term (e.g.\ LES subgrid term).
+  \item \textbf{P2 (constraints).} The macro-consistent family selected by a completion $\Uf$ defines which states count as admissible at the layer.
+  \item \textbf{P3 (protocol/holonomy).} Competing routes (evolve--then--close vs close--then--evolve) define mismatch/holonomy diagnostics.
+  \item \textbf{P4 (staging).} A scale parameter (time $\tau$, filter width $\sigma$, or refinement level) specifies when packaging is evaluated.
+  \item \textbf{P5 (packaging).} The closure $E=\Uf\circ\Qf$ and its timescale version $\Etauf$ define the packaged layer.
+  \item \textbf{P6 (accounting/audit).} An audit (KL/relative entropy, TV, or RMS mismatch) records feasibility and monotonicity under coarse-graining.
+\end{enumerate}
+This list is the same Six-Birds dictionary \citep{SixBirdsFramework}, specialized to the objects used in this paper.
+
+A deterministic lens is a map $\Lens:\Z\to\X$. The fiber over $x\in\X$ is
+\[
+  \Fiber{x} := \{ z\in\Z : \Lens(z)=x \}.
+\]
+The induced coarse-graining/pushforward operator is
+\[
+  \Qf : \Dist{\Z}\to\Dist{\X},\qquad
+  (\Qf \mu)(x) := \sum_{z\in \Fiber{x}} \mu(z).
+\]
+(Several of our physics examples use a more general stochastic lens, but the deterministic case already captures the ``layering by closure'' phenomenon.)
+
+\subsection{Completion and closure}
+A completion (also: lift, reconstruction) chooses a micro distribution consistent with a given macro distribution:
+\[
+  \Uf : \Dist{\X}\to\Dist{\Z}.
+\]
+The idealized \emph{section axiom} is
+\[
+  \Qf(\Uf \nu)=\nu \quad \text{for all }\nu\in\Dist{\X}.
+\]
+When the section axiom holds exactly, the induced closure/packaging operator
+\[
+  E_f := \Uf\circ \Qf : \Dist{\Z}\to\Dist{\Z}
+\]
+is idempotent:
+\[
+  E_f(E_f(\mu)) = E_f(\mu)\qquad\text{for all }\mu\in\Dist{\Z}.
+\]
+In the physics instantiations, $\Uf$ is chosen to be a canonical ``least-commit\-ment'' completion (e.g.\ uniform-on-fibers, basis dephasing, local equilibrium/\linebreak Maxwellian, or Gaussian moment completion). The section axiom is exact in some cases and only approximate in others; when it is approximate we track the corresponding idempotence defect numerically.
+
+\subsection{Dynamics and the timescale packaging operator}
+Let $T_\tau:\Dist{\Z}\to\Dist{\Z}$ denote micro evolution over a timescale $\tau$ (e.g.\ a Markov step, a quantum channel, a time-stepper for a PDE). The timescale packaging operator used throughout the paper is
+\[
+  \Etauf(\mu) := \Uf\!\bigl(\Qf(T_\tau(\mu))\bigr) = (E_f\circ T_\tau)(\mu).
+\]
+Intuitively, $\Etauf$ says: evolve microscopically for time $\tau$, then re-express the result using the chosen macro description and completion.
+
+\subsection{Audits and audit monotonicity}
+An \emph{audit} is a distinguishability measure $A(\cdot,\cdot)$ between distributions that we expect to be non-increasing under coarse-graining:
+\[
+  A(\Qf\mu,\Qf\mu') \le A(\mu,\mu').
+\]
+In the finite classical setting we will write the KL divergence as
+\[
+  \DKL{\mu}{\mu'} := \sum_{z\in\Z} \mu(z)\,\log\!\frac{\mu(z)}{\mu'(z)}.
+\]
+In the quantum setting (Section~\ref{sec:quantum-classical}) the analogous audit is quantum relative entropy. Appendix~\ref{app:lean} records Lean formalizations of some basic audit/coarse-graining facts (e.g.\ total variation contraction under deterministic pushforward).
+
+\subsection{Route mismatch and commutation}
+A central diagnostic in the Six-Birds picture is whether ``evolve then close'' agrees with ``close then evolve''. For a fixed $\tau$, the two routes from $\mu\in\Dist{\Z}$ are
+\[
+  \text{(A)}\quad E_f(T_\tau(\mu))=\Etauf(\mu),
+  \qquad
+  \text{(B)}\quad T_\tau(E_f(\mu)).
+\]
+Their difference is the \emph{route mismatch}; exact equality is a commutation condition $E_f\circ T_\tau = T_\tau\circ E_f$.
+
+In the physics instantiations, mismatch is typically nonzero and structured: in LES it produces the subgrid correction term, in gravity it appears as a backreaction-type effect, and in quantum it reflects incompatibility between coherent evolution and a decohering closure.
+
+\subsection{Reminder: the three-certificate loop}
+The Six-Birds organizing picture is an iterative ``three-certificate'' loop: propose $(\Lens,\Uf)$, then check (i) closure coherence (section/idempotence), (ii) audit monotonicity (data processing), and (iii) route behavior (mismatch/commutation structure) at the scale(s) of interest. The remainder of this paper instantiates this same loop for several standard physics layers.
+ \section{Layers as closures}
+\label{sec:layers-closures}
+
+Physics has many ``theories'': quantum mechanics, classical mechanics, kinetic theory, fluid models, effective field theories, and so on. Our thesis is that (at least for the kinds of questions that appear in modeling and simulation) many such transitions can be treated as \emph{layers} in the Six-Birds sense: each layer is a \emph{closure/packaging} built on top of a finer description by choosing (i) what macro information is retained and (ii) how the missing information is completed.
+
+Concretely, a layer is specified by three ingredients:
+\begin{enumerate}
+  \item a \emph{lens} $\Lens:\Z\to\X$ (what we retain),
+  \item a \emph{completion} $\Uf:\Dist{\X}\to\Dist{\Z}$ (how we complete what we discard),
+  \item and a \emph{micro evolution} $T_\tau:\Dist{\Z}\to\Dist{\Z}$ over a chosen timescale $\tau$ (how we evolve before re-packaging).
+\end{enumerate}
+These induce the closure $E_f := \Uf\circ \Qf$ and the timescale packaging operator
+\[
+  \Etauf(\mu) := \Uf\!\bigl(\Qf(T_\tau(\mu))\bigr) = (E_f\circ T_\tau)(\mu).
+\]
+The same dictionary is used in every instantiation below; what changes from domain to domain is the choice of lens, completion, and audit.
+
+\subsection{What makes a ``layer'' coherent?}
+The closure $E_f$ is coherent to the extent that it \emph{stabilizes} micro states under repeated application. When the section axiom holds (Section~\ref{sec:dictionary}), we obtain exact idempotence: $E_f(E_f(\mu)) = E_f(\mu)$. This is the simplest sense in which a macro description can be treated as a self-contained ``theory layer'': once a state has been packaged into the macro-consistent family, packaging again does nothing.
+
+In many physics closures the section axiom is only approximate (e.g.\ moment closures, maximum-entropy completions, local equilibria). In those cases we track an \emph{idempotence defect} numerically, which measures how far a chosen completion is from defining an exactly closed layer on the timescale(s) of interest.
+
+\subsection{Audits: invariants of coarse-graining}
+A second cross-domain invariant is an \emph{audit}---a distinguishability measure $A(\cdot,\cdot)$ that should not increase under a lens:
+\[
+  A(\Qf\mu,\Qf\mu') \le A(\mu,\mu').
+\]
+This is the ``data processing'' idea in Six-Birds language: coarse descriptions should not create new distinguishability.
+
+In the classical finite setting, the canonical audit is the KL divergence, and audit monotonicity is the usual data processing inequality:
+\[
+  \DKL{\Qf\mu}{\Qf\mu'} \le \DKL{\mu}{\mu'}.
+\]
+In the quantum setting, the analogous audit is quantum relative entropy and the same inequality holds for completely positive trace-preserving maps.
+
+We also use total variation distance as a coarse, scale-agnostic audit. For finite distributions we take
+\[
+  \mathrm{TV}(\mu,\mu') := \tfrac{1}{2}\sum_{z\in\Z}\bigl|\mu(z)-\mu'(z)\bigr|,
+\]
+matching the normalization used in our Lean development and in the discrete simulations.
+Lean formalizes the deterministic pushforward contraction
+\[
+  \mathrm{TV}(\Qf\mu,\Qf\mu') \le \mathrm{TV}(\mu,\mu')
+\]
+for deterministic $\Lens$, recorded as \texttt{EmergenceCalc.TV\_Q\_f\_le} in Appendix~\ref{app:lean}. (The physics experiments then use analogous audits numerically in settings where the lens is not purely deterministic.)
+
+\subsection{Route mismatch: when layers fail to commute with dynamics}
+The third cross-domain diagnostic is whether the closure $E_f$ \emph{commutes} with evolution on the timescale $\tau$. There are two natural routes from a micro state $\mu$:
+\[
+  \text{(A)}\quad E_f(T_\tau(\mu)) = \Etauf(\mu),
+  \qquad
+  \text{(B)}\quad T_\tau(E_f(\mu)).
+\]
+Their discrepancy is the \emph{route mismatch}. When $E_f\circ T_\tau = T_\tau\circ E_f$, the macro family selected by $E_f$ is dynamically invariant on that timescale; when the routes do not commute, the mismatch is structured evidence that some effective term has been omitted by the macro description.
+
+A useful sufficient condition for commutation is a \emph{factorization through the macro layer}: if there exists a macro evolution $S_\tau:\Dist{\X}\to\Dist{\X}$ such that
+\[
+  \Qf(T_\tau(\mu)) = S_\tau(\Qf(\mu))
+  \quad\text{and}\quad
+  T_\tau(\Uf\nu)=\Uf(S_\tau\nu),
+\]
+then $E_f$ commutes with $T_\tau$. In Lean, this is packaged as\\
+{\small\texttt{EmergenceCalc.commutes\_of\_factorsThrough}} (Appendix~\ref{app:lean}), instantiated for a canonical uniform-on-fibers completion.
+We include this lemma as an explicit sufficient condition for commutation; none of our physics instantiations assumes exact factorization, and we treat noncommutation/mismatch as the generic regime.
+
+In physics, exact commutation is rare; the more common situation is that the mismatch has a recognizable form. In LES it is the subgrid correction term; in gravity it manifests as backreaction-like effects; in quantum it reflects incompatibility between coherent evolution and a decohering closure.
+
+\subsection{Physics instantiations of the same operator template}
+The remainder of the paper instantiates the same $(\Lens,\Uf,T_\tau)$ template in four familiar physics settings.
+\begin{itemize}
+  \item \textbf{Quantum $\to$ classical} (Section~\ref{sec:quantum-classical}). The closure is dephasing in a basis (exactly idempotent), the audit is quantum relative entropy (DPI), and the route mismatch between unitary evolution and dephasing is visible in Figures~\ref{fig:quantum-closure-idempotence}--\ref{fig:quantum-route-mismatch} and Table~\ref{tab:quantum-dpi-summary}.
+
+  \item \textbf{Kinetic $\to$ fluids} (Section~\ref{sec:kinetic-fluids}). The lens extracts moments and the completion reconstructs a local equilibrium family. Idempotence improves as collision frequency increases (Figure~\ref{fig:bgk-idempotence-defect}); explicit failure regimes are documented in Figure~\ref{fig:bgk-failure-modes} and Table~\ref{tab:bgk-failure-modes}.
+
+  \item \textbf{Filtering/LES} (Section~\ref{sec:les}). The lens is spatial filtering; route mismatch (Figure~\ref{fig:les-route-mismatch}) yields a canonical ``rewrite term'' (Figure~\ref{fig:les-subgrid-term}) that plays the role of a closure correction.
+
+  \item \textbf{Gravity/backreaction toy} (Section~\ref{sec:gravity}). The lens is an averaging/coarse-statistics map; mismatch between average-then-evolve and evolve-then-average grows with heterogeneity (Figure~\ref{fig:gravity-backreaction}). The same phenomenon can be written in explicit $(\Lens,\Uf)$ language (Figure~\ref{fig:gravity-packaging-mismatch}).
+\end{itemize}
+
+\subsection{What we certify versus what we simulate}
+Across the paper we separate three levels of support.
+\begin{enumerate}
+  \item \textbf{Lean-certified algebraic facts} about closures and lenses (Appendix~\ref{app:lean}), including an explicit section completion {\small\texttt{EmergenceCalc.U\_uniform}} with {\small\texttt{EmergenceCalc.section\_uniform}} and resulting idempotence, factorization$\Rightarrow$\allowbreak commutation, total-variation contraction, and a definability counting lemma\linebreak ({\small\texttt{Emergence\allowbreak Calc.\allowbreak card\_\allowbreak DefPred\_fst}} and variants).
+
+  \item \textbf{Numerical certificates} (figures/tables) that the same invariants hold in the physics instantiations (e.g.\ DPI experiments, idempotence-defect trends).
+
+  \item \textbf{Failure modes} (especially for closures that are only approximate), used to avoid overclaiming when assumptions fail (e.g.\ wrong equilibrium family or missing slow modes).
+\end{enumerate}
+The reproducibility appendix (Section~\ref{sec:repro}) ties every figure/table to a deterministic script and artifact list.
+
+\medskip
+Overall, the point is not that one layer is ``truer'' than another, but that many physics theories can be compared on the same mathematical axis: each is a closure built from a lens and a completion at a chosen scale, and the same audits and route diagnostics explain both when the layer behaves like an autonomous theory and when extra effective terms must be carried along.
+ \section{Quantum $\to$ classical: closure as dephasing}
+\label{sec:quantum-classical}
+
+This section instantiates the Six-Birds layer template in finite-dimensional quantum mechanics and one of its simplest ``classicalization'' procedures: dephasing in a preferred basis. The point is not interpretational; it is structural. Dephasing is a concrete completion/closure choice that is \emph{exactly idempotent}, satisfies a strong audit monotonicity principle (data processing for quantum relative entropy), and typically does \emph{not} commute with coherent (unitary) evolution---producing a route mismatch that is easy to visualize.
+
+\subsection{Micro state, lens, and closure}
+We take the micro state space to be density matrices $\rho$ on a $d$-dimensional Hilbert space. The analog of a lens is ``retain only diagonal information in a chosen basis,'' i.e.\ keep the classical probability vector given by the diagonal entries. The corresponding closure is the dephasing channel
+\[
+  \mathcal{C}(\rho) := \Delta(\rho),
+\]
+where $\Delta$ is the completely positive trace-preserving (CPTP) map that zeroes all off-diagonal entries in the chosen basis \citep{nielsenchuang2010,zurek2003,schlosshauer2007}.
+
+To make the correspondence with the $(\Qf,\Uf,E_f)$ template explicit, let $Q$ map $\rho$ to the classical distribution $p$ on basis states given by $p_i=\rho_{ii}$, and let $U$ embed such a distribution as the diagonal density matrix $\mathrm{diag}(p)$. Then $\mathcal{C}=U\circ Q$ is exactly the induced closure.
+
+Two closure properties are immediate.
+\begin{itemize}
+  \item \textbf{Exact idempotence.} Dephasing is a projection: $\mathcal{C}(\mathcal{C}(\rho))=\mathcal{C}(\rho)$ for all $\rho$. Figure~\ref{fig:quantum-closure-idempotence} verifies this numerically and also shows that ``partial'' dephasing (a convex combination of identity with $\Delta$) interpolates between non-idempotent and idempotent behavior.
+
+  \item \textbf{A canonical completion family.} The image of $\mathcal{C}$ is the set of diagonal density matrices, i.e.\ classical distributions embedded as commuting states. In Six-Birds language, this is a distinguished macro-consistent family selected by the closure.
+\end{itemize}
+
+\subsection{Audit monotonicity: quantum DPI (numerical certificate)}
+Quantum relative entropy
+\[
+  S(\rho\|\sigma)
+\]
+is the canonical audit for distinguishability of quantum states. A foundational monotonicity principle states that for any CPTP map $\Phi$,
+\[
+  S(\rho\|\sigma) \ge S(\Phi(\rho)\|\Phi(\sigma)).
+\]
+This is the quantum data processing inequality (DPI): applying a channel cannot increase distinguishability.
+We cite standard sources for DPI and its variants \citep{lindblad1975,petz1986,wilde2017}.
+We stress that DPI itself is a standard theorem; our numerical suite is a regression test for the correctness and numerical stability of our implementations of quantum relative entropy and channel application (Appendix~\ref{app:sims} records the default trial counts and tolerances).
+
+Our repo includes a numerical audit suite that samples random density matrices and random CPTP channels (mixtures of dephasing, depolarizing, and random Kraus families), and records the differences
+\[
+  S(\rho\|\sigma) - S(\Phi(\rho)\|\Phi(\sigma)).
+\]
+Figure~\ref{fig:quantum-dpi-hist} shows the distribution of these differences across random trials, and Table~\ref{tab:quantum-dpi-summary} summarizes the experiment across dimensions.
+
+\subsection{Route mismatch: coherent evolution vs closure}
+Let the micro dynamics be unitary evolution generated by a Hamiltonian $H$:
+\[
+  U_t(\rho) := e^{-iHt}\,\rho\,e^{iHt}.
+\]
+In general, dephasing and unitary evolution do \emph{not} commute:
+\[
+  \mathcal{C}(U_t(\rho)) \neq U_t(\mathcal{C}(\rho)).
+\]
+This is exactly the Six-Birds ``route mismatch'' diagnostic: evolve then close versus close then evolve.
+
+Figure~\ref{fig:quantum-route-mismatch} plots the \emph{trace distance} between the two routes as a function of time. The behavior is interpretable:
+\begin{itemize}
+  \item If the Hamiltonian is diagonal in the dephasing basis, then $U_t$ preserves diagonality and the routes commute (mismatch $\approx 0$).
+  \item If $H$ mixes the basis, coherent evolution continually regenerates off-diagonal components which are then removed by dephasing, and the mismatch is generically nonzero.
+\end{itemize}
+
+\subsection{What this instantiation teaches about ``layers''}
+Dephasing provides a clean example of a physics layer as a closure:
+\begin{enumerate}
+  \item The closure is \emph{exactly idempotent} (a perfect projection onto a macro-consistent family).
+  \item The audit (quantum relative entropy) is \emph{monotone} under channels (a strong form of audit monotonicity).
+  \item Route mismatch is generically nonzero, and its magnitude is a concrete diagnostic of incompatibility between the chosen closure and the chosen dynamics.
+\end{enumerate}
+This structure mirrors the classical, kinetic, fluid, and gravity examples. The lens and completion define what the ``layer'' keeps fixed; audits certify what cannot be gained by coarse-graining; route mismatch exposes the effective terms needed when the layer is not dynamically closed.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{\figQuantumDpiHist}
+  \caption{Quantum audit monotonicity regression: histogram of $\Delta = S(\rho\|\sigma)-S(\Phi(\rho)\|\Phi(\sigma))$ over random state pairs and CPTP channels; all trials satisfy $\Delta \ge -\mathrm{tol}$ (tolerance set in the suite).}
+  \label{fig:quantum-dpi-hist}
+\end{figure}
+
+\begin{table}[h]
+  \centering
+  \caption{Quantum DPI summary.}
+  \label{tab:quantum-dpi-summary}
+  \begin{tabular}{lllll}
+    \toprule
+    d & trials & min diff & mean diff & violations \\ 
+    \midrule
+    2 & 300 & 0.00672 & 0.683 & 0 \\ 
+    3 & 300 & 0.0352 & 0.932 & 0 \\ 
+    4 & 300 & 0.134 & 1.05 & 0 \\ 
+    6 & 300 & 0.293 & 1.06 & 0 \\ 
+    \bottomrule
+  \end{tabular}
+\end{table}
+ 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{\figQuantumClosureIdempotence}
+  \caption{Dephasing closure coherence: trace-distance idempotence defect $\tfrac12\|\mathcal{C}_\lambda(\mathcal{C}_\lambda(\rho))-\mathcal{C}_\lambda(\rho)\|_1$ decreases as $\lambda\to 1$ and is numerically $\approx 0$ at $\lambda=1$ (exact projection).}
+  \label{fig:quantum-closure-idempotence}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.85\linewidth]{\figQuantumRouteMismatch}
+  \caption{Route mismatch between unitary evolution and closure: trace distance $\tfrac12\|\mathcal{C}_\lambda(U_t(\rho)) - U_t(\mathcal{C}_\lambda(\rho))\|_1$ versus time; mismatch is zero when $H$ is diagonal in the dephasing basis and nonzero otherwise.}
+  \label{fig:quantum-route-mismatch}
+\end{figure}
+
+\FloatBarrier
+ \section[Kinetic $\to$ fluids: moment lens and local-equilibrium completion]{Kinetic $\to$ fluids: moment lens and\\ local-equilibrium completion}
+\label{sec:kinetic-fluids}
+
+Kinetic descriptions sit between particle mechanics and continuum fluid models: the micro state records a distribution over positions and velocities, while the fluid layer retains only a small set of low-order moments (density, momentum/velocity, energy). In Six-Birds terms, this is a prototypical closure: a \emph{moment lens} retains selected statistics, and a \emph{local-equilibrium completion} fills in the discarded degrees of freedom.
+
+We use a discrete BGK-like model \citep{bhatnagar1954bgk,cercignani1988,levermore1996}. The goal is not physical fidelity but to expose the closure invariants that recur across physics layers: coherence of packaging (idempotence trend), explicit failure regimes, and the dependence of closure quality on a timescale parameter (collision frequency).
+
+\subsection{Micro state and BGK-style dynamics}
+The micro configuration is a nonnegative mass function $f(x,v)$ on a small periodic lattice of positions $x$ and a small set of discrete velocities $v\in V$. One time step consists of:
+\begin{enumerate}
+  \item \textbf{Transport:} move $f(x,v)$ along characteristics (a permutation/shift on the lattice).
+  \item \textbf{Collision/relaxation:} relax toward a local equilibrium:
+  \[
+    f \leftarrow (1-\omega)\,f + \omega\,f_{\mathrm{eq}}(m(f)),
+  \]
+  where $\omega\in[0,1]$ controls the collision strength and $m(f)$ denotes the chosen moment fields.
+\end{enumerate}
+\paragraph{Discrete velocity and equilibrium family (toy specification).}
+In our implementation, the velocity set is the three-point lattice $V=\{-1,0,1\}$ and we normalize the total mass so that $\sum_{x\in\text{grid}}\sum_{v\in V} f(x,v)=1$; this lets us treat $f$ as a finite micro-distribution in the Six-Birds sense.
+The completion family $f_{\mathrm{eq}}$ is a discrete maximum-entropy (``Maxwellian-like'') equilibrium on $V$ subject to matching the retained local mass and momentum, i.e.\ $f_{\mathrm{eq}}(x,\cdot)$ is the unique exponential-family distribution on $\{-1,0,1\}$ whose moments agree with $\rho(x)$ and $u(x)$.
+The relaxation weight $\omega\in[0,1]$ should be read as a nondimensional collision strength: $\omega=0$ is free transport, while $\omega=1$ projects to local equilibrium at every step (qualitatively: shorter relaxation time / smaller Knudsen number in standard BGK settings).
+When $\omega$ is large, within-cell mixing is strong and the micro state rapidly approaches the equilibrium family; when $\omega$ is small, transport dominates and the equilibrium ansatz becomes a poor representation.
+
+\subsection{Lens: moments as the retained macro description}
+The lens $\Lens$ retains a small set of velocity moments at each lattice site. Concretely, one may think of the retained macro fields as
+\[
+  \rho(x) = \sum_{v\in V} f(x,v),
+  \qquad
+  u(x) = \frac{1}{\rho(x)}\sum_{v\in V} v\,f(x,v),
+\]
+(in our baseline experiments we retain only $\rho$ and $u$; an energy-like slow mode is introduced only in Failure Mode FM3). These moments define a macro state space $\X$ consisting of coarse fields rather than full velocity-resolved distributions.
+
+This is exactly the ``fluid layer'' idea: many micro configurations share the same moments, so the lens forgets most micro information while keeping the macroscopic quantities of interest.
+
+\subsection{Completion: local equilibrium as a canonical lift}
+Given macro moments, the completion $\Uf$ reconstructs a micro state by choosing a canonical equilibrium family $f_{\mathrm{eq}}$ consistent with those moments. In continuous kinetic theory this is the Maxwellian (or maximum-entropy) completion; here we use a discrete analog.
+
+In Six-Birds language, the closure
+\[
+  E_f := \Uf\circ\Qf
+\]
+is the operation that replaces an arbitrary micro state by the locally equilibrated micro state with matching retained moments.
+
+\subsection{Packaging coherence: idempotence defect vs collision frequency}
+To probe whether the resulting ``fluid layer'' is coherent on a timescale, we use the timescale packaging operator
+\[
+  \Etauf(\mu) = \Uf(\Qf(T_\tau(\mu))),
+\]
+where $T_\tau$ is $\tau$ BGK time steps and $\mu$ denotes the micro distribution (here represented by the discrete array $f$).
+
+If the relaxation is effective on the timescale $\tau$, then applying packaging twice should not change much: after one package, the system is already close to the macro-consistent equilibrium family. We quantify this by an \emph{idempotence defect}
+\[
+  \delta(\mu) := \TVnorm{\Etauf(\Etauf(\mu)) - \Etauf(\mu)}.
+\]
+Figure~\ref{fig:bgk-idempotence-defect} shows that $\delta$ decreases as $\omega$ increases, especially for larger $\tau$: stronger collisions drive faster convergence toward the equilibrium manifold, making the closure behave more like an autonomous layer. Table~\ref{tab:bgk-endpoints} summarizes the endpoint comparison $\omega=0$ versus $\omega=1$ across several $\tau$ values. (Intermediate $\omega$ values need not be strictly monotone because transport and relaxation compete, but the aggregate trend is clear.)
+
+\subsection{Failure modes: when moment closure is not the right layer}
+Moment closures are useful precisely because they compress state; they also fail in systematic ways when assumptions are violated. We record three concrete failure regimes in the same discrete setting.
+
+\begin{itemize}
+  \item \textbf{Low-collision, strong-gradient regime.} When $\omega$ is small and spatial gradients are large, the local equilibrium completion is not dynamically appropriate. The idempotence defect stays large, reflecting that packaging does not stabilize the dynamics on the chosen timescale.
+
+  \item \textbf{Wrong equilibrium family.} If the completion uses a mis-specified equilibrium family (a biased/incorrect $f_{\mathrm{eq}}$), the layer can look superficially ``stable'' while producing systematic macro errors. We quantify this as a weighted mean absolute velocity error ($u_{\mathrm{err}}$) (Table~\ref{tab:bgk-failure-modes}). This is a reminder that closure coherence must be checked together with audits of the retained quantities.
+
+  \item \textbf{Lens missing a slow mode (e.g.\ energy).} If a slow variable is omitted from the macro description, packaging can erase information that matters on the timescale of interest. We track an energy-proxy error ($e_{\mathrm{err}}$); Table~\ref{tab:bgk-failure-modes} reports both the error when the mode is omitted and the near-zero error after extending the lens.
+\end{itemize}
+
+Figure~\ref{fig:bgk-failure-modes} visualizes these regimes, and Table~\ref{tab:bgk-failure-modes} provides compact numerical summaries.
+
+\subsection{Takeaway}
+This instantiation captures a standard physics moral in Six-Birds form: the ``fluid layer'' is a closure built from a moment lens and an equilibrium completion. Its coherence improves when the underlying dynamics mixes rapidly within the discarded degrees of freedom (here controlled by $\omega$), and it fails in recognizable regimes when the equilibrium ansatz or the retained moments are mismatched to the dynamics.
+
+\begin{table}[h]
+  \centering
+  \caption{BGK endpoint idempotence defect.}
+  \label{tab:bgk-endpoints}
+  \begin{tabular}{lll}
+    \toprule
+    tau & mean delta (omega=0) & mean delta (omega=1) \\ 
+    \midrule
+    2 & 0.423 & 0.399 \\ 
+    5 & 0.419 & 0.348 \\ 
+    10 & 0.418 & 0.285 \\ 
+    \bottomrule
+  \end{tabular}
+\end{table}
+ \begin{table}[h]
+  \centering
+  \caption{BGK failure modes summary.}
+  \label{tab:bgk-failure-modes}
+  \small
+  \begin{tabular}{lllll}
+    \toprule
+    case & mean delta & mean u err & mean e err missing & mean e err extended \\ 
+    \midrule
+    FM1 & 0.486 & -- & -- & -- \\ 
+    FM2 & -- & 0.347 & -- & -- \\ 
+    FM3 & -- & -- & 0.262 & 1.84e-17 \\ 
+    \bottomrule
+  \end{tabular}
+\end{table}
+ 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{\figBgkIdempotenceDefect}
+  \caption{Moment-closure coherence in a discrete BGK toy: mean idempotence defect $\delta=\tfrac12\|E_\tau(E_\tau(f)) - E_\tau(f)\|_1$ on flattened arrays versus collision strength $\omega$ and timescale $\tau$ (averaged over random initial conditions).}
+  \label{fig:bgk-idempotence-defect}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{\figBgkFailureModes}
+  \caption{Explicit moment-closure failure regimes in the same BGK toy (weak collisions/strong gradients, wrong equilibrium family, missing slow mode). Metrics reported match Table~\ref{tab:bgk-failure-modes}.}
+  \label{fig:bgk-failure-modes}
+\end{figure}
+ \section{Filtering/LES: route mismatch and the subgrid rewrite term}
+\label{sec:les}
+
+Large-eddy simulation (LES) is a standard setting where a coarse description is obtained by \emph{filtering} a fine-scale field, and where noncommutation between ``coarse then evolve'' and ``evolve then coarse'' is not a pathology but the central mechanism that produces a closure term \citep{germano1992,pope2000,sagaut2006,leonard1974,smagorinsky1963}. This section instantiates the Six-Birds route-mismatch diagnostic in a minimal nonlinear PDE toy: 1D viscous Burgers on a periodic grid.
+
+\subsection{Lens as a spatial filter}
+Let $u(x,t)$ be a fine-scale field (the micro description). Fix a filter kernel $G_\sigma$ (e.g.\ a Gaussian or box filter) with width $\sigma>0$, and define the filtered (macro) field
+\[
+  \bar{u}(x,t) := (G_\sigma * u)(x,t).
+\]
+This filtering operator is the lens $\Lens$ in Six-Birds language: it retains large-scale content and discards fine-scale fluctuations.
+Unlike the finite and quantum instantiations, filtering is not (and is not intended to be) invertible: there is no canonical completion $\Uf$ that reconstructs the full field from $\bar{u}$. In this section we therefore focus on the lens-only commutator $Q\circ T_\tau - T_\tau\circ Q$ and the induced rewrite term, rather than on an idempotent closure $E=\Uf\circ\Qf$.
+
+\subsection{Nonlinearity forces route mismatch}
+Consider viscous Burgers,
+\[
+  \partial_t u + \partial_x\!\left(\tfrac{1}{2}u^2\right) = \nu\,\partial_{xx}u.
+\]
+Filtering is linear, so it commutes with the viscous term. However, it does \emph{not} commute with the nonlinear flux:
+\[
+  \overline{u^2} \neq (\bar{u})^2 \quad \text{in general}.
+\]
+For a translation-invariant convolution filter on a periodic domain (our setting), filtering commutes with spatial derivatives, so the filtered equation can be written exactly as
+\[
+  \partial_t \bar u + \partial_x\!\left(\tfrac{1}{2}(\bar u)^2\right)
+  = \nu\,\partial_{xx}\bar u - \partial_x\!\left(\tfrac{1}{2}\tau_{\mathrm{sgs}}\right),
+  \qquad
+  \tau_{\mathrm{sgs}} := \overline{u^2} - (\bar u)^2.
+\]
+This is exactly the Six-Birds route mismatch at the PDE level: filtering after a nonlinear evolution step is not the same as evolving the filtered field under the same nonlinear rule.
+
+Operationally, we quantify the mismatch using a discrete time-stepper $T_\tau$ and compare the two routes:
+\[
+  \text{(A)}\quad \overline{T_\tau(u)} \qquad \text{versus}\qquad
+  \text{(B)}\quad T_\tau(\bar{u}).
+\]
+Their difference is the route mismatch. In our toy experiment, the mismatch magnitude increases with filter width $\sigma$ (Figure~\ref{fig:les-route-mismatch} and Table~\ref{tab:les-route-mismatch}), reflecting that stronger coarse-graining discards more of the nonlinear interaction structure.
+We report mismatch magnitude using a root-mean-square ($L^2$) norm over the spatial grid.
+\paragraph{Implementation note.}
+Our toy uses a pseudo-spectral derivative with RK4 time stepping in a viscous regime (fixed $\nu$ and a conservative $\Delta t$) over $t\in[0,1]$, and the code explicitly checks for NaNs/infs.
+These settings keep the solution smooth so that the reported mismatch primarily reflects noncommutation rather than numerical blowup.
+
+\subsection{The subgrid rewrite term}
+Filtering Burgers yields an exact equation for $\bar{u}$ with an additional term. A canonical way to express it is through the subgrid stress (or subgrid flux) identity
+\[
+  \tau_{\mathrm{sgs}}(x,t) := \overline{u^2}(x,t) - \bigl(\bar{u}(x,t)\bigr)^2.
+\]
+This quantity is identically zero for linear dynamics and generically nonzero for nonlinear dynamics. In Six-Birds terms, $\tau_{\mathrm{sgs}}$ is a \emph{rewrite term}: it is the structured correction required to make the filtered (macro) evolution match the filtered image of the micro evolution.
+
+Our toy computation evaluates $\tau_{\mathrm{sgs}}$ and reports its magnitude over time as a function of $\sigma$. The results show a clear scaling with filter width: larger $\sigma$ produces larger subgrid terms (Figure~\ref{fig:les-subgrid-term} and Table~\ref{tab:les-subgrid-term}).
+
+\subsection{Takeaway}
+LES exemplifies the ``layer as closure'' thesis in its most concrete form:
+\begin{itemize}
+  \item the lens is explicit (filtering),
+  \item route mismatch is unavoidable for nonlinear dynamics and is measurable,
+  \item the mismatch is not arbitrary noise; it induces an exact algebraic correction term, $\tau_{\mathrm{sgs}}$, which is the object that any practical closure model must approximate.
+\end{itemize}
+In this way, LES provides a physics-native illustration of the Six-Birds commutator picture: a macro layer becomes dynamically meaningful only after accounting for the structured mismatch between coarse-graining and nonlinear evolution.
+
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{0.9}
+\begin{minipage}[t]{0.48\linewidth}
+  \centering
+  \captionof{table}{LES route mismatch summary.}
+  \label{tab:les-route-mismatch}
+  \small
+\begin{tabular}{ll}
+  \toprule
+  sigma & max mismatch \\ 
+  \midrule
+  0 & 0 \\ 
+  0.0491 & 0.00132 \\ 
+  0.0982 & 0.00495 \\ 
+  0.196 & 0.0157 \\ 
+  0.393 & 0.0332 \\ 
+  \bottomrule
+\end{tabular}
+ \end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}
+  \centering
+  \captionof{table}{LES subgrid term magnitude.}
+  \label{tab:les-subgrid-term}
+  \small
+\begin{tabular}{ll}
+  \toprule
+  sigma & max tau\_l2 \\ 
+  \midrule
+  0 & 0 \\ 
+  0.0491 & 0.0036 \\ 
+  0.0982 & 0.0142 \\ 
+  0.196 & 0.0535 \\ 
+  0.393 & 0.175 \\ 
+  \bottomrule
+\end{tabular}
+ \end{minipage}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{\figLesRouteMismatch}
+  \caption{LES route mismatch in viscous Burgers: RMS $L^2$ norm of $\overline{T_\tau(u)} - T_\tau(\bar u)$ over the spatial grid versus time, for several filter widths $\sigma$; the $\sigma=0$ control yields $\approx 0$.}
+  \label{fig:les-route-mismatch}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{\figLesSubgridTerm}
+  \caption{Subgrid stress magnitude: RMS $L^2$ norm of $\tau_{\mathrm{sgs}}=\overline{u^2}-(\bar u)^2$ versus time and filter width $\sigma$; the $\sigma=0$ control yields $\approx 0$.}
+  \label{fig:les-subgrid-term}
+\end{figure}
+ \section{Gravity/backreaction toy: nonlinear averaging as route mismatch}
+\label{sec:gravity}
+
+A recurring theme in gravitational modeling is that \emph{averaging} and \emph{dynamics} do not commute. In full general relativity, the Einstein equations are nonlinear, and coarse-graining (spatial averaging, smoothing, or fitting an effective homogeneous model) can produce effective correction terms often discussed under the umbrella of ``backreaction'' \citep{buchert2000,buchert2001,clarkson2011,greenwald2011}. We do not attempt to model GR directly here. Instead, we isolate the structural point in a minimal setting where the mechanism is unambiguous: \emph{nonlinearity alone} is enough to generate a mismatch between ``evolve then average'' and ``average then evolve.''
+
+\subsection{Why mismatch is generic under nonlinearity}
+Let $y(t)$ evolve by a nonlinear rule. If we start from heterogeneous micro initial conditions, then even a simple macro lens such as an average typically fails to commute with evolution:
+\[
+  \mathbb{E}[y(t)] \neq \tilde{y}(t)\quad\text{where}\quad \tilde{y}(0)=\mathbb{E}[y(0)].
+\]
+This is the same phenomenon as Jensen-type effects: applying a nonlinear map and then averaging is not the same as averaging and then applying the nonlinear map.
+
+In Six-Birds terms, the ``average'' is a lens, the macro evolution is an attempted factorization through that lens, and the discrepancy is a route mismatch.
+
+\subsection{Toy model: an ensemble of nonlinear ODEs}
+Our micro description is an ensemble of scalar states $y_i(t)$ evolving under the nonlinear ODE
+\[
+  y'(t)=y(t)^2,
+\]
+which has the closed-form solution $y(t)=y_0/(1-ty_0)$.
+We choose this example because it isolates the mechanism (nonlinearity + heterogeneity) and makes the micro evolution operator unambiguous.
+In the experiment we restrict initial conditions and times to stay away from finite-time blow-up, so the mismatch signal is not a numerical artifact.
+Heterogeneity enters through the distribution of initial conditions. We compare two routes:
+\begin{enumerate}
+  \item \textbf{Evolve then average:} evolve the full ensemble to time $t$ and compute the mean.
+  \item \textbf{Average then evolve:} average the initial ensemble to obtain a single macro initial condition and evolve that single state.
+\end{enumerate}
+The resulting mismatch is a direct measure of how much information is lost by representing a heterogeneous micro state using only its mean when the dynamics is nonlinear.
+
+\subsection{Backreaction-style mismatch versus heterogeneity}
+Figure~\ref{fig:gravity-backreaction} plots the mismatch magnitude as a function of time and a heterogeneity scale parameter. The key qualitative behavior is:
+\begin{itemize}
+  \item with zero heterogeneity, the two routes agree (mismatch $\approx 0$);
+  \item with increasing heterogeneity, the mismatch becomes nontrivial and grows.
+\end{itemize}
+Table~\ref{tab:gravity-backreaction} summarizes the same trend with a compact ``max mismatch over time'' statistic across heterogeneity settings.
+
+\subsection{Packaging view in $(\Qf,\Uf,E)$ language}
+We can rewrite the same toy in explicit closure form to match the operator template used throughout the paper. Treat the micro state at time $t$ as a distribution $\mu_t$ over micro values. Choose a coarse lens $\Qf$ that extracts a small set of coarse statistics (e.g.\ mean and variance). Choose a completion $\Uf$ that reconstructs a canonical micro distribution consistent with those coarse statistics (in our toy, a Gaussian-style completion is convenient). This induces a closure
+\[
+  E_f := \Uf\circ\Qf.
+\]
+In this language, the two routes become
+\[
+  \text{(A)}\quad E_f(T_t(\mu_0))
+  \qquad\text{and}\qquad
+  \text{(B)}\quad T_t(E_f(\mu_0)),
+\]
+and their discrepancy is the same route mismatch diagnostic used in earlier sections.
+
+Figure~\ref{fig:gravity-packaging-mismatch} visualizes the mismatch measured in this packaging language, and Table~\ref{tab:gravity-packaging} reports summary statistics. Two points are worth emphasizing:
+\begin{itemize}
+  \item the closure itself can be (numerically) coherent/idempotent for the chosen completion family,
+  \item yet the closure can still fail to commute with nonlinear dynamics once heterogeneity is present.
+\end{itemize}
+This separation matches the general Six-Birds lesson: \emph{coherent packaging} (idempotence) does not guarantee \emph{dynamical closure} (commutation).
+
+\subsection{Takeaway}
+This toy illustrates the gravitational moral in a form that is portable across domains: when the micro dynamics is nonlinear and the macro lens discards heterogeneity, route mismatch is generically produced. In full GR, the corresponding mismatch is one way to understand why fitting an averaged effective model can require additional correction terms---a ``backreaction'' in the broad structural sense.
+
+\begin{table}[h]
+  \centering
+  \caption{Gravity backreaction mismatch.}
+  \label{tab:gravity-backreaction}
+  \begin{tabular}{ll}
+    \toprule
+    s & max |mismatch| \\ 
+    \midrule
+    0 & 3.89e-16 \\ 
+    0.1 & 0.0308 \\ 
+    0.2 & 0.154 \\ 
+    0.3 & 0.368 \\ 
+    0.4 & 0.57 \\ 
+    0.5 & 0.728 \\ 
+    0.6 & 0.873 \\ 
+    0.7 & 0.989 \\ 
+    0.8 & 1.08 \\ 
+    \bottomrule
+  \end{tabular}
+\end{table}
+ \begin{table}[h]
+  \centering
+  \caption{Gravity packaging mismatch.}
+  \label{tab:gravity-packaging}
+  \begin{tabular}{lll}
+    \toprule
+    s & max delta\_route & max delta\_closure \\ 
+    \midrule
+    0 & 1.59e-14 & 1.59e-14 \\ 
+    0.2 & 0.47 & 6.68e-11 \\ 
+    0.5 & 0.698 & 1.21e-10 \\ 
+    0.8 & 0.505 & 1.63e-10 \\ 
+    \bottomrule
+  \end{tabular}
+\end{table}
+ 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{\figGravityBackreaction}
+  \caption{Nonlinear averaging mismatch (backreaction toy): absolute difference between ``evolve then average'' and ``average then evolve'' for $y'=y^2$ versus time and heterogeneity scale $s$; the $s=0$ control yields $\approx 0$.}
+  \label{fig:gravity-backreaction}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.9\linewidth]{\figGravityPackagingMismatch}
+  \caption{The same effect in $(\Qf,\Uf,E)$ language: route mismatch measured as TV distance between $E(T_t(\mu_0))$ and $T_t(E(\mu_0))$ versus time and heterogeneity scale $s$, using a canonical completion matching coarse statistics. A small kink near late times reflects a numerical solver branch change in the completion fit rather than a qualitative dynamical transition.}
+  \label{fig:gravity-packaging-mismatch}
+\end{figure}
+ \section{Discussion, limitations, and what breaks}
+\label{sec:discussion}
+
+This paper argues that several familiar ``theory transitions'' in physics can be fruitfully organized using the Six-Birds dictionary: a \emph{layer} is specified by a lens $\Lens$ (what is retained), a completion $\Uf$ (how missing information is filled in), and a timescale evolution operator $T_\tau$, inducing a packaging operator $\Etauf = \Uf\circ\Qf\circ T_\tau$. The goal is not to replace domain knowledge, but to provide a shared language for comparing closures across domains.
+
+This section makes explicit what we are and are not claiming, and records the main failure regimes that keep the story honest.
+
+\subsection{Scope: instantiations, not derivations}
+Our claims are \emph{structural}. We exhibit concrete choices of $(\Lens,\Uf,T_\tau)$ for which the same invariants recur:
+\begin{itemize}
+  \item packaging coherence (exact or approximate idempotence),
+  \item audit monotonicity (a data-processing principle),
+  \item route mismatch structure (noncommutation with dynamics).
+\end{itemize}
+We do \emph{not} claim to derive fluid models from particle mechanics, classicality from quantum theory, or backreaction corrections in GR. Instead, we show that many such transitions can be cast as choices of lens and completion at a scale, and that the same diagnostics explain both when a layer behaves like an autonomous ``theory'' and when additional effective terms are forced.
+
+\subsection{Modeling choices: the lens and completion are part of the theory}
+A recurrent theme is that ``the theory'' at a layer is not only the macro variables (the lens) but also the completion family that defines what counts as a valid packaged state. Different completions with the same lens can behave very differently:
+\begin{itemize}
+  \item In kinetic/fluid closure, a wrong equilibrium family can look superficially stable while producing systematic macro error.
+  \item In gravity-style averaging, choosing to retain only a mean (instead of mean+variance) changes whether heterogeneity effects are visible at the macro level.
+\end{itemize}
+This is why we treat $\Uf$ as first-class data rather than an afterthought: it is the commitment that turns a coarse description into an operational layer.
+
+\subsection{Timescales and mixing: when a layer becomes coherent}
+In the examples where idempotence is approximate (not exact projections), packaging quality depends on a timescale separation: information discarded by the lens must relax quickly within the fibers (or within the completion family) on the timescale $\tau$ relevant to the macro model. When within-fiber mixing is weak (or slow modes are omitted), the packaged family is not dynamically stable and idempotence defects persist.
+
+This aligns with the intuition behind many successful closures: they work when the discarded degrees of freedom equilibrate fast relative to the retained ones.
+
+\subsection{What breaks: explicit failure regimes}
+The repo includes explicit failure modes to avoid overclaiming.
+\begin{itemize}
+  \item \textbf{Moment closure failures (Section~\ref{sec:kinetic-fluids}).} When collisions are weak and gradients are strong, a local-equilibrium completion is not appropriate on the chosen timescale; packaging does not stabilize. When the equilibrium family is mis-specified, macro errors persist even if the closure appears coherent. When the lens omits a slow variable (e.g.\ an energy-like mode), packaging can erase information that matters on the timescale of interest.
+
+  \item \textbf{LES mismatch is structural (Section~\ref{sec:les}).} For nonlinear evolution, filtering and dynamics generically do not commute. This is not a bug; it is precisely what produces a deterministic correction term (the rewrite/subgrid term). A closure that ignores this term is predictably biased.
+
+  \item \textbf{Averaging mismatch under nonlinearity (Section~\ref{sec:gravity}).} When heterogeneity is present, ``average then evolve'' and ``evolve then average'' disagree even in simple nonlinear toys. Any macro layer that discards heterogeneity must either accept this mismatch or expand the macro description to carry additional statistics.
+\end{itemize}
+
+\subsection{Audits: what is certified versus what is only checked numerically}
+We separate logical status carefully.
+\begin{itemize}
+  \item \textbf{Lean-certified algebraic facts.} Appendix~\ref{app:lean} records Lean formalizations of several lens/closure facts used as conceptual anchors: an explicit section completion for a partition lens (uniform-on-fibers), closure idempotence from a section axiom, factorization$\Rightarrow$commutation, total-variation contraction under deterministic pushforward, and a definability counting lemma for fiber-constant predicates.
+
+  \item \textbf{Numerical certificates.} The physics instantiations use numerical experiments as evidence for audit monotonicity and trend claims in settings where formalization would require substantial additional infrastructure (e.g.\ quantum relative entropy DPI under sampled channels, or PDE-based commutators). These are best read as regression tests for the intended invariants, not as proofs.
+\end{itemize}
+
+\subsection{Domain-specific limitations}
+Each instantiation is intentionally minimal; this is a feature (clarity) and a limitation (fidelity).
+\begin{itemize}
+  \item \textbf{Quantum.} Dephasing is a clean closure, but it is not ``the'' quantum-to-classical limit; basis choice matters, and semiclassical limits involve additional structure. Our point is the closure template (exact idempotence + audit monotonicity + route mismatch with coherent dynamics), not a foundational claim.
+
+  \item \textbf{Kinetic/fluid.} The BGK-like discrete model is a toy: it demonstrates moment-lens closure behavior and failure regimes, but it is not a derivation of Navier--Stokes.
+
+  \item \textbf{LES.} Burgers is a toy nonlinear PDE; the same commutator logic applies in more realistic settings, but quantitative scaling and tensor structure are substantially more complex in 3D turbulence.
+
+  \item \textbf{Gravity.} Our example is not GR; it isolates the nonlinearity/\linebreak averaging mechanism. Connecting this to geometric averaging schemes is future work.
+\end{itemize}
+
+\subsection{Near-term extensions}
+We list concrete next steps that would strengthen the follow-up paper without changing its thesis.
+\begin{itemize}
+  \item Extend Lean coverage from deterministic lenses to simple stochastic lenses (Markov kernels) and connect to audit monotonicity in a more native formal setting.
+  \item Add one or two ``composed layer'' experiments where closures are stacked (e.g.\ kinetic$\to$fluid then filter), testing how route mismatch compounds.
+\end{itemize}
+ \section{Related work}
+\label{sec:related}
+
+Our goal is not to re-derive standard physics limits, but to re-express several familiar modeling transitions in a uniform Six-Birds dictionary: a \emph{lens} specifies retained macro information, a \emph{completion} specifies a canonical family consistent with that macro information, and the resulting \emph{closure/packaging} is diagnosed by idempotence, audit monotonicity (data processing), and route mismatch.
+
+\subsection{Quantum audits, DPI, and decoherence closures}
+The quantum data processing inequality (DPI)---audit monotonicity for relative entropy under CPTP maps---is a foundational result in quantum information theory. Early treatments appear in Lindblad and Petz; standard texts provide modern expositions \citep{lindblad1975,petz1986,nielsenchuang2010,wilde2017}. Dephasing and related decoherence mechanisms are central examples of quantum-to-classical closures, with modern reviews emphasizing environment-induced suppression of coherences and basis selection \citep{zurek2003,schlosshauer2007}.
+
+\subsection{Kinetic theory, BGK relaxation, and moment closures}
+The BGK model simplifies Boltzmann collision structure to capture relaxation toward local equilibrium \citep{bhatnagar1954bgk}. Standard references discuss equilibrium families, scaling limits, and the role of moments \citep{cercignani1988}. Moment-closure hierarchies, including maximum-entropy closures, are developed systematically in applied mathematics; Levermore provides a widely cited formulation \citep{levermore1996}.
+
+\subsection{LES filtering and subgrid terms}
+LES is a canonical setting where the lens (filtering) is explicit and noncommutation with nonlinear dynamics generates exact ``subgrid'' correction terms. Classical turbulence/LES references review this filtering approach \citep{germano1992,pope2000,sagaut2006}. Decomposition of subgrid contributions, including the Leonard term, appears in early LES analyses \citep{leonard1974}; practical closures trace back to classic eddy-viscosity modeling \citep{smagorinsky1963}.
+
+\subsection{Multiscale reduction formalisms}
+\begin{sloppypar}
+Projection-operator methods (Mori--Zwanzig), renormalization-group approaches, and effective field theory aim to derive reduced dynamics from microscopic models \citep{zwanzig1961,mori1965,wilsonkogut1974,georgi1993}.
+Our emphasis is complementary: rather than deriving a single reduced equation, we provide a uniform lens/closure diagnostic ledger (coherence, audit monotonicity, mismatch) with deterministic certificates across physics instantiations.
+\end{sloppypar}
+
+\subsection{Averaging and backreaction in cosmology}
+Averaging and fitting problems for nonlinear field equations motivate extensive work on backreaction and effective dynamics. Buchert's averaging framework is influential in inhomogeneous cosmology \citep{buchert2000,buchert2001}; broad reviews discuss conceptual and observational issues \citep{clarkson2011}. Complementary perspectives examine when small-scale structure feeds back into large-scale dynamics \citep{greenwald2011}.
+
+\subsection{Positioning}
+This paper is closest in spirit to work treating coarse-graining as an operator choice (what is retained and how it is completed) and using invariants to compare closures across domains. Our contribution is packaging several standard physics examples into a single, reproducible operator template aligned with the Six-Birds ``certificate loop,'' with deterministic scripts producing all figures and tables.
+ \section{Reproducibility}
+\label{sec:repro}
+All figures and tables in this paper are generated by deterministic scripts in the accompanying repo. The main entrypoints are (i) a physics check that rebuilds Lean and regenerates all physics artifacts and (ii) a paper build script that compiles this \LaTeX{} source using exported figures/tables. The block below is auto-generated from the repo state and lists the required artifacts and the script that produces each one.
+
+In addition to regenerating artifacts, the physics suite is written as a set of \emph{contract checks}: each instantiation includes explicit null gates that must pass (e.g.\ $\sigma=0$ implies zero LES commutator, $s=0$ implies zero averaging mismatch, $\lambda=1$ implies exact dephasing idempotence, and the quantum DPI run reports zero violations beyond tolerance). These checks are best read as regression certificates for the implemented audits and operators rather than as new empirical evidence for known theorems.
+
+\subsection*{Commands}
+\begin{verbatim}
+bash scripts/check_physics.sh
+bash scripts/build_physics_paper.sh
+\end{verbatim}
+
+\subsection*{Required physics artifacts}
+\begin{verbatim}
+physics/artifacts/manifest.json
+physics/artifacts/smoke_core.csv
+physics/artifacts/smoke_core.png
+physics/artifacts/quantum_checks_summary.json
+physics/artifacts/quantum_dpi_summary.csv
+physics/artifacts/quantum_dpi_hist.png
+physics/artifacts/quantum_closure_idempotence.png
+physics/artifacts/quantum_route_mismatch.csv
+physics/artifacts/quantum_route_mismatch.png
+physics/artifacts/bgk_idempotence_defect.csv
+physics/artifacts/bgk_summary.csv
+physics/artifacts/bgk_idempotence_defect.png
+physics/artifacts/bgk_failure_modes.csv
+physics/artifacts/bgk_failure_modes.png
+physics/artifacts/les_route_mismatch.csv
+physics/artifacts/les_route_mismatch.png
+physics/artifacts/les_subgrid_term.csv
+physics/artifacts/les_subgrid_term.png
+physics/artifacts/gravity_backreaction.csv
+physics/artifacts/gravity_backreaction.png
+physics/artifacts/gravity_packaging_mismatch.csv
+physics/artifacts/gravity_packaging_mismatch.png
+\end{verbatim}
+
+\subsection*{Generation map}
+\small
+\begin{itemize}[leftmargin=*,itemsep=0pt]
+  \item {\footnotesize \texttt{manifest.json} $\leftarrow$ \texttt{run\_all.py}}
+  \item {\footnotesize \texttt{smoke\_core.csv} $\leftarrow$ \texttt{\_smoke\_test.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{smoke\_core.png} $\leftarrow$ \texttt{\_smoke\_test.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{quantum\_checks\_summary.json} $\leftarrow$ \texttt{quantum/\_checks.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{quantum\_dpi\_summary.csv} $\leftarrow$ \texttt{quantum/dpi.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{quantum\_dpi\_hist.png} $\leftarrow$ \texttt{quantum/dpi.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{quantum\_closure\_idempotence.png} $\leftarrow$ \texttt{quantum/closure.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{quantum\_route\_mismatch.csv} $\leftarrow$ \texttt{quantum/closure.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{quantum\_route\_mismatch.png} $\leftarrow$ \texttt{quantum/closure.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{bgk\_idempotence\_defect.csv} $\leftarrow$ \texttt{fluids/bgk\_discrete.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{bgk\_summary.csv} $\leftarrow$ \texttt{fluids/bgk\_discrete.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{bgk\_idempotence\_defect.png} $\leftarrow$ \texttt{fluids/bgk\_discrete.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{bgk\_failure\_modes.csv} $\leftarrow$ \texttt{fluids/bgk\_failure\_modes.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{bgk\_failure\_modes.png} $\leftarrow$ \texttt{fluids/bgk\_failure\_modes.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{les\_route\_mismatch.csv} $\leftarrow$ \texttt{les/burgers\_1d.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{les\_route\_mismatch.png} $\leftarrow$ \texttt{les/burgers\_1d.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{les\_subgrid\_term.csv} $\leftarrow$ \texttt{les/subgrid\_term.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{les\_subgrid\_term.png} $\leftarrow$ \texttt{les/subgrid\_term.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{gravity\_backreaction.csv} $\leftarrow$ \texttt{gravity/backreaction\_toy.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{gravity\_backreaction.png} $\leftarrow$ \texttt{gravity/backreaction\_toy.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{gravity\_packaging\_mismatch.csv} $\leftarrow$ \texttt{gravity/packaging\_view.py (via run\_all.py)}}
+  \item {\footnotesize \texttt{gravity\_packaging\_mismatch.png} $\leftarrow$ \texttt{gravity/packaging\_view.py (via run\_all.py)}}
+\end{itemize}
+\normalsize
+  \bibliographystyle{plainnat}
+\bibliography{physics_instantiation}
+
+\appendix
+\section{Lean Appendix}
+\label{app:lean}
+This appendix records the small Lean backbone we use as a conceptual anchor: finite-state lenses on \texttt{PMF} and their closures. We use Lean4 and mathlib for the formal backbone \citep{moura2021lean4,mathlib2020lean}. The current development focuses on a canonical equal-fiber partition lens (implemented as \texttt{Prod.fst : X×Fin m → X}) and its uniform-on-fibers completion. This is sufficient to certify idempotence from an explicit section, a factorization$\Rightarrow$commutation lemma, total-variation contraction under deterministic pushforward, and a basic definability counting fact. These Lean results are not intended to formalize the quantum or PDE examples; they serve as a correctness anchor for the abstract closure calculus.
+
+\subsection*{Lean coverage}
+\begin{itemize}[leftmargin=*]
+  \item \texttt{EmergenceCalc.U\_uniform}\\
+    uniform lift/completion for equal-fiber partition lens (Prod.fst : X$\times$Fin m $\to$ X).\\
+    {\footnotesize\texttt{lean/EmergenceCalc/Physics/UniformLift.lean}}
+  \item \texttt{EmergenceCalc.section\_uniform}\\
+    proves Q\_f (U\_uniform $\nu$) = $\nu$ (section axiom).\\
+    {\footnotesize\texttt{lean/EmergenceCalc/Physics/UniformLift.lean}}
+  \item \texttt{EmergenceCalc.E\_idempotent\_uniform}\\
+    idempotence of the induced closure E = U$\circ$Q for uniform lift.\\
+    {\footnotesize\texttt{lean/EmergenceCalc/Physics/UniformLift.lean}}
+  \item \texttt{EmergenceCalc.FactorsThrough}\\
+    factorization property: micro dynamics respects coarse map and preserves uniform fibers.\\
+    {\footnotesize\texttt{lean/EmergenceCalc/Physics/Factorization.lean}}
+  \item \texttt{EmergenceCalc.commutes\_of\_factorsThrough}\\
+    commutation E(T $\mu$)=T(E $\mu$) under factorization.\\
+    {\footnotesize\texttt{lean/EmergenceCalc/Physics/Factorization.lean}}
+  \item \texttt{EmergenceCalc.TV\_Q\_f\_le}\\
+    total variation contraction under deterministic pushforward.\\
+    {\footnotesize\texttt{lean/EmergenceCalc/Physics/TotalVariation.lean}}
+  \item \texttt{EmergenceCalc.card\_DefPred}\\
+    fiber-constant predicates count = $2^{\text{card }X}$ under surjective lens.\\
+    {\footnotesize\texttt{lean/EmergenceCalc/Physics/DefinabilityCount.lean}}
+  \item \texttt{EmergenceCalc.card\_DefPred\_range}\\
+    generalization: count = $2^{\text{card(range }f)}$.\\
+    {\footnotesize\texttt{lean/EmergenceCalc/Physics/DefinabilityCount.lean}}
+  \item \texttt{EmergenceCalc.card\_DefPred\_fst}\\
+    specialization for Prod.fst : X$\times$Fin m $\to$ X.\\
+    {\footnotesize\texttt{lean/EmergenceCalc/Physics/DefinabilityCount.lean}}
+\end{itemize}
+
+\subsection*{Build command}
+\begin{verbatim}
+cd lean && lake build
+\end{verbatim}
+
+\subsection*{Toolchain pins}
+\begin{verbatim}
+lean/lean-toolchain: leanprover/lean4:v4.27.0
+\end{verbatim}
+  \section{Simulation Appendix}
+\label{app:sims}
+
+This appendix records the discrepancy metrics used in the figures/tables and the default parameter settings used by the deterministic runners.
+
+\clearpage
+\begin{landscape}
+\begin{table}[p]
+\centering
+\footnotesize
+\begin{tabular}{lllll}
+\toprule
+Domain & Lens $Q$ & Completion $U$ & Audit & Null gate \\
+\midrule
+Quantum$\to$classical & diagonal & diagonal embed & rel.\ ent.\ (DPI) & $\lambda{=}1$ idem.; no viol. \\
+Kinetic$\to$fluids & moments $(\rho,u,\dots)$ & local equil. & TV/$L^1$ defects & collisions $\uparrow$ $\Rightarrow$ defect $\downarrow$ \\
+LES/filtering & spatial filter & (none) & $L^2$ mismatch & $\sigma{=}0 \Rightarrow$ mismatch ${\approx}0$ \\
+Averaging toy & coarse stats & max-ent & TV mismatch & $s{=}0 \Rightarrow$ mismatch ${\approx}0$ \\
+\bottomrule
+\end{tabular}
+\caption{Cross-domain certificate ledger: what is retained, how it is completed, which audit/mismatch is measured, and the null gate used.}
+\label{tab:certificate-ledger}
+\end{table}
+\end{landscape}
+\clearpage
+
+\subsection*{Quantum suite (Section~\ref{sec:quantum-classical})}
+\begin{itemize}
+  \item {\small\texttt{quantum/dpi.py}} $\to$ {\small\texttt{quantum\_dpi\_summary.csv}}, {\small\texttt{quantum\_dpi\_hist.png}}.\\
+  Metric: $S(\rho\|\sigma)-S(\Phi(\rho)\|\Phi(\sigma))$.
+  Default: $d\in\{2,3,4,6\}$, 300 trials per $d$, tol=$10^{-8}$, eps=$10^{-12}$.
+  Control: fails if any diff $<-\mathrm{tol}$.
+
+  \item {\small\texttt{quantum/closure.py}} $\to$ {\small\texttt{quantum\_closure\_idempotence.png}},\\
+  {\small\texttt{quantum\_route\_mismatch.*}}\\
+  Metrics: idempotence defect and route mismatch via trace distance $d_{\mathrm{tr}}(\rho,\sigma)=\tfrac12\|\rho-\sigma\|_1$.\\
+  Default: $d=4$, $\lambda\in\{0.5,0.7,0.85,0.93,0.97,1.0\}$, 200 time samples on $t\in[0,10]$.
+  Control: fails if defect at $\lambda=1$ exceeds tolerance or NaNs occur.
+\end{itemize}
+
+\subsection*{Kinetic/BGK suite (Section~\ref{sec:kinetic-fluids})}
+\begin{itemize}
+  \item {\small\texttt{fluids/bgk\_discrete.py}} $\to$ {\small\texttt{bgk\_idempotence\_defect.*}},\\
+  {\small\texttt{bgk\_summary.csv}}.\\
+  Metric: $\delta=\tfrac12\|E_\tau(E_\tau(f))-E_\tau(f)\|_1$ on flattened arrays.
+  Default: $N_x=16$, $N_v=3$, $\omega\in\{0,0.1,\dots,1.0\}$, $\tau\in\{1,2,5,10\}$, 200 trials.
+
+  \item {\small\texttt{fluids/bgk\_failure\_modes.py}} $\to$ {\small\texttt{bgk\_failure\_modes.*}}\\
+  Purpose: explicit regimes where closure degrades (weak collisions, wrong equilibrium, missing slow modes).
+\end{itemize}
+
+\subsection*{LES/Burgers suite (Section~\ref{sec:les})}
+\begin{itemize}
+  \item {\small\texttt{les/burgers\_1d.py}} $\to$ {\small\texttt{les\_route\_mismatch.*}}\\
+  Metric: RMS $L^2$ norm of $\overline{T_\tau(u)} - T_\tau(\bar{u})$.
+  Default: $N=128$, $\nu=0.1$, $\Delta t=0.002$, $t_{\max}=1.0$, multiple $\sigma$ including $\sigma=0$.
+
+  \item {\small\texttt{les/subgrid\_term.py}} $\to$ {\small\texttt{les\_subgrid\_term.*}}\\
+  Metric: RMS $L^2$ of $\tau_{\mathrm{sgs}}=\overline{u^2}-(\bar{u})^2$.
+  Control: $\sigma=0$ gives near-zero subgrid term.
+\end{itemize}
+
+\subsection*{Gravity suite (Section~\ref{sec:gravity})}
+\begin{itemize}
+  \item {\small\texttt{gravity/backreaction\_toy.py}} $\to$ {\small\texttt{gravity\_backreaction.*}}\\
+  Metric: $|\mathbb{E}[y(t)] - \tilde{y}(t)|$ (evolve-then-average vs average-then-evolve).
+  Default: $M=20000$, heterogeneity scale grid including $s=0$ (control).
+
+  \item {\small\texttt{gravity/packaging\_view.py}} $\to$ {\small\texttt{gravity\_packaging\_mismatch.*}}\\
+  Metrics: TV route mismatch between $E(T_t(\mu_0))$ and $T_t(E(\mu_0))$; closure idempotence.
+  Control: $s=0$ yields near-zero mismatch and defect.
+\end{itemize}
+ 
+\end{document}

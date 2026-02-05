@@ -1,0 +1,24 @@
+schema_version: 0
+seed: 123
+
+dataset:
+  key: smoke_small
+  file: TEMPLATE.md
+  kind: generic
+
+mask:
+  kind: all
+  first_n: null
+  indices: null
+
+split:
+  kind: none
+  A: null
+  B: null
+
+theory_stub:
+  frac_sigma: 0.1
+
+run:
+  exp_name: lss_config_smoke
+  note: ""

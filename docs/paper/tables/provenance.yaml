@@ -1,0 +1,46 @@
+tab_background_fits.tex:
+  bytes: 385
+  generated_files:
+  - docs/paper/tables/tab_background_fits.csv
+  - docs/paper/tables/tab_background_fits.tex
+  metrics_files:
+  - results/rewrite_background_vs_lcdm/20260203T101804Z_nogit/metrics.json
+  - results/fit_des_y6_bao/20260203T075814Z_nogit/metrics.json
+  sha256: f383872e7f201e45468acb090f51072440b788fca3cb9fb7e3aba882bd69e17c
+  sources:
+  - results/rewrite_background_vs_lcdm/20260203T101804Z_nogit
+  - results/fit_des_y6_bao/20260203T075814Z_nogit
+  timestamp_utc: '2026-02-04T15:07:49.808195Z'
+tab_synth_inference_compare.tex:
+  bytes: 340
+  generated_files:
+  - docs/paper/tables/tab_synth_inference_compare.csv
+  - docs/paper/tables/tab_synth_inference_compare.tex
+  metrics_files:
+  - results/rewrite_vs_lambda/20260202T194715Z_nogit/metrics.json
+  sha256: a7446f5906da530f27c859b0fb6636568c03647252ad2527cd9ce5bbda1c699a
+  sources:
+  - results/rewrite_vs_lambda/20260202T194715Z_nogit
+  timestamp_utc: '2026-02-04T15:07:49.804856Z'
+tab_toy1_summary.tex:
+  bytes: 322
+  generated_files:
+  - docs/paper/tables/tab_toy1_summary.csv
+  - docs/paper/tables/tab_toy1_summary.tex
+  metrics_files:
+  - results/toy1/20260202T175625Z_nogit/metrics.json
+  sha256: cab6299a891529119b98b5ad580d4ccd8cbafafbaebe839314fff6395833d4bc
+  sources:
+  - results/toy1/20260202T175625Z_nogit
+  timestamp_utc: '2026-02-04T15:07:49.804349Z'
+tab_toy2_summary.tex:
+  bytes: 339
+  generated_files:
+  - docs/paper/tables/tab_toy2_summary.csv
+  - docs/paper/tables/tab_toy2_summary.tex
+  metrics_files:
+  - results/toy2_patch/20260202T182630Z_nogit/metrics.json
+  sha256: 3b6782cd76a64feaddb4f1dfb40faacc67dc1374c0492ffee2ae4693be65da78
+  sources:
+  - results/toy2_patch/20260202T182630Z_nogit
+  timestamp_utc: '2026-02-04T15:07:49.804610Z'

@@ -1,0 +1,25 @@
+schema_version: 0
+seed: 0
+
+dataset:
+  key: des_y3a2_datavectors_2pt
+  file: 2pt_maglim_covupdate.fits
+  kind: fits_2pt
+
+run:
+  exp_name: y3_shear_physical_smoke
+  note: "Shear-only physical smoke (pyccl if available)."
+
+physical:
+  backend: pyccl
+  zmax: 3.0
+  nz_points: 300
+  ell_min: 10
+  ell_max: 5000
+  ell_n: 200
+  fiducial:
+    Omega_c: 0.25
+    Omega_b: 0.05
+    h: 0.67
+    sigma8: 0.8
+    n_s: 0.965

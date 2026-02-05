@@ -1,0 +1,4 @@
+model,chi2,aic,param
+matter_only,8588.54,8590.54,
+lcdm,379.609,383.609,Omega_L=0.602429
+rewrite,378.593,382.593,A=1509.91

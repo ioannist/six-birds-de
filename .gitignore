@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build artifacts
+build/
+dist/
+*.zip
+
+# Results (keep README)
+results/**
+!results/README.md
+docs/paper/build/
+.cache/tectonic/
+
+# Data (keep README and registry)
+data/raw/**
+data/processed/**
+!data/README.md
+!data/registry.yaml
+!data/registry.yml
+!data/registry.json

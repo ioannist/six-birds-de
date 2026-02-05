@@ -1,0 +1,40 @@
+schema_version: 0
+seed: 0
+
+dataset:
+  key: des_y3a2_datavectors_2pt
+  file: 2pt_maglim_covupdate.fits
+  kind: fits_2pt
+
+run:
+  exp_name: y3_ppd_robustness
+  note: "Robustness suite: multiple splits + block bootstrap + covariance jitter."
+
+robustness:
+  splits: ["shear_vs_rest", "evenodd_bins", "lowhigh_bins"]
+  n_boot: 6
+  block_keep_frac: 0.8
+  min_points_train: 80
+  min_points_test: 80
+  cov_jitter_eps: [0.0, 1e-12, 1e-10]
+  hyper_sweep:
+    frac_sigma: [0.05, 0.10]
+    beta_x: [0.05, 0.10]
+  max_scenarios: 30
+
+surrogate_theory:
+  frac_sigma: 0.1
+  beta_x: 0.10
+  kappa_probe:
+    shear: 0.0
+    clustering: 0.4
+    ggl: -0.2
+
+models:
+  - name: lcdm_like
+    k: 1
+  - name: rewrite_like
+    k: 2
+
+ppd:
+  directions: ["AtoB", "BtoA"]

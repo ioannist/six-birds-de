@@ -1,0 +1,6 @@
+dataset,model,chi2,aic
+SN,lcdm,1639.53,1645.53
+SN,rewrite,1639.53,1647.53
+SN+BAO,lcdm,1642.63,1648.63
+SN+BAO,rewrite,1642.63,1650.63
+BAO,lcdm,6.23778e-09,2

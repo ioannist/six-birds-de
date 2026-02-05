@@ -1,0 +1,32 @@
+schema_version: 0
+seed: 0
+
+dataset:
+  key: des_y3a2_datavectors_2pt
+  file: 2pt_maglim_covupdate.fits
+  kind: fits_2pt
+
+run:
+  exp_name: y3_scale_cut_sweep
+  note: "Sweep x_min scale cuts; rerun PPD shear↔(clustering+ggl) in surrogate mode."
+
+sweep:
+  quantiles: [0.0, 0.05, 0.10, 0.20, 0.30, 0.40, 0.50]
+  min_points_per_probe: 50
+  force_include_zero: true
+
+surrogate_theory:
+  frac_sigma: 0.1
+  beta_x: 0.10
+  kappa_probe:
+    shear: 0.0
+    clustering: 0.4
+    ggl: -0.2
+
+ppd:
+  split: shear_vs_clust_ggl
+  models:
+    - name: lcdm_like
+      k: 1
+    - name: rewrite_like
+      k: 2

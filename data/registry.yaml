@@ -1,0 +1,71 @@
+datasets:
+  smoke_small:
+    description: local smoke dataset
+    version: v1
+    files:
+      - url: docs/experiments/TEMPLATE.md
+        filename: TEMPLATE.md
+        sha256: 4400c384c7ee790d311c8b54e912743ba5a31baf257e69e17b3b1536590b3571
+  des_y6_bao_datavectors:
+    description: DES Y6 BAO datavectors and README
+    version: y6a2
+    files:
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y6a2_files/y6_bao/Data/Clustering/DESY6BAO_datavectors.zip
+        filename: DESY6BAO_datavectors.zip
+        sha256: 17541b7dacd8b8fc13123865d9553629ee7c9524db16d94ee1d3bfdab12db977
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y6a2_files/y6_bao/Data/Clustering/README.md
+        filename: README.md
+        sha256: 66fa88d97096a791ddd075a9f5c756dc126b6d8225a24849c1ba25b1e2016959
+  des_y6_bao_release:
+    description: DES Y6 BAO release assets (datavectors, likelihood, covariances, templates)
+    version: y6a2
+    files:
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y6a2_files/y6_bao/Data/Clustering/DESY6BAO_datavectors.zip
+        filename: DESY6BAO_datavectors.zip
+        sha256: 17541b7dacd8b8fc13123865d9553629ee7c9524db16d94ee1d3bfdab12db977
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y6a2_files/y6_bao/Likelihood/DESY6BAO_likelihood.zip
+        filename: DESY6BAO_likelihood.zip
+        sha256: 48f04df6d4a54bb0574f23267b0746700b13f506b25c3e6a8b42160ca918e88d
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y6a2_files/y6_bao/Covariances/DESY6BAO_covariances.zip
+        filename: DESY6BAO_covariances.zip
+        sha256: 1cb1512be1c953d5a5c2ec6c17993235068d62a4c3805aa7239138e1adfd3f4e
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y6a2_files/y6_bao/Templates/DESY6BAO_templates.zip
+        filename: DESY6BAO_templates.zip
+        sha256: d8dade536b6ede23bea80ceda34e91a9bd2b75c1710a9263255694d029d9005b
+  des_sn5yr_distances:
+    description: DES-SN5YR distances + covariance (4_DISTANCES_COVMAT) from tag 1.3
+    version: "1.3"
+    files:
+      - url: https://github.com/des-science/DES-SN5YR/archive/refs/tags/1.3.zip
+        filename: DES-SN5YR_1.3.zip
+        sha256: 4c09561d6f4ed451abd00819114f5b88879896f5edf685705b1f1bb85f3ebeb0
+  des_y3a2_datavectors_2pt:
+    description: DES Y3A2 2pt datavectors (maglim + redmagic)
+    version: y3a2
+    files:
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y3a2_files/datavectors/2pt_NG_final_2ptunblind_02_26_21_wnz_maglim_covupdate.fits
+        filename: 2pt_maglim_covupdate.fits
+        sha256: 83efa43f6609ff07248b9c4e411b9ab386ec569cba402364fb21edff456e8b76
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y3a2_files/datavectors/2pt_NG_final_2ptunblind_02_24_21_wnz_redmagic_covupdate.fits
+        filename: 2pt_redmagic_covupdate.fits
+        sha256: a72a8ee02fa72474ad859edab27d946991901e3d9a5bdc95cc9a961b244a32a6
+  des_y3a2_chains_3x2pt:
+    description: DES Y3A2 3x2pt LCDM chains (maglim + redmagic)
+    version: y3a2
+    files:
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y3a2_files/chains/chain_3x2pt_lcdm_SR_maglim_opt.txt
+        filename: chain_3x2pt_lcdm_maglim_opt.txt
+        sha256: ee8224e4f8e3763859cdbe102e3cbccbae74d933dd1d7b5b4a9308ff8f94c10a
+      - url: https://desdr-server.ncsa.illinois.edu/despublic/y3a2_files/chains/chain_3x2pt_lcdm_SR_redmagic.txt
+        filename: chain_3x2pt_lcdm_redmagic.txt
+        sha256: 177571c985eefa8bf48b67016b70e7899a9c907c15e210a41f9f5dec8cbc6dca
+  kids450_vuitert18_3x2pt_bandpowers:
+    description: KiDS-450 vUitert18 3x2pt bandpowers data + covariance
+    version: vUitert18
+    files:
+      - url: https://kids.strw.leidenuniv.nl/sci_data/vUitert18_KiDS450_data.tar.gz
+        filename: vUitert18_KiDS450_data.tar.gz
+        sha256: 2994ca7b79f2f95a27673ddb3c1e15b5a77d6e05aafd6ea7da8962fbfce6bb06
+      - url: https://kids.strw.leidenuniv.nl/sci_data/vUitert18_KiDS450_data.readme
+        filename: vUitert18_KiDS450_data.readme
+        sha256: 761f1e2115e159996dbb551a87aa1f6a48d82fa6b0b00be4bf77bf077c62b631

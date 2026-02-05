@@ -1,0 +1,32 @@
+schema_version: 0
+seed: 0
+
+dataset:
+  key: des_y3a2_datavectors_2pt
+  file: 2pt_maglim_covupdate.fits
+  kind: fits_2pt
+
+run:
+  exp_name: y3_ppd_probe_split
+  note: "Y3 probe-split PPD: shear vs (clustering+ggl). Surrogate mode if no pyccl."
+
+ppd:
+  split: shear_vs_clust_ggl
+  baseline:
+    name: lcdm_like
+    k: 1
+  rewrite:
+    name: rewrite_like
+    k: 2
+
+surrogate_theory:
+  frac_sigma: 0.1
+  beta_x: 0.10
+  kappa_probe:
+    shear: 0.0
+    clustering: 0.4
+    ggl: -0.2
+
+rewrite_bridge:
+  w0: -0.907111
+  wa: 0.452922

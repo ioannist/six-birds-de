@@ -1,0 +1,5 @@
+metric,value
+beta_linear_case_rm_max,0
+beta_small_rm_max,0.0202599
+beta_large_rm_max,0.0810395
+delta_max_overall,7.02167e-15

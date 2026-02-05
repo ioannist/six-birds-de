@@ -1,0 +1,21 @@
+relation,identifier,scheme,resource_type,bibkey,title
+Cites,10.5281/zenodo.18365949,DOI,other,Tsiokos2026SixBirds,Six Birds: Foundations of Emergence Calculus
+Cites,10.5281/zenodo.18394536,DOI,other,Tsiokos2026WakeStone,"To Wake a Stone With Six Birds: A ``Life is A Theory"""
+Cites,10.3847/2041-8213/ad6f9f,DOI,publication-article,DES2024SN5YRCosmology,"The Dark Energy Survey: Cosmology Results With ~1500 New High-redshift Type Ia Supernovae Using The Full 5-year Dataset"
+Cites,10.5281/zenodo.12720778,DOI,other,DES2024SN5YRData,DES Supernova 5YR Data Release
+Cites,10.1103/PhysRevD.110.063515,DOI,publication-article,DES2024Y6BAO,"Dark Energy Survey: A 2.1% measurement of the angular Baryonic Acoustic Oscillation scale at redshift z_eff=0.85 from the final dataset"
+Cites,10.1103/PhysRevD.105.023520,DOI,publication-article,DES2022Y3_3x2pt,"Dark Energy Survey Year 3 Results: Cosmological Constraints from Galaxy Clustering and Weak Lensing"
+Cites,10.1093/mnras/sty551,DOI,publication-article,vanUitert2018KiDSGAMA,"KiDS+GAMA: Cosmology constraints from a joint analysis of cosmic shear, galaxy--galaxy lensing and angular clustering"
+Cites,https://kids.strw.leidenuniv.nl/,URL,other,KiDSDataProducts,KiDS Survey data products
+Cites,10.1086/300499,DOI,publication-article,Riess1998SN,"Observational Evidence from Supernovae for an Accelerating Universe and a Cosmological Constant"
+Cites,10.1086/307221,DOI,publication-article,Perlmutter1999SN,"Measurements of Omega and Lambda from 42 High-Redshift Supernovae"
+Cites,10.1016/j.physrep.2013.05.001,DOI,publication-article,Weinberg2013Acceleration,Observational probes of cosmic acceleration
+Cites,10.1023/A:1001800617177,DOI,publication-article,Buchert2000Dust,"On Average Properties of Inhomogeneous Fluids in General Relativity: Dust Cosmologies"
+Cites,10.1023/A:1012061725841,DOI,publication-article,Buchert2001PerfectFluid,"On Average Properties of Inhomogeneous Fluids in General Relativity: Perfect Fluid Cosmologies"
+Cites,10.1088/0034-4885/74/11/112901,DOI,publication-article,Clarkson2011Averaging,"Does the growth of structure affect our dynamical models of the universe? The averaging, backreaction and fitting problems in cosmology"
+Cites,10.1088/0264-9381/31/23/234003,DOI,publication-article,GreenWald2014FLRW,"How well is our Universe described by an FLRW model?"
+Cites,astro-ph/9905116,arXiv,publication-article,Hogg1999Distance,Distance measures in cosmology
+Cites,10.1086/305424,DOI,publication-article,EisensteinHu1998Transfer,"Baryonic Features in the Matter Transfer Function"
+Cites,https://www3.stat.sinica.edu.tw/statistica/j6n4/j6n41/j6n41.htm,URL,publication-article,Gelman1996PPD,"Posterior Predictive Assessment of Model Fitness via Realized Discrepancies"
+Cites,10.1109/TAC.1974.1100705,DOI,publication-article,Akaike1974AIC,"A new look at the statistical model identification"
+Cites,10.1214/aos/1176344136,DOI,publication-article,Schwarz1978BIC,"Estimating the Dimension of a Model"

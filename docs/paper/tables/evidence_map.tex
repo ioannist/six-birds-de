@@ -1,0 +1,116 @@
+\begin{landscape}
+\begin{table}[p]
+\centering
+\footnotesize
+\caption{Evidence map for plots and quantitative tables used in the manuscript. ``Dataset key(s)'' refer to entries in the repository data registry (synthetic experiments use \texttt{N/A}). Run folders are manifest bundles under \texttt{results/}. Vendored artifacts are the tracked files included by the paper build.}
+\label{tab:evidence_map}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Artifact & Script / command & Dataset key(s) & Run folder and vendored file \\
+\midrule
+Fig.~\ref{fig:toy1_rm_beta} &
+\texttt{experiments/run\_toy1.py} &
+\texttt{N/A} (synthetic) &
+\texttt{results/toy1/20260202T175625Z\_nogit} \\
+& & &
+\texttt{docs/paper/figures/fig\_toy1\_rm\_summary\_vs\_beta.png} \\[2pt]
+Table~\ref{tab:toy1} &
+\texttt{scripts/vendor\_tables.py} &
+\texttt{N/A} (synthetic) &
+\texttt{results/toy1/20260202T175625Z\_nogit} \\
+& & &
+\texttt{docs/paper/tables/tab\_toy1\_summary.tex} \\
+\midrule
+Fig.~\ref{fig:toy2_Q} &
+\texttt{experiments/run\_toy2\_patch.py} &
+\texttt{N/A} (synthetic) &
+\texttt{results/toy2\_patch/20260202T182630Z\_nogit} \\
+& & &
+\texttt{docs/paper/figures/fig\_toy2\_Q\_vs\_time.png} \\[2pt]
+Table~\ref{tab:toy2} &
+\texttt{scripts/vendor\_tables.py} &
+\texttt{N/A} (synthetic) &
+\texttt{results/toy2\_patch/20260202T182630Z\_nogit} \\
+& & &
+\texttt{docs/paper/tables/tab\_toy2\_summary.tex} \\
+\midrule
+Fig.~\ref{fig:infer_distance_fit} &
+\texttt{experiments/run\_infer\_distance.py} &
+\texttt{N/A} (synthetic) &
+\texttt{results/infer\_distance/20260202T190430Z\_nogit} \\
+& & &
+\texttt{docs/paper/figures/fig\_infer\_distance\_fit.png} \\[2pt]
+Fig.~\ref{fig:rewrite_vs_lambda_fit} &
+\texttt{experiments/run\_rewrite\_vs\_lambda.py} &
+\texttt{N/A} (synthetic) &
+\texttt{results/rewrite\_vs\_lambda/20260202T194715Z\_nogit} \\
+& & &
+\texttt{docs/paper/figures/fig\_rewrite\_vs\_lambda\_distance\_fit.png} \\[2pt]
+Table~\ref{tab:synth_inference} &
+\texttt{scripts/vendor\_tables.py} &
+\texttt{N/A} (synthetic) &
+\texttt{results/rewrite\_vs\_lambda/20260202T194715Z\_nogit} \\
+& & &
+\texttt{docs/paper/tables/tab\_synth\_inference\_compare.tex} \\[2pt]
+Fig.~\ref{fig:ppd_synth_rmse} &
+\texttt{experiments/run\_ppd\_synthetic.py} &
+\texttt{N/A} (synthetic) &
+\texttt{results/ppd\_synthetic/20260202T201136Z\_nogit} \\
+& & &
+\texttt{docs/paper/figures/fig\_ppd\_synth\_rmse\_across\_seeds.png} \\
+\midrule
+Fig.~\ref{fig:sn5yr_residuals} &
+\texttt{experiments/run\_fit\_des\_sn5yr.py} &
+\texttt{des\_sn5yr\_distances} &
+\texttt{results/fit\_des\_sn5yr/20260203T092216Z\_nogit} \\
+& & &
+\texttt{docs/paper/figures/fig\_des\_sn5yr\_mu\_residuals.png} \\[2pt]
+Fig.~\ref{fig:y6bao_alpha} &
+\texttt{experiments/run\_fit\_des\_y6\_bao.py} &
+\texttt{des\_y6\_bao\_release} &
+\texttt{results/fit\_des\_y6\_bao/20260203T075814Z\_nogit} \\
+& & &
+\texttt{docs/paper/figures/fig\_des\_y6\_bao\_alpha\_likelihood.png} \\[2pt]
+Fig.~\ref{fig:ppd_background_bao} &
+\texttt{experiments/run\_ppd\_background.py} &
+\texttt{des\_sn5yr\_distances}, &
+\texttt{results/ppd\_background/20260203T094137Z\_nogit} \\
+& &
+\texttt{des\_y6\_bao\_release} &
+\texttt{docs/paper/figures/fig\_ppd\_background\_bao\_alpha.png} \\[2pt]
+Table~\ref{tab:background_fits} &
+\texttt{scripts/vendor\_tables.py} &
+\texttt{des\_sn5yr\_distances}, &
+\texttt{results/rewrite\_background\_vs\_lcdm/20260203T101804Z\_nogit}; \\
+& &
+\texttt{des\_y6\_bao\_release} &
+\texttt{results/fit\_des\_y6\_bao/20260203T075814Z\_nogit} \\
+& & &
+\texttt{docs/paper/tables/tab\_background\_fits.tex} \\
+\midrule
+Table~\ref{tab:lss_ppd_y3} &
+\texttt{experiments/run\_y3\_ppd\_probe\_split.py} &
+\texttt{des\_y3a2\_datavectors\_2pt} &
+\texttt{results/y3\_ppd\_probe\_split/20260204T070918Z\_nogit} \\[2pt]
+Fig.~\ref{fig:y3_block_boundaries} &
+\texttt{experiments/run\_des\_y3\_blockmap.py} &
+\texttt{des\_y3a2\_datavectors\_2pt} &
+\texttt{results/des\_y3\_blockmap/20260204T045551Z\_nogit} \\
+& & &
+\texttt{docs/paper/figures/fig\_y3\_block\_boundaries.png} \\[2pt]
+Table~\ref{tab:lss_ppd_y3_anchors} &
+\texttt{experiments/run\_y3\_ppd\_with\_geometry.py} &
+\texttt{des\_y3a2\_datavectors\_2pt}, &
+\texttt{results/y3\_ppd\_with\_geometry/20260204T080238Z\_nogit} \\
+& &
+\texttt{des\_sn5yr\_distances}, & \\
+& &
+\texttt{des\_y6\_bao\_release} & \\[2pt]
+Table~\ref{tab:lss_ppd_kids} &
+\texttt{experiments/run\_kids450\_ppd\_probe\_split.py} &
+\texttt{kids450\_vuitert18\_3x2pt\_bandpowers} &
+\texttt{results/kids450\_ppd\_probe\_split/20260204T083352Z\_nogit} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{landscape}

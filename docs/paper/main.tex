@@ -1,0 +1,867 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{pdflscape}
+
+\graphicspath{{figures/}}
+
+\input{macros}
+
+% Theorem-like environments (used lightly; proofs omitted in this manuscript).
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{plain}
+\newtheorem{lemma}[definition]{Lemma}
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
+% Boxed limitation environment for explicit scope/assumption disclaimers.
+\newcounter{limitation}[section]
+\renewcommand{\thelimitation}{\thesection.\arabic{limitation}}
+\newenvironment{limitationbox}[1]{%
+  \refstepcounter{limitation}%
+  \begin{center}
+  \fbox{\parbox{0.95\linewidth}{\textbf{Limitation~\thelimitation\ (#1).}\par\medskip\noindent
+}{%
+  }}
+  \end{center}
+}
+
+% Cover-page footer style (matches sixbirds-mathematics)
+\fancypagestyle{firstpage}{%
+  \fancyhf{}
+  \fancyfoot[C]{\scriptsize DOI: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480} \quad \textcopyright\ 2026 Automorph Inc.}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+\title{A Six Birds' Eye View of Dark Energy:\\Closure, Route Mismatch, and Audits for Apparent Acceleration}
+\author{Ioannis Tsiokos\\\texttt{ioannis@automorph.io}}
+\date{5 February 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{firstpage}
+
+\begin{abstract}
+Empirical cosmology infers late-time acceleration by fitting homogeneous FLRW models to data products that are, by construction, coarse-grained summaries of an inhomogeneous universe. This procedure makes it difficult to separate a fundamental component from a closure correction required by the coarse-graining itself. We apply Six Birds Theory (SBT) to treat cosmological modeling as a closure package consisting of a lens (specifying what is retained), a completion (specifying how discarded structure is filled in), and audits (testing whether the packaged macro description is dynamically coherent under evolution).
+
+Operationally, we implement a minimal computational API for lenses, completions, packaging operators, idempotence defects, and route mismatch, together with provenance-tracked run bundles and PPD-style cross-probe audits. In calibrated toy systems, route mismatch is (numerically) zero in a linear control regime and becomes strictly positive when nonlinearity is turned on; in a patch-expansion proxy, a homogeneous-control case yields $Q(t)\approx 0$, whereas heterogeneous initial conditions produce a positive acceleration proxy ($Q_{\rm peak}\approx 1.74$) and $\ddot a_{\mathcal{D}}>0$ for $\sim 99\%$ of late-time samples. Using synthetic distance--redshift data from a null-$\Lambda$ heterogeneous generator, homogeneous $\Lambda$CDM fitting recovers $\Omega_\Lambda\simeq 0.60$, and a heterogeneity-proxy rewrite term matches $\Lambda$CDM fit quality and improves held-out prediction of a heterogeneity proxy by $\sim 100\times$ in RMSE. On public DES SN5YR and DES Y6 BAO releases we demonstrate the same provenance and audit pipeline.
+
+These results turn ``dark energy'' into an audit-driven rewrite hypothesis with staging and probe-split tests rather than a default new fluid. We are explicit that a fundamental cosmological constant is not ruled out here; current background probes prefer an approximately constant correction over the sampled redshift range and our LSS demonstrations are protocol-level under a surrogate backend pending physical 3$\times$2pt likelihoods.
+\end{abstract}
+
+\section{Introduction}\label{sec:intro}
+Cosmological ``dark energy'' is usually introduced as an additional component in the stress--energy budget of an otherwise homogeneous Friedmann--Lema\^{i}tre--Robertson--Walker (FLRW) universe. Empirically, the case for late-time acceleration is established by comparing model-predicted distance measures and clustering statistics to survey data products, and the resulting minimal phenomenological description is $\Lambda$CDM \cite{Riess1998SN,Perlmutter1999SN,Weinberg2013Acceleration}. The conceptual step that often remains implicit is that the fitted homogeneous description is treated as a closed macro-dynamical system: the model is evolved forward in time at the macro level, and its predictions are compared directly to observations. This paper asks what is required for that ``macro closure'' step to be justified, and what it means when it fails.
+
+Six Birds Theory (SBT) provides a vocabulary designed for precisely this situation: modeling a system that is observed only through a coarse interface. In SBT, a theory is not just a dynamical law; it is a closure package consisting of (i) a lens $\Lens:\StateSpace\to\ObsSpace$ specifying what is retained, (ii) a completion $\Completion:\ObsSpace\to\StateSpace$ specifying how discarded information is filled in, and (iii) audits that test whether the induced macro description is coherent under evolution \cite{Tsiokos2026SixBirds,Tsiokos2026WakeStone}. The associated packaging operator $\PackageOp= \Completion\circ \Lens$ is intended to be idempotent and to define the ``objects'' at the macro level. A central SBT diagnostic is route mismatch: if $T$ denotes time evolution on $\StateSpace$, then in general
+\begin{equation}
+\PackageOp\circ T \;\neq\; T\circ \PackageOp,
+\label{eq:route_mismatch_intro}
+\end{equation}
+so that ``evolve then package'' differs from ``package then evolve.'' When this mismatch is non-negligible, a closed homogeneous macro law cannot be expected to emerge from micro-evolution without modification. SBT classifies such modification as an \emph{operator rewrite}: the effective macro evolution must be changed (the ``P1'' primitive) to restore coherence under the chosen interface.
+
+From this viewpoint, dark energy is naturally reinterpreted as a rewrite term required by closure. In the standard cosmology pipeline, the lens is determined by the data product (e.g., distance--redshift summaries, BAO dilation measures, or two-point functions), and the completion is the modeling assumption that a homogeneous FLRW spacetime---augmented by a small number of parameters---provides an adequate macro completion. If route mismatch is present, the completion must either be refined (track more macro variables), the lens must be changed (retain more information), or the macro operator must be rewritten. $\Lambda$CDM can then be viewed as one widely successful rewrite family that repairs closure under common lenses.
+
+\paragraph{Scope boundary.}
+This paper does not claim to refute a fundamental cosmological constant, nor does it propose a specific microphysical alternative. Our claim is methodological and testable: \emph{given a particular lens and completion, a nonzero effective acceleration term can arise as the closure correction required by route mismatch}, and this correction should leave audit signatures that differ from those of a truly fundamental component. We therefore focus on (i) making the closure assumptions explicit, (ii) providing reproducible mismatch- and audit-based diagnostics, and (iii) demonstrating the protocol on public data products that do not require proprietary likelihood code. In particular, although we build a switch-ready data layer for 3$\times$2pt large-scale-structure (LSS) vectors, we do not present a full physical 3$\times$2pt likelihood reproduction in this manuscript; instead, we use probe-splitting and staging audits on the public vectors as a closure-consistency demonstration. The public DES Y6 3$\times$2pt cosmology likelihoods were not available at the time of this writing, and our results do not depend on them.
+
+\paragraph{Contributions.}
+We make the following concrete, falsifiable contributions:
+\begin{enumerate}
+  \item \textbf{Closure-first formulation of dark energy.} We restate cosmological inference as a packaging problem involving a lens, a completion, and an induced packaging operator, and we identify route mismatch as the mechanism that forces operator rewrite terms at the macro level \cite{Tsiokos2026SixBirds,Tsiokos2026WakeStone}.
+  \item \textbf{A reproducible computational and audit toolkit.} We implement a minimal API for lenses, completions, packaging, route mismatch, and idempotence defects, together with run manifests, provenance, and PPD-style cross-probe audits that standardize evidence reporting across experiments.
+  \item \textbf{Mechanism and inference demonstrations.} We provide toy nonlinear and patch-cosmology proxies in which coarse-graining generates mismatch and an effective acceleration proxy; we also show, with synthetic distance--redshift data, that a null-$\Lambda$ heterogeneous generator can be mis-fit by a homogeneous $\Lambda$CDM model, yielding $\Omega_\Lambda>0$ as an inference illusion.
+  \item \textbf{Rewrite without fundamental $\Lambda$.} We introduce a mismatch-derived macro rewrite term that can match $\Lambda$CDM fit quality in the synthetic setting with comparable parameter count, and whose amplitude tracks heterogeneity in the toy generator.
+  \item \textbf{Public-data instantiations and audits.} We demonstrate the data/provenance pipeline and cross-probe audits on public DES SN5YR distances and DES Y6 BAO $\alpha$-likelihood releases \cite{DES2024SN5YRCosmology,DES2024SN5YRData,DES2024Y6BAO}, and we apply the same audit protocol to public LSS vectors from DES Y3 and KiDS-450 \cite{DES2022Y3_3x2pt,vanUitert2018KiDSGAMA,KiDSDataProducts}.
+\end{enumerate}
+
+\paragraph{Roadmap.}
+Section~\ref{sec:framework} summarizes the SBT primitives and their cosmology mapping.
+Section~\ref{sec:methods} defines the toy generators, rewrite families, and audit protocol.
+Section~\ref{sec:results} reports mechanism, synthetic-inference, and public-data results, emphasizing probe splits and staging dependence as closure fingerprints.
+We conclude in Section~\ref{sec:discussion} with a set of audit-driven predictions and a checklist for future high-fidelity likelihood releases.
+
+\section{Six Birds framework for cosmology}\label{sec:framework}
+This section summarizes the minimal Six Birds Theory (SBT) primitives we use throughout the paper and fixes notation.
+We follow the closure-first formulation in \cite{Tsiokos2026SixBirds,Tsiokos2026WakeStone}: a macro description is not merely a reduced state; it is the output of an explicit \emph{packaging} operator induced by an observational interface (lens) and a modeling assumption (completion).
+Route mismatch (non-commutation) is the key diagnostic that forces operator rewrites when a closed homogeneous macro theory does not descend.
+
+\paragraph{Instantiation note (cosmology).}
+In full cosmology, a natural choice of microstate space $\StateSpace$ would include the spacetime geometry and matter fields (or, operationally, the evolving density and velocity fields on a hypersurface), while $\ObsSpace$ corresponds to survey data products derived from that state.
+This manuscript does not attempt to operate directly on that full microstate space; instead, we (i) treat $\StateSpace$ and $\ObsSpace$ abstractly in the SBT definitions, and (ii) instantiate them concretely in controlled toy systems (Sections~\ref{sec:methods:toy1}--\ref{sec:methods:toy2}) where $\StateSpace$ is a patch ensemble or a micro vector and $\ObsSpace$ is a coarse summary (mean or volume-average).
+The purpose is to isolate the closure logic (packaging, mismatch, rewrite, and audits) in settings where it can be computed end-to-end.
+
+\subsection{Lens, completion, and packaging}\label{sec:framework:packaging}
+Let $\StateSpace$ denote a microstate space (``world states'') and let $\ObsSpace$ denote an observation space (``data products'').
+A \emph{lens} retains only the coarse information available to an observer, whereas a \emph{completion} specifies how the discarded degrees of freedom are filled in by a model.
+
+\begin{definition}[Lens and completion]
+A \emph{lens} is a map $\Lens:\StateSpace\to\ObsSpace$.
+A \emph{completion} is a map $\Completion:\ObsSpace\to\StateSpace$.
+\end{definition}
+
+\begin{definition}[Packaging operator]
+The induced \emph{packaging operator} is the endomap
+\begin{equation}
+\PackageOp \;=\; \Completion\circ \Lens:\StateSpace\to\StateSpace.
+\label{eq:packaging_def}
+\end{equation}
+Intuitively, $\PackageOp(x)$ is the ``macro-consistent representative'' obtained by observing $x$ through $\Lens$ and filling in missing structure via $\Completion$.
+\end{definition}
+
+In many settings (including cosmology), $\Lens$ is determined by the data reduction pipeline (e.g., compressed distance summaries, dilation parameters, or two-point vectors), whereas $\Completion$ encodes the modeling family used to interpret those summaries (e.g., an FLRW background with a small parameter set).
+The packaging operator formalizes the act of ``fitting a homogeneous model'' as a map on microstates.
+
+\subsection{Coherence: idempotence and route mismatch}\label{sec:framework:mismatch}
+SBT distinguishes two minimal coherence requirements: (i)~packaging should be stable when applied repeatedly, and (ii)~packaging should be compatible with time evolution.
+To express approximate coherence, we allow pseudometrics $d_{\StateSpace}$ on $\StateSpace$ and $d_{\ObsSpace}$ on $\ObsSpace$ (in practice implemented as simple norms or residual metrics on vectors).
+
+\begin{definition}[Idempotence and idempotence defect]
+Packaging is \emph{idempotent} if $\PackageOp(\PackageOp(x))=\PackageOp(x)$ for all $x\in\StateSpace$.
+When idempotence is only approximate, we define the \emph{idempotence defect}
+\begin{equation}
+\iddef(x) \;:=\; d_{\StateSpace}\!\big(\PackageOp(\PackageOp(x)),\PackageOp(x)\big).
+\label{eq:idempotence_defect}
+\end{equation}
+\end{definition}
+
+Let $T:\StateSpace\to\StateSpace$ denote one-step evolution on microstates (or $T_\tau$ evolution over a time increment $\tau$).
+The central obstruction to ``macro closure'' is that packaging need not commute with evolution:
+\begin{equation}
+\PackageOp\circ T \;\neq\; T\circ \PackageOp,
+\end{equation}
+as already highlighted in Eq.~\eqref{eq:route_mismatch_intro}.
+This non-commutation is what SBT terms \emph{route mismatch} (or holonomy).
+
+\begin{definition}[Route mismatch]
+Given evolution $T$, define the (state-space) \emph{route mismatch diagnostic}
+\begin{equation}
+\RM(x) \;:=\; d_{\StateSpace}\!\big(\PackageOp(T(x)),\,T(\PackageOp(x))\big).
+\label{eq:route_mismatch_def}
+\end{equation}
+Optionally, a lens-space diagnostic $d_{\ObsSpace}(\Lens(\PackageOp(T(x))),\Lens(T(\PackageOp(x))))$ may be used when only observables can be compared.
+\end{definition}
+
+\begin{remark}[Operator rewrite viewpoint]
+When $\RM(x)$ is generically non-negligible under a chosen lens and completion, a closed macro evolution on packaged states does not descend.
+SBT treats the necessary repair as an \emph{operator rewrite} (P1): introduce an effective macro operator $\widetilde{T}$ such that
+\begin{equation}
+\PackageOp\circ T \;\approx\; \widetilde{T}\circ \PackageOp
+\label{eq:rewrite_condition}
+\end{equation}
+in the regime of interest.
+In cosmology, $\Lambda$CDM can be interpreted as one successful rewrite family that makes a homogeneous packaged description appear dynamically coherent under common observational interfaces.
+\end{remark}
+
+\subsection{Six Birds (P1--P6) and their cosmology roles}\label{sec:framework:p1p6}
+SBT organizes closure phenomena into six recurring ``birds'' (P1--P6).
+Table~\ref{tab:p1p6_map} provides the working mapping used in this paper.
+
+\begin{table}[t]
+\centering
+\caption{Six Birds primitives (P1--P6) mapped to cosmology and to the concrete artifacts used in this manuscript.}
+\label{tab:p1p6_map}
+\small
+\begin{tabular}{@{}l l p{0.58\textwidth}@{}}
+\toprule
+Primitive & SBT role & Cosmology interpretation / operationalization \\
+\midrule
+P1 & Operator rewrite &
+Effective correction required for macro closure (e.g., $\Delta H$ term; $\Lambda$ as a rewrite family). \\
+P2 & Gating / constraints &
+Survey masks, selection functions, scale cuts, and admissible macro families defining feasible completions. \\
+P3 & Route mismatch &
+Backreaction-style non-commutation $\PackageOp\!\circ\!T\neq T\!\circ\!\PackageOp$; measured via $\RM(x)$. \\
+P4 & Staging &
+Dependence on lens scale / smoothing / scale cuts; ``staging fingerprints'' from sweeps over cut scales. \\
+P5 & Packaging &
+A macro object is a fixed point of $\PackageOp$; ``fit an FLRW model'' as $\PackageOp=U\circ f$. \\
+P6 & Accounting / audit &
+PPD-style checks: fit on one probe block, predict another; cross-probe bias and residual structure. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Lean-backed sanity lemmas}\label{sec:framework:lean}
+To avoid ambiguity about what ``mismatch vanishes'' means, we record the exact-equality version as a sanity check and note its formalization.
+Our Lean4 project (\texttt{lean/SixBirds/Defs.lean} and \texttt{lean/SixBirds/Lemmas.lean}) defines abstract types $\StateSpace,\ObsSpace$, lenses, completions, packaging, and the exact predicates corresponding to Eqs.~\eqref{eq:packaging_def}--\eqref{eq:route_mismatch_def}.
+In the experiments we use pseudometric-valued diagnostics (Eqs.~\eqref{eq:idempotence_defect}--\eqref{eq:route_mismatch_def}); the Lean lemmas record the exact-commutation ideal limit that those diagnostics approximate.
+
+\begin{lemma}[Commutation implies zero route mismatch (exact form)]
+If $T$ and $\PackageOp$ commute as functions on $\StateSpace$ (i.e., $\PackageOp\circ T = T\circ\PackageOp$), then the route-mismatch predicate holds for all $x$ (equivalently, $\RM(x)=0$ under any pseudometric compatible with equality).
+\end{lemma}
+
+\begin{remark}[Lean formalization references]
+The previous lemma is formalized as
+\texttt{SixBirds.\allowbreak Lemmas.\allowbreak routeMismatch\_\allowbreak of\_commute}.
+Similarly, exact idempotence implies zero idempotence defect, formalized as
+\texttt{SixBirds.\allowbreak Lemmas.\allowbreak idempotenceDefectAt\_\allowbreak of\_idempotent}.
+A sufficient-condition lemma for packaging commutation under homomorphism/section assumptions is formalized as
+\texttt{SixBirds.\allowbreak Lemmas.\allowbreak routeMismatch\_\allowbreak packaging\_\allowbreak of\_homomorphism\_\allowbreak section}.
+Proofs are omitted here; the Lean sources compile in this repository.
+\end{remark}
+
+\section{Methods}\label{sec:methods}
+Our methodology proceeds in three layers: (i)~mechanism demonstrations in controlled toy systems, (ii)~synthetic inference in which a heterogeneous (null-$\Lambda$) generator is fit by homogeneous macro models, and (iii)~audit protocols (PPD-style checks) that quantify cross-probe predictive coherence. This section defines the toy generators, the synthetic distance proxy construction, the rewrite families, and the audit metrics used throughout.
+
+\subsection{Toy model 1: nonlinear microdynamics under a mean lens}\label{sec:methods:toy1}
+Toy~1 is designed to isolate the origin of route mismatch in the simplest setting: nonlinear micro-evolution combined with an information-losing lens.
+
+\paragraph{Microstate and evolution.}
+Let the microstate be a vector $x_t\in\mathbb{R}^n$ at discrete time $t$.
+We evolve each component with a logistic-like quadratic drift:
+\begin{equation}
+x_{t+1} \;=\; x_t + \Delta t\big(\alpha\,x_t - \beta\,x_t^{\odot 2}\big),
+\label{eq:toy1_dynamics}
+\end{equation}
+where $x_t^{\odot 2}$ denotes elementwise squaring, and $(\alpha,\beta,\Delta t)$ are scalar parameters.
+The linear case corresponds to $\beta=0$.
+
+\paragraph{Lens and completion.}
+We take the lens to be the mean,
+\begin{equation}
+\Lens(x) \;=\; \bar{x} \;:=\; \frac{1}{n}\sum_{i=1}^n x_i,
+\label{eq:toy1_lens_mean}
+\end{equation}
+and the completion to be the constant-vector embedding,
+\begin{equation}
+\Completion(\bar{x}) \;=\; (\bar{x},\ldots,\bar{x}) \in \mathbb{R}^n.
+\label{eq:toy1_completion_const}
+\end{equation}
+The induced packaging operator $\PackageOp=\Completion\circ\Lens$ maps any microstate to the constant vector with the same mean.
+
+\paragraph{Diagnostics.}
+Given the one-step evolution map $T(x)=x+\Delta t(\alpha x-\beta x^{\odot 2})$, we compute the route mismatch diagnostic
+\begin{equation}
+\RM(x) \;=\; d_{\StateSpace}\!\big(\PackageOp(T(x)),\,T(\PackageOp(x))\big),
+\label{eq:toy1_rm}
+\end{equation}
+and the idempotence defect $\iddef(x)$ as in Eq.~\eqref{eq:idempotence_defect}.
+In this construction $\PackageOp$ is exactly idempotent (up to floating point), so $\iddef$ serves primarily as a numerical sanity check, while $\RM$ captures the failure of coarse-grained closure driven by nonlinearity.
+
+\subsection{Toy model 2: patch-expansion proxy and an acceleration diagnostic}\label{sec:methods:toy2}
+Toy~2 is a cosmology-flavored proxy intended to mimic the key structural feature relevant to dark energy inference: heterogeneous expansion histories that become ``homogenized'' by a volume-average lens.
+
+\paragraph{Patch ensemble.}
+We consider $N$ patches indexed by $i=1,\ldots,N$, each with a local scale factor $a_i(t)$ and matter density $\rho_i(t)$.
+We impose the dust scaling
+\begin{equation}
+\rho_i(t) \;=\; \rho_{i0}\,a_i(t)^{-3},
+\label{eq:toy2_rho_scaling}
+\end{equation}
+with heterogeneous initial densities $\rho_{i0}$.
+
+\paragraph{Local expansion law.}
+Each patch evolves via
+\begin{equation}
+\dot a_i(t) \;=\; a_i(t)\,H_i(t),
+\label{eq:toy2_ai_ode}
+\end{equation}
+where we define a Friedmann-like closure for $H_i$:
+\begin{equation}
+H_i(t)^2 \;=\; \frac{g_{4\pi}}{3}\,\rho_i(t) \;+\; \frac{\kappa_i}{a_i(t)^2}.
+\label{eq:toy2_hi_closure}
+\end{equation}
+Here $g_{4\pi}$ plays the role of $4\pi G$ (up to normalization), and $\kappa_i$ is a patch-dependent ``curvature-like'' parameter used only as a proxy for how under/over-density can induce systematically different expansion rates. In the numerical experiments, $\rho_{i0}$ and $\kappa_i$ are drawn from simple heterogeneous prescriptions controlled by an amplitude parameter; the precise sampling procedure is recorded in the run configuration bundles.
+
+\paragraph{Domain-average lens.}
+Define the volume-average (domain) scale factor by
+\begin{equation}
+a_{\mathcal{D}}(t) \;:=\; \Big\langle a_i(t)^3\Big\rangle^{1/3},
+\label{eq:toy2_aD}
+\end{equation}
+where $\langle\cdot\rangle$ denotes the arithmetic mean over patches.
+We also define the domain Hubble proxy $H_{\mathcal{D}}:=\dot a_{\mathcal{D}}/a_{\mathcal{D}}$ and, when needed, a heterogeneity proxy such as $\mathrm{Var}(H_i)$ across the ensemble.
+
+\paragraph{Acceleration proxy.}
+For a homogeneous dust FLRW model with the same normalization, one expects $3\ddot{a}/a + g_{4\pi}\rho \approx 0$ \cite{Buchert2000Dust,Buchert2001PerfectFluid,Clarkson2011Averaging}.
+Motivated by this, we define the domain ``closure term'' proxy
+\begin{equation}
+Q(t) \;:=\; 3\,\frac{\ddot a_{\mathcal{D}}(t)}{a_{\mathcal{D}}(t)} \;+\; g_{4\pi}\,\big\langle \rho_i(t)\big\rangle.
+\label{eq:toy2_Q_def}
+\end{equation}
+Positive $Q$ indicates that the domain-average evolution departs from a homogeneous dust closure in the direction of an ``effective acceleration'' term.
+
+\subsection{Synthetic distance--redshift mock and macro-model fits}\label{sec:methods:synthetic_distance}
+To demonstrate the \emph{inference illusion} mechanism, we treat the Toy~2 domain-average history as a source of synthetic ``observations'' and fit homogeneous macro models to them.
+
+\paragraph{Redshift mapping.}
+We normalize the domain scale factor so that $a_{\mathcal{D}}(t_0)=1$ at the final simulation time $t_0$ and define
+\begin{equation}
+1+z(t) \;:=\; a_{\mathcal{D}}(t)^{-1}.
+\label{eq:synthetic_z_def}
+\end{equation}
+This yields a monotone mapping between simulation time and redshift over the modeled interval.
+
+\paragraph{Distance proxy.}
+Given a macro expansion history $H(z)$, we define the comoving distance proxy (flat case) as
+\begin{equation}
+\chi(z) \;=\; c\int_{0}^{z}\frac{\dd z'}{H(z')},
+\label{eq:chi_def}
+\end{equation}
+and luminosity distance $D_L(z)=(1+z)\chi(z)$ \cite{Hogg1999Distance}.
+Synthetic measurements are generated at a grid $\{z_k\}$ with additive noise,
+\begin{equation}
+D^{\mathrm{obs}}_k \;=\; D_L(z_k) \;+\; \epsilon_k,\qquad \epsilon_k\sim\mathcal{N}(0,\sigma_k^2).
+\label{eq:distance_mock}
+\end{equation}
+
+\paragraph{Macro models and objective.}
+We fit two standard homogeneous background families:
+(i)~a matter-only model (with $\Omega_\Lambda=0$), and
+(ii)~a $\Lambda$CDM model (with $\Omega_\Lambda$ free, optionally with flatness imposed).
+Given a model prediction $D_k(\theta)$, we minimize the Gaussian chi-square
+\begin{equation}
+\chi^2(\theta) \;=\; \sum_{k}\frac{\big(D^{\mathrm{obs}}_k - D_k(\theta)\big)^2}{\sigma_k^2},
+\label{eq:chi2_def}
+\end{equation}
+and report information criteria such as $\mathrm{AIC}=\chi^2_{\min}+2k$, where $k$ is the number of fitted parameters \cite{Akaike1974AIC,Schwarz1978BIC}.
+
+\subsection{Rewrite model families}\label{sec:methods:rewrite}
+SBT interprets dark energy phenomenology as an operator rewrite required by closure under a chosen lens.
+In background form, this motivates a family of ``rewrite'' expansions in which an additive correction supplements matter-only evolution.
+
+\paragraph{One- and two-parameter rewrite.}
+Let $H_{\mathrm{m}}(z)$ denote the matter-only expansion law (with any curvature assumptions specified by the macro family).
+We define a rewrite model by
+\begin{equation}
+H(z)^2 \;=\; H_{\mathrm{m}}(z)^2 \;+\; \Delta_H(z),
+\label{eq:rewrite_general}
+\end{equation}
+with a low-dimensional parameterization of $\Delta_H$.
+In the synthetic experiments we use simple families such as
+\begin{equation}
+\Delta_H(z) \;=\; A\,g(z),\qquad g(z)=(1+z)^{-m},
+\label{eq:rewrite_powerlaw}
+\end{equation}
+where $A\ge 0$ is an amplitude and $m\ge 0$ controls redshift dependence.
+In addition, when a heterogeneity proxy is available (e.g., $\mathrm{Var}(H_i)$ in Toy~2), we use $g(z)$ as a fixed shape proportional to that proxy, leaving only an amplitude parameter to be fit. Positivity is enforced by restricting parameters so that $H(z)^2>0$ over the fit range.
+
+\paragraph{Proxy-derived vs.\ phenomenological rewrites.}
+In the synthetic patch setting (Toy~2), we can define $g(z)$ using a heterogeneity proxy measured from the generator (e.g., variance of $H_i$ across patches mapped to redshift), so that $\Delta_H(z)$ is tied to a mismatch proxy and only an amplitude is fit.
+In the public-data background tests, no such generator-level heterogeneity proxy is available; there we use a simple phenomenological shape family $g(z)=(1+z)^{-m}$ to test whether a low-parameter rewrite can match $\Lambda$CDM on geometry-only probes, without claiming a unique microphysical origin.
+
+\subsection{Posterior-predictive (PPD-style) audit protocol}\label{sec:methods:ppd}
+We follow the posterior-predictive assessment framework of \cite{Gelman1996PPD}.
+SBT emphasizes audits (P6) that test whether a closure package is predictive across observational routes, not merely in-sample.
+We implement lightweight probe-splitting audits in which a model is fit on one ``probe'' (or subset of a data vector) and evaluated on another.
+
+\paragraph{Train--test split.}
+Let $\mathcal{D}_A$ and $\mathcal{D}_B$ denote two disjoint probe blocks (e.g., SN vs.\ BAO, or cosmic shear vs.\ galaxy clustering + galaxy--galaxy lensing).
+Let $\theta$ denote model parameters. We fit on $\mathcal{D}_A$ to obtain
+\begin{equation}
+\hat\theta_A \;:=\; \arg\min_{\theta}\,\chi^2_A(\theta),
+\label{eq:theta_hat_train}
+\end{equation}
+and then compute predictive discrepancies on $\mathcal{D}_B$ using $\hat\theta_A$.
+
+\paragraph{Held-out metrics.}
+Given residuals $r_B = y_B - y_B(\hat\theta_A)$ and covariance $C_B$ for the held-out block, we report
+\begin{equation}
+\chi^2_{B|A} \;=\; r_B^{\mathsf T}C_B^{-1}r_B,
+\label{eq:chi2_test}
+\end{equation}
+together with unweighted and covariance-weighted root-mean-square error (RMSE),
+\begin{equation}
+\mathrm{RMSE}_{B|A} \;=\; \sqrt{\frac{1}{n_B}\sum_{j=1}^{n_B} r_{B,j}^2},
+\qquad
+\mathrm{RMSE}^{(w)}_{B|A} \;=\; \sqrt{\frac{\chi^2_{B|A}}{n_B}},
+\label{eq:rmse_defs}
+\end{equation}
+and the mean residual (bias) $\mathrm{bias}_{B|A}=\frac{1}{n_B}\sum_j r_{B,j}$.
+We repeat the audit in the reverse direction ($A\leftrightarrow B$).
+In the context of closure, systematic predictive bias on held-out probes is interpreted as evidence that the chosen completion (macro family) is not coherent under the observational interface, motivating either staging changes (P4) or operator rewrite (P1).
+We refer to these as ``PPD-style'' audits because they mirror the posterior predictive structure (fit on one route, test on another), but in this manuscript we typically use point estimates (MAP/least-squares) and treat the resulting discrepancies as comparative diagnostics rather than calibrated posterior predictive $p$-values.
+
+\subsection{Public background-probe likelihoods (geometry anchors)}\label{sec:methods:background_likes}
+This manuscript uses public background probes as low-overhead geometry anchors and as substrates for cross-probe audits.
+We emphasize that these are \emph{compressed} likelihood objects (a distance-modulus vector for SN; a one-dimensional $\Delta\chi^2(\alpha)$ curve for BAO), used here to demonstrate closure and audit mechanics rather than to reproduce the full survey likelihood machinery.
+
+\subsubsection{DES SN5YR distance-modulus vector likelihood}\label{sec:methods:sn5yr_like}
+The SN observable is a distance-modulus vector $\mu^{\rm obs}$ with total covariance
+\begin{equation}
+C_{\rm SN} \;=\; C_{\rm sys} \;+\; \mathrm{diag}(\sigma_{\rm stat}^2),
+\label{eq:sn_cov_total}
+\end{equation}
+where $C_{\rm sys}$ is the released systematics covariance and $\sigma_{\rm stat}$ are the per-supernova statistical uncertainties provided in the release metadata.
+Given a background model $\theta$ and luminosity distance $D_L(z;\theta)$ (in Mpc), we define the predicted distance modulus
+\begin{equation}
+\mu^{\rm th}(z;\theta,\mathcal{M}) \;=\; 5\log_{10}\!\Big(\frac{D_L(z;\theta)}{\mathrm{Mpc}}\Big) + 25 + \mathcal{M},
+\label{eq:mu_th_def}
+\end{equation}
+where $\mathcal{M}$ is a single intercept parameter that absorbs the absolute magnitude and any overall distance normalization \cite{Hogg1999Distance}.
+Because SN distances do not determine $H_0$ without an absolute calibration, we fix $H_0$ to a reference value in the background distance calculation and treat $\mathcal{M}$ as the nuisance intercept (shape-only constraints on $\theta$).
+
+The Gaussian SN objective is
+\begin{equation}
+\chi^2_{\rm SN}(\theta,\mathcal{M}) \;=\;
+\big(\mu^{\rm obs} - \mu^{\rm th}(\theta,\mathcal{M})\big)^{\mathsf T}
+C_{\rm SN}^{-1}
+\big(\mu^{\rm obs} - \mu^{\rm th}(\theta,\mathcal{M})\big).
+\label{eq:sn_chi2}
+\end{equation}
+We profile over $\mathcal{M}$ analytically (equivalently: maximize the likelihood in $\mathcal{M}$ for each $\theta$).
+Writing $\Delta(\theta)=\mu^{\rm obs}-\mu^{\rm th}(\theta,\mathcal{M}{=}0)$ and letting $\mathbf{1}$ be the all-ones vector, the profiled intercept is
+\begin{equation}
+\widehat{\mathcal{M}}(\theta) \;=\;
+\frac{\mathbf{1}^{\mathsf T}C_{\rm SN}^{-1}\Delta(\theta)}{\mathbf{1}^{\mathsf T}C_{\rm SN}^{-1}\mathbf{1}}.
+\label{eq:sn_Mhat}
+\end{equation}
+All reported SN-only fits in this paper use the profiled objective $\chi^2_{\rm SN}(\theta,\widehat{\mathcal{M}}(\theta))$.
+We report best-fit points (MAP under bounds) rather than full posterior constraints, since the paper’s emphasis is closure/audit behavior rather than precision parameter inference.
+
+\subsubsection{DES Y6 BAO one-dimensional \texorpdfstring{$\alpha$}{alpha}-likelihood}\label{sec:methods:y6bao_like}
+The DES Y6 BAO public release provides a one-dimensional likelihood curve in the dilation parameter $\alpha$ as a $\Delta\chi^2(\alpha)$ function for a fixed template/fiducial analysis.
+We treat this as a compressed geometry anchor.
+In standard BAO-template language, $\alpha$ is a dimensionless dilation parameter relating the observed BAO scale to the template prediction; a common theoretical mapping has the form
+\begin{equation}
+\alpha_{\rm th}(\theta) \;=\;
+\frac{D_M(z_{\rm eff};\theta)/r_d(\theta)}{D_M^{\rm fid}(z_{\rm eff})/r_d^{\rm fid}},
+\label{eq:alpha_def}
+\end{equation}
+where $D_M$ is the transverse comoving distance and $r_d$ is the sound horizon at drag epoch.
+We adopt the standard definition of $r_d$ as the drag-epoch sound horizon and cite the canonical transfer-function treatment \cite{EisensteinHu1998Transfer}.
+In this manuscript’s minimal pipeline, we \emph{hold the sound-horizon ratio fixed} ($r_d(\theta)=r_d^{\rm fid}$) and use
+\begin{equation}
+\alpha_{\rm th}(\theta) \;=\; \frac{D_M(z_{\rm eff};\theta)}{D_M^{\rm fid}(z_{\rm eff})},
+\label{eq:alpha_th_used}
+\end{equation}
+so that $\alpha_{\rm th}$ depends primarily on the shape parameters (e.g., $\Omega_m$ and curvature assumptions) and is insensitive to the absolute $H_0$ scale.
+The BAO contribution to the objective is then obtained by interpolation of the released curve:
+\begin{equation}
+\chi^2_{\rm BAO}(\theta) \;=\; \Delta\chi^2\!\big(\alpha_{\rm th}(\theta)\big).
+\label{eq:bao_chi2}
+\end{equation}
+This treatment is intentionally narrow: it reproduces the released one-dimensional likelihood object, which is used for audits and low-overhead geometry anchoring, but it does not replace a full BAO analysis in which $r_d(\theta)$ is modeled self-consistently and anisotropic observables are used.
+
+\subsection{Public LSS vectors and surrogate audit backend}\label{sec:methods:lss_surrogate}
+For LSS audits, we ingest public two-point data vectors and covariances and construct a per-element block index (probe/statistic/bin/angle) used to define masks and probe splits.
+Let $y\in\mathbb{R}^n$ be a data vector with covariance $C$.
+Given a boolean mask $m\in\{0,1\}^n$, define the masked residual and covariance by selecting the corresponding indices, yielding $r_m\in\mathbb{R}^{n_m}$ and $C_m\in\mathbb{R}^{n_m\times n_m}$.
+
+\paragraph{Surrogate theory family.}
+Because no physical 3$\times$2pt theory engine is used in this manuscript (Limitation~\ref{box:surrogate_lss}), we define a low-rank surrogate prediction family as a linear correction applied to a fixed template basis:
+\begin{equation}
+y^{\rm th}(\phi) \;=\; y^{\rm ref} \;+\; T\,\phi,
+\label{eq:lss_surrogate_model}
+\end{equation}
+where $y^{\rm ref}$ is a fixed reference vector, $T\in\mathbb{R}^{n\times p}$ is a fixed template matrix whose columns are predetermined functions of the block metadata (e.g., probe- and statistic-dependent shape vectors), and $\phi\in\mathbb{R}^p$ are fitted coefficients.
+In the manuscript tables we use a one-parameter baseline ($p=1$, ``$\Lambda$CDM-like'') and a two-parameter extension ($p=2$, ``rewrite-like'').
+
+\paragraph{Train on one probe, test on another.}
+Given a training mask $m_A$ (Probe~A), we fit $\phi$ by minimizing the masked chi-square
+\begin{equation}
+\widehat{\phi}_A \;:=\; \arg\min_{\phi}\;
+\big(y_A - y^{\rm th}_A(\phi)\big)^{\mathsf T} C_A^{-1}\big(y_A - y^{\rm th}_A(\phi)\big),
+\label{eq:lss_surrogate_fit}
+\end{equation}
+and evaluate held-out discrepancy on mask $m_B$ (Probe~B) using Eq.~\eqref{eq:chi2_test}.
+Crucially, the basis $T$ is fixed \emph{before} the split, and only the coefficients $\phi$ are fit using only training indices; this prevents leakage from the held-out block into the fitted coefficients.
+Absolute chi-square values in this surrogate setting depend on the (arbitrary) normalization of $T$; therefore, in this manuscript we interpret held-out metrics as protocol diagnostics and compare models only within the same surrogate construction.
+
+\section{Results}\label{sec:results}
+We present results in three layers aligned with the closure-first narrative: (i)~mechanism demonstrations (route mismatch and effective acceleration proxies), (ii)~synthetic inference showing how a homogeneous model can infer $\Omega_\Lambda>0$ from a null-$\Lambda$ heterogeneous generator, and (iii)~audit signatures (PPD-style) and staging dependence. Public-probe results are reported in Sections~\ref{sec:results:background} and~\ref{sec:results:lss}.
+
+\subsection{Mechanism: mismatch from nonlinearity and coarse-graining}\label{sec:results:mechanism}
+
+\subsubsection{Toy~1: route mismatch vanishes in the linear case and grows with nonlinearity}\label{sec:results:toy1}
+Toy~1 isolates the core mathematical mechanism: nonlinear micro-evolution combined with an information-losing lens yields non-commutation between packaging and evolution.
+Table~\ref{tab:toy1} summarizes the maximal observed route mismatch $\RM_{\max}$ for three nonlinearity strengths.
+In the linear case $\beta=0$, route mismatch is numerically zero; when $\beta>0$ it becomes strictly positive and increases with nonlinearity (e.g., $\RM_{\max}\approx 2.03\times 10^{-2}$ at $\beta=0.5$ and $\RM_{\max}\approx 8.10\times 10^{-2}$ at $\beta=2.0$; Table~\ref{tab:toy1}).
+As expected for the mean-lens packaging in this construction, the idempotence defect remains at the numerical floor ($\iddef_{\max}\sim 10^{-14}$), indicating that the observed mismatch is not a packaging-instability artifact.
+
+\input{tables/tab_toy1_summary.tex}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig_toy1_rm_summary_vs_beta.png}
+\caption{Toy~1: route mismatch summary as a function of nonlinearity strength $\beta$ under a mean lens and constant-vector completion. The linear case exhibits $\RM\approx 0$, whereas nonlinear evolution produces nonzero mismatch.}
+\label{fig:toy1_rm_beta}
+\end{figure}
+
+\subsubsection{Toy~2: heterogeneity induces a positive closure term proxy \texorpdfstring{$Q(t)$}{Q(t)}}\label{sec:results:toy2}
+Toy~2 is a patch-expansion proxy in which each patch follows a local decelerating law, but the domain-average history under the volume-average lens can depart from homogeneous dust closure.
+Table~\ref{tab:toy2} reports the diagnostic $Q(t)$ defined in Eq.~\eqref{eq:toy2_Q_def}.
+Under homogeneous initial conditions, $Q$ is consistent with numerical zero (maximum absolute value at machine precision), whereas heterogeneous initial conditions yield a strictly positive peak ($Q_{\rm peak}\approx 1.74$) and a late-time regime in which $\ddot{a}_{\mathcal{D}}>0$ for most sampled times (late-time positive fraction $\approx 0.988$; Table~\ref{tab:toy2}).
+This establishes the minimal ``apparent acceleration'' mechanism: heterogeneity plus coarse-grained packaging can produce an effective acceleration proxy even when no fundamental $\Lambda$ is present in the generator.
+We emphasize that $Q(t)$ here is a closure diagnostic defined by Eq.~\eqref{eq:toy2_Q_def} for this proxy model; it is not the GR-averaging kinematical backreaction term, and we do not claim Toy~2 constitutes a relativistic backreaction calculation.
+
+\input{tables/tab_toy2_summary.tex}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig_toy2_Q_vs_time.png}
+\caption{Toy~2: closure term proxy $Q(t)$ (Eq.~\eqref{eq:toy2_Q_def}) becomes positive in heterogeneous regimes, indicating departure of the domain-average evolution from homogeneous dust closure.}
+\label{fig:toy2_Q}
+\end{figure}
+
+\subsection{Synthetic inference: \texorpdfstring{$\Omega_\Lambda>0$}{Omega\_Lambda > 0} as a closure-induced illusion}\label{sec:results:synthetic}
+We next treat the Toy~2 domain-average history as a generator of synthetic distance--redshift data (Section~\ref{sec:methods:synthetic_distance}) and fit homogeneous macro models to that mock observation.
+This isolates the inference question: what does a homogeneous model infer when the underlying generator is heterogeneous but observed through a coarse lens?
+
+\subsubsection{Homogeneous fits infer \texorpdfstring{$\Omega_\Lambda\simeq 0.6$}{Omega\_Lambda = 0.6} from null-\texorpdfstring{$\Lambda$}{Lambda} synthetic data}\label{sec:results:infer_illusion}
+For one heterogeneous regime, a $\Lambda$CDM background fit yields $\Omega_\Lambda\simeq 0.60$ even though the data were generated from a null-$\Lambda$ heterogeneous toy universe.
+Moreover, the $\Lambda$CDM fit improves the objective dramatically compared to a matter-only homogeneous model (information-criterion improvement $\Delta\mathrm{AIC}\sim 8.2\times 10^{3}$ in this mock; see Table~\ref{tab:synth_inference} for the corresponding chi-square and AIC values).
+This is the ``inference illusion'' predicted by the closure-first viewpoint: when packaging does not commute with micro-evolution, a homogeneous completion introduces an effective rewrite term when forced to match lensed summaries.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig_infer_distance_fit.png}
+\caption{Synthetic distance--redshift mock from a heterogeneous (null-$\Lambda$) generator fit by homogeneous macro models. The best-fit homogeneous $\Lambda$CDM model infers $\Omega_\Lambda>0$ and matches the mock more closely than a matter-only homogeneous model.}
+\label{fig:infer_distance_fit}
+\end{figure}
+
+\subsubsection{Rewrite term matches \texorpdfstring{$\Lambda$}{Lambda}CDM fit quality and tracks heterogeneity}\label{sec:results:rewrite_vs_lambda}
+We next replace ``fit $\Lambda$'' with a heterogeneity-proxy rewrite family (Section~\ref{sec:methods:rewrite}) in which
+$H^2(z)=H_{\mathrm{m}}(z)^2+\Delta_H(z)$ and $\Delta_H$ is parameterized by a low-dimensional proxy shape.
+Table~\ref{tab:synth_inference} compares matter-only, $\Lambda$CDM, and rewrite fits in the synthetic setting.
+In the canonical run, the rewrite model achieves chi-square and AIC comparable to $\Lambda$CDM with the same parameter count ($k=2$ in both cases), whereas matter-only is strongly disfavored.
+
+\input{tables/tab_synth_inference_compare.tex}
+
+In addition to fit quality, the closure-first interpretation demands a mechanistic connection between the rewrite amplitude and heterogeneity.
+In a sweep over heterogeneity amplitudes in the toy generator, the best-fit rewrite amplitude increases monotonically with the heterogeneity control parameter (Spearman $\rho=1.0$ in the coarse sweep reported in the experiment logs), consistent with $\Delta_H$ functioning as a packaging-induced correction rather than as a free fluid component.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig_rewrite_vs_lambda_distance_fit.png}
+\caption{Synthetic distance--redshift mock: best-fit rewrite model compared to best-fit $\Lambda$CDM. In the synthetic setting, a heterogeneity-proxy rewrite term can reproduce the same distance fit quality as $\Lambda$CDM without positing a fundamental cosmological constant in the generator.}
+\label{fig:rewrite_vs_lambda_fit}
+\end{figure}
+
+\subsubsection{Synthetic PPD audit: rewrite improves prediction of a held-out heterogeneity proxy}\label{sec:results:synthetic_ppd}
+Fit quality on a single probe is not a closure audit.
+We therefore implement a PPD-style test (Section~\ref{sec:methods:ppd}) in which the model is fit to the distance--redshift probe and evaluated on a distinct held-out observable: a heterogeneity proxy derived from the patch ensemble (e.g., variance of $H_i$).
+Across multiple random seeds in a heterogeneous regime, the rewrite model reduces the held-out predictive RMSE by roughly two orders of magnitude relative to a homogeneous $\Lambda$CDM completion (median RMSE ratio $\mathrm{RMSE}_{\rm rewrite}/\mathrm{RMSE}_{\Lambda{\rm CDM}}\approx 8.8\times 10^{-3}$ in the reported sweep).
+This behavior is consistent with a closure correction tied to heterogeneity: the rewrite term improves cross-route predictivity, not only in-sample distances.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig_ppd_synth_rmse_across_seeds.png}
+\caption{Synthetic PPD-style audit: predictive RMSE on a held-out heterogeneity proxy across multiple seeds in a heterogeneous regime. The rewrite model substantially reduces predictive error relative to a homogeneous $\Lambda$CDM fit on the distance probe.}
+\label{fig:ppd_synth_rmse}
+\end{figure}
+
+\subsection{Staging dependence as a closure fingerprint}\label{sec:results:staging}
+SBT predicts that closure diagnostics can depend on the staging scale (P4): changing the lens scale or the resolution at which packaging is enforced can change mismatch and the required rewrite.
+We demonstrate this effect in a toy ``scale sweep'' in which the lens aggregates patches into domains of varying size $L$ before packaging.
+In the recorded sweep, the late-time mean mismatch varies with $L$ (e.g., $\RM(L{=}1)\approx 0$ whereas $\RM(L_{\max})\approx 1.3\times 10^{-4}$), and the smallest idempotence defect occurs at a specific staging choice ($L$ minimizing $\iddef$ in that sweep).
+These staging signatures motivate treating scale-cut and smoothing dependence in real analyses as potential closure fingerprints rather than as mere nuisances: if a correction term is packaging-induced, it should exhibit systematic staging dependence beyond what is expected from known measurement systematics.
+
+\subsection{Public background probes: DES SN5YR and DES Y6 BAO}\label{sec:results:background}
+We now demonstrate the closure-first pipeline and audit protocol on public, lightweight background probes: the DES SN5YR distance-modulus vector and covariance release, and the DES Y6 BAO $\alpha$-likelihood release.
+These probes anchor geometry with minimal modeling overhead and do not require full large-scale-structure (3$\times$2pt) likelihood machinery.
+
+\subsubsection{DES SN5YR likelihood sanity and SN-only fits}\label{sec:results:sn5yr}
+The DES SN5YR public release provides a Hubble-diagram distance vector and covariance components.
+A crucial sanity step is constructing the \emph{total} covariance correctly: the ``STATONLY'' covariance component is zero by design in this release, and statistical uncertainties are provided separately as per-object distance-modulus errors. The total covariance is therefore the sum of the released systematics covariance and the diagonal statistical term.
+With this construction, the covariance is symmetric and positive-definite, and SN-only fits yield a reasonable goodness-of-fit (chi-square per datum $\simeq 0.90$ in our baseline configuration).
+Because SN distances do not fix $H_0$ without an absolute calibration, we fix $H_0$ in the distance calculation and absorb the normalization into the profiled intercept $\mathcal{M}$, so SN constrains shape parameters rather than absolute scale.
+
+Fitting a flat $\Lambda$CDM background to SN-only yields a best-fit matter density $\Omega_m\simeq 0.35$.
+Allowing a constant equation-of-state parameter (flat $w$CDM) yields a best-fit $w\simeq -0.82$ with a small improvement in chi-square, consistent with the well-known SN-only degeneracy between $\Omega_m$ and $w$ in the absence of external anchors.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig_des_sn5yr_mu_residuals.png}
+\caption{DES SN5YR: Hubble-diagram residuals for a best-fit homogeneous background model under the public distance-vector likelihood. Residual structure is shown relative to the fitted macro completion.}
+\label{fig:sn5yr_residuals}
+\end{figure}
+
+\subsubsection{DES Y6 BAO \texorpdfstring{$\alpha$}{alpha}-likelihood fit}\label{sec:results:y6bao}
+For DES Y6 BAO, the public release provides a one-dimensional likelihood curve in the dilation parameter $\alpha$ (reported as a $\Delta\chi^2(\alpha)$ curve in the combined likelihood).
+In our implementation, we fit a homogeneous background by mapping $(H_0,\Omega_m)$ to a predicted $\alpha$ at the effective redshift and evaluating $\Delta\chi^2$ by interpolation.
+The combined curve peaks at $\alpha_{\rm hat}\simeq 0.9568$ with an approximate width $\sigma_\alpha\simeq 0.0126$ in our Gaussian approximation to the local curvature at the peak.
+In our BAO-only fit, the $\Delta$AIC between flat $\Lambda$CDM and an $\Omega_\Lambda{=}0$ homogeneous fit is $\approx 5.0\times 10^{-2}$ (negligible).
+Because this is a single compressed observable, we treat BAO-only $\Delta$AIC differences of $\ll 1$ as negligible and do not interpret them as evidence for or against $\Lambda$; the curve serves as a geometry anchor for audits.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig_des_y6_bao_alpha_likelihood.png}
+\caption{DES Y6 BAO: public one-dimensional $\Delta\chi^2(\alpha)$ curve (combined). In our pipeline, background parameters are mapped to a predicted $\alpha$ at the effective redshift and evaluated by interpolation.}
+\label{fig:y6bao_alpha}
+\end{figure}
+
+\subsubsection{Background PPD audit: fit SN, predict BAO (and reverse)}\label{sec:results:background_ppd}
+Fit quality on a single probe is not, by itself, a closure audit.
+We therefore perform a probe-splitting posterior-predictive check (Section~\ref{sec:methods:ppd}) between SN and BAO.
+Training on SN and predicting BAO yields a mean bias in $\alpha$ of $\mathrm{bias}_\alpha\simeq 2.58\times 10^{-2}$, corresponding to a $z$-score of $\simeq 2.04$ relative to the inferred $\sigma_\alpha$.
+Training on BAO and predicting SN yields a mean distance-modulus bias of $\mathrm{bias}_\mu\simeq 4.76\times 10^{-2}$ and a covariance-weighted held-out RMSE of order unity (in units of $\sqrt{\chi^2/n}$ for the SN vector).
+These numbers quantify the expected limitation of fitting one compressed geometry probe and extrapolating to another in the absence of a shared completion that is coherent across both.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig_ppd_background_bao_alpha.png}
+\caption{Background PPD audit example: BAO $\alpha$ prediction evaluated under a model trained on SN distances. The discrepancy is summarized by bias, RMSE, and $z$-score metrics.}
+\label{fig:ppd_background_bao}
+\end{figure}
+
+\subsubsection{Rewrite-background vs.\ \texorpdfstring{$\Lambda$}{Lambda}CDM on SN and SN+BAO}\label{sec:results:rewrite_background}
+We finally test a staged, phenomenological rewrite family directly on public background probes, without committing to a detailed inhomogeneous micro-model.
+Specifically, we fit a background rewrite model of the form $H^2(z)=H_{\mathrm{m}}^2(z)+A\,g(z)$ with $g(z)=(1+z)^{-m}$ (Section~\ref{sec:methods:rewrite}).
+Table~\ref{tab:background_fits} summarizes fits for SN-only, BAO-only, and the combined SN+BAO objective.
+For combined fits we use
+\begin{equation}
+\chi^2_{\rm tot}(\theta) \;=\; \chi^2_{\rm SN}(\theta,\widehat{\mathcal{M}}(\theta)) \;+\; \chi^2_{\rm BAO}(\theta).
+\label{eq:chi2_tot_background}
+\end{equation}
+
+In both SN-only and SN+BAO fits, the rewrite model matches the best-fit chi-square of $\Lambda$CDM but pays the expected information-criterion penalty for the extra parameter (typically $\Delta\mathrm{AIC}\approx 2$).
+Moreover, the best-fit shape parameter saturates at $m\simeq 0$ in these background-only fits, so the rewrite term collapses to a constant contribution over the probed redshift range.
+This is an informative outcome: with current background probes alone, the data prefer a nearly constant closure correction, consistent with why $\Lambda$CDM is phenomenologically successful for geometry.
+In the closure-first view, time variation (or additional state variables) would be demanded only if audits across multiple probes and staging choices were to require it.
+
+\input{tables/tab_background_fits.tex}
+
+\subsection{LSS data-layer and audit protocol (surrogate theory)}\label{sec:results:lss}
+We next demonstrate the Six Birds audit protocol (P6) and data-layer staging machinery on public large-scale-structure (LSS) two-point vectors.
+This section is intentionally framed as an \emph{audit protocol demonstration}: we ingest public data vectors, construct a block map for probe splitting, and run cross-probe predictivity checks.
+A full physical 3$\times$2pt theory backend (e.g., CCL/Firecrown/pyccl) is not required to demonstrate the audit mechanics, but it \emph{is} required to interpret these LSS results as cosmological parameter constraints.
+We therefore separate the protocol and I/O layer (which is definitive here) from the physics backend (explicitly limited here).
+
+\begin{limitationbox}{Surrogate LSS backend}\label{box:surrogate_lss}
+The DES Y3 and KiDS-450 LSS results in this manuscript use a \emph{surrogate} theory backend rather than a physical 3$\times$2pt forward model.
+Concretely, we define deterministic probe-dependent ``template residuals,'' fit low-dimensional correction coefficients, and then evaluate held-out discrepancies (chi-square/RMSE) under the public covariance.
+This approach establishes the audit protocol, probe splitting, masking, and reproducible bookkeeping under realistic vector/covariance dimensions, but it does \emph{not} constitute a physical reproduction of the DES Y3 3$\times$2pt likelihood \cite{DES2022Y3_3x2pt}.
+The repository includes a plug-in backend interface and an environment probe; in the baseline environment, the physical backend import fails (e.g., \texttt{pyccl} unavailable), motivating this staged presentation.
+\end{limitationbox}
+
+\subsubsection{DES Y3 2pt block map enables probe splits}\label{sec:results:lss_blockmap}
+We ingest the public DES Y3 2pt (maglim) data vector and covariance and construct a per-point block index assigning each element to a probe/statistic/bin combination.
+For the maglim vector used here ($n=1000$), the resulting decomposition contains $n_{\rm shear}=400$ cosmic-shear points, $n_{\rm clust}=120$ galaxy-clustering points, and $n_{\rm ggl}=480$ galaxy--galaxy-lensing points (with no unclassified remainder).
+This block map is the prerequisite for meaningful probe splits and for staging operations such as scale cuts and block bootstraps.
+Numerically, we apply probe masks by selecting sub-vectors and sub-covariances and compute $\chi^2$ via Cholesky-based linear solves (without explicit matrix inversion). In the baseline Y3 maglim run, the covariance is symmetric positive-definite with $\texttt{chol\_success}=\texttt{true}$ and $\texttt{chol\_jitter\_used}=0.0$, while the estimated minimum eigenvalue and condition number are $\lambda_{\min}\approx 4.5\times 10^{-15}$ and $\kappa\approx 8.7\times 10^{9}$, indicating ill-conditioning but stable solves under masked Cholesky.
+
+\subsubsection{Probe-split PPD on DES Y3 vectors (surrogate backend)}\label{sec:results:lss_ppd}
+Using the block map, we define Probe~A as cosmic shear and Probe~B as clustering+galaxy--galaxy lensing.
+We then run the PPD-style audit (Section~\ref{sec:methods:ppd}): fit a low-dimensional macro correction on one probe block and evaluate predictive discrepancy on the held-out block.
+Table~\ref{tab:lss_ppd_y3} reports held-out chi-square values for two macro families in the surrogate setting: a baseline ``$\Lambda$CDM-like'' one-parameter correction and a ``rewrite-like'' two-parameter correction.
+Because the backend is surrogate (Limitation~\ref{box:surrogate_lss}), the absolute scale of chi-square is not interpreted as a cosmological goodness-of-fit; instead we treat held-out discrepancy as an audit diagnostic that can be transported unchanged to a physical backend when available.
+The absolute $\chi^2$ values are small because the surrogate template normalization is arbitrary; we therefore interpret only relative held-out comparisons and the reproducible train$\to$test protocol artifact.
+
+\begin{table}[t]
+\centering
+\caption{DES Y3 (maglim) probe-split PPD audit under a surrogate LSS backend. Probe~A is shear ($n_A=400$) and Probe~B is clustering+ggl ($n_B=600$). Reported values are held-out $\chi^2$ (Eq.~\eqref{eq:chi2_test}).}
+\label{tab:lss_ppd_y3}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Direction & Model & Held-out block & $\chi^2_{\rm test}$ \\
+\midrule
+A$\to$B & $\Lambda$CDM-like & B (clust+ggl) & 0.1165 \\
+A$\to$B & rewrite-like & B (clust+ggl) & 0.0885 \\
+B$\to$A & $\Lambda$CDM-like & A (shear) & 0.0674 \\
+B$\to$A & rewrite-like & A (shear) & 0.0305 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Geometry anchors (SN+BAO) shift held-out discrepancies}\label{sec:results:lss_anchors}
+To test sensitivity to external geometry information, we repeat the DES Y3 probe-split audit while adding public background-probe anchors (DES SN5YR distances and DES Y6 BAO $\alpha$-likelihood) to the training objective.
+Table~\ref{tab:lss_ppd_y3_anchors} compares held-out chi-square values with and without these anchors.
+In this staged setting, the anchors increase the held-out chi-square for both macro families and reduce the directional differences.
+This behavior is expected: adding shared geometry constraints partially fixes the degrees of freedom that the surrogate correction would otherwise have used to absorb cross-probe discrepancies.
+In these anchored runs we use
+\[
+\chi^2_{\rm train} \;=\; \chi^2_{\rm LSS,train} \;+\; \chi^2_{\rm SN} \;+\; \chi^2_{\rm BAO},
+\]
+and assume independence (no modeled cross-covariances) between the LSS and background-probe likelihoods.
+
+\begin{table}[t]
+\centering
+\caption{DES Y3 probe-split PPD audit under surrogate LSS backend, comparing held-out chi-square without geometry anchors vs.\ with SN+BAO anchors added to the training objective.}
+\label{tab:lss_ppd_y3_anchors}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Direction & Model & $\chi^2_{\rm test}$ (no anchors) & $\chi^2_{\rm test}$ (SN+BAO anchors) \\
+\midrule
+A$\to$B & $\Lambda$CDM-like & 0.6750 & 1.0798 \\
+A$\to$B & rewrite-like & 0.9967 & 1.0820 \\
+B$\to$A & $\Lambda$CDM-like & 0.7186 & 1.2329 \\
+B$\to$A & rewrite-like & 0.4985 & 1.2458 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{KiDS-450 replication (bandpower vectors)}\label{sec:results:lss_kids}
+To demonstrate portability beyond DES, we replicate the same probe-split audit protocol on a public KiDS-450 3$\times$2pt bandpower data product (cosmic shear bandpowers, galaxy--galaxy lensing bandpowers, and clustering bandpowers) \cite{vanUitert2018KiDSGAMA,KiDSDataProducts}.
+The ingested vector has $n=100$ with an even split between shear (Probe~A; $n_A=50$) and ggl+clustering (Probe~B; $n_B=50$).
+Table~\ref{tab:lss_ppd_kids} reports held-out chi-square values under the same surrogate-backend macro families.
+Although the absolute values remain backend-dependent, the protocol yields a consistent summary artifact (train--test directions, held-out discrepancy, and reproducible provenance) that can be compared across surveys.
+
+\begin{table}[t]
+\centering
+\caption{KiDS-450 bandpower probe-split PPD audit under a surrogate LSS backend (Probe~A: shear; Probe~B: ggl+clustering).}
+\label{tab:lss_ppd_kids}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Direction & Model & Held-out block & $\chi^2_{\rm test}$ \\
+\midrule
+A$\to$B & $\Lambda$CDM-like & B (ggl+clust) & 0.0560 \\
+A$\to$B & rewrite-like & B (ggl+clust) & 0.0495 \\
+B$\to$A & $\Lambda$CDM-like & A (shear) & 0.0270 \\
+B$\to$A & rewrite-like & A (shear) & 0.0205 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Robustness suite: multiple splits, block bootstrap, covariance jitter}\label{sec:results:lss_robustness}
+Finally, we stress-test the audit protocol on DES Y3 by varying the split definition (shear versus rest, even/odd tomographic-bin proxy, low/high tomographic-bin proxy), subsampling probe-block keys (bootstrap-like block subsampling without replacement), and perturbing the covariance with small diagonal jitter.
+Across 30 requested scenarios, 26 completed successfully with 4 skipped due to insufficient points after subsampling (0 failed).
+For the canonical shear$\to$(clust+ggl) direction, the distribution of held-out improvement $\Delta\chi^2=\chi^2_{\Lambda{\rm CDM\text{-}like}}-\chi^2_{\rm rewrite\text{-}like}$ has median $\simeq 5.7\times 10^{-3}$ and interquartile range $\simeq 1.94\times 10^{-2}$ in this surrogate setting.
+The small magnitude reflects the surrogate scale of residuals; the stability of the sign and distribution across splits and jitter levels demonstrates that the evidence artifacts (tables, CSVs, provenance bundles) are robust to modest protocol perturbations, as required for P6-style accounting.
+
+\paragraph{Staging note.}
+We also performed a scale-cut (staging) sweep on the DES Y3 vectors to demonstrate the mechanics of P4 staging under the block map.
+Under the surrogate backend, the staging sweep is best treated as a protocol demonstration rather than a physics result; we therefore summarize it in Appendix~\ref{app:lss_scale_cut}.
+
+\section{Discussion}\label{sec:discussion}
+The standard interpretation of $\Lambda$CDM treats dark energy as an additional component of the cosmic energy budget. The Six Birds Theory (SBT) interpretation offered here is different in kind: it treats ``dark energy'' as the name we give to an effective correction required to obtain a closed macro description under a chosen observational interface. This section clarifies what that means, what it predicts, and how it can be tested.
+
+\subsection{Dark energy as a rewrite term induced by mismatch}\label{sec:discussion:rewrite}
+In the closure-first formulation (Section~\ref{sec:framework}), the macro model is not identified with a micro law; it is identified with a \emph{packaged} description $\PackageOp = \Completion\circ\Lens$ together with an effective macro evolution $\widetilde{T}$ satisfying Eq.~\eqref{eq:rewrite_condition}. When route mismatch is negligible, a homogeneous macro model can descend without further correction. When route mismatch is non-negligible (Eq.~\eqref{eq:route_mismatch_def}), an operator rewrite is forced if one insists on a closed macro description under the given lens.
+
+The toy results make this logic explicit: nonlinear micro-evolution under coarse-graining produces nonzero mismatch (Toy~1), and a heterogeneous patch ensemble can yield an effective acceleration proxy in the domain-average history (Toy~2). The synthetic inference results then show the observational consequence: when a null-$\Lambda$ heterogeneous generator is fit with a homogeneous completion, a $\Lambda$-like term is inferred (Section~\ref{sec:results:infer_illusion}). In this sense, $\Lambda$CDM can be viewed as a highly successful rewrite family for common cosmological lenses, rather than necessarily as direct evidence for a fundamental fluid.
+This mismatch-based framing should not be conflated with GR backreaction claims: our Toy~2 proxy is a closure diagnostic, not a relativistic averaging calculation.
+
+\paragraph{Non-uniqueness and why audits matter.}
+One may object that one can always introduce an arbitrary function $\Delta_H(z)$ to fit geometry data.
+We agree: rewrites are generally non-unique.
+The novelty in the SBT framing is not the existence of a flexible correction, but the discipline imposed by packaging and audits: a rewrite hypothesis must (i)~be tied to a lens/completion choice, (ii)~improve cross-route predictivity under probe splits (P6), and (iii)~exhibit staging dependence consistent with a packaging-induced correction rather than with a fundamental component (P4).
+
+\subsection{Why SBT is stricter than ``alternative interpretation''}\label{sec:discussion:stricter}
+SBT is not merely interpretive; it is prescriptive about what a valid macro claim requires.
+Three features are central.
+
+\paragraph{Stability (P5).}
+Packaging should be coherent: repeated application should not change the packaged object (idempotence), and the idempotence defect (Eq.~\eqref{eq:idempotence_defect}) provides a basic sanity check ensuring that numerical results are not driven by unstable projection.
+
+\paragraph{Novelty vs.\ refit (P1/P3).}
+A good macro model is not only one that fits a chosen probe; it must also clarify whether its success arises from true descent (small mismatch) or from rewrite (large mismatch but repaired by a correction).
+The synthetic experiments illustrate this distinction: matter-only closure fails badly on the mock, whereas $\Lambda$CDM and the rewrite family both repair closure on the distance probe but differ in how they perform on held-out observables.
+
+\paragraph{Directionality and accounting (P6).}
+SBT emphasizes audits: fit one route, predict another.
+A model that ``explains away'' a discrepancy by adding parameters but fails systematically in posterior-predictive checks is not a coherent closure package.
+This is why we treat probe-splitting and cross-probe bias/RMSE as primary evidence artifacts, not optional diagnostics.
+
+\subsection{Staging predictions: scale dependence and probe splits (P4)}\label{sec:discussion:staging}
+If a correction term is packaging-induced, it is expected to depend on staging choices: what the lens retains, how the completion is parameterized, and which scales are included in the data vector. Conversely, a truly fundamental cosmological constant should not exhibit structured dependence on reasonable staging changes, beyond known observational systematics.
+
+In practice this motivates two families of tests:
+(i)~\emph{scale-cut or smoothing sweeps}, in which one varies the effective lens scale and re-runs inference/audits, and
+(ii)~\emph{probe splits}, in which one fits on a subset of observables and predicts another.
+We demonstrated the mechanics of these tests in both synthetic settings and in public-vector LSS audits, with an explicit limitation that the current LSS results use a surrogate backend (Limitation~\ref{box:surrogate_lss}) and should not be read as physical parameter constraints.
+The staging sweep on DES Y3 vectors is therefore recorded as supplementary protocol evidence (Appendix~\ref{app:lss_scale_cut}), while physical staging interpretation is deferred to a backend-enabled analysis.
+Operationally, a staging fingerprint would be a structured, reproducible dependence of the inferred correction (or of cross-probe predictive bias) on lens-scale choices (e.g., scale cuts, smoothing windows, summary-statistic definitions) that (a)~persists across reasonable reanalyses, (b)~changes directionally with probe splits, and (c)~correlates with independent heterogeneity proxies when available.
+Absent these controls, staging dependence can be an observational systematic rather than a closure signature; our emphasis is therefore on probe-split audits and robustness suites rather than on any single scale-sweep curve.
+
+\subsection{How public-data audits can falsify (or support) rewrite families}\label{sec:discussion:falsify}
+A closure-first interpretation becomes scientifically useful only if it generates falsifiable consequences. The most direct falsification route is cross-probe predictivity: a rewrite family that repairs closure on one probe should not introduce systematic predictive bias on an independent probe once both are constrained consistently.
+
+Our public-probe results illustrate the current status: background-only fits prefer a nearly constant rewrite correction (the power-law shape parameter saturates at $m\simeq 0$), which is consistent with the limited lever arm of SN+BAO geometry over the sampled redshift range. In this regime, a fundamental $\Lambda$ and a constant closure correction are observationally difficult to distinguish on geometry alone. The discriminating power must therefore come from (i)~additional probes sensitive to growth and inhomogeneity, and (ii)~audit signatures under probe splits and staging changes. We also acknowledge the active debate on averaging and backreaction in relativistic cosmology and treat our closure-first claims as audit-driven rather than definitive statements about GR dynamics \cite{Clarkson2011Averaging,GreenWald2014FLRW}.
+
+\subsection{Predictions and pre-registered checklists for forthcoming likelihood releases}\label{sec:discussion:predictions}
+The repository underlying this manuscript is designed to make these tests ``switch-ready'' as new public likelihoods and data products appear. In particular, once the DES Y6 3$\times$2pt likelihood products are public, the following checklist can be executed with minimal code changes (dataset configuration swap plus backend selection), producing a reproducible manifest bundle for each run:
+
+\begin{itemize}
+  \item \textbf{(P6) Probe-split PPD on physical theory vectors:} fit shear-only and predict clustering + ggl; then reverse. Compare held-out $\chi^2$ and bias patterns between $\Lambda$CDM/$w$CDM and a rewrite-bridge family.
+  \item \textbf{(P4) Staging sweeps:} repeat the above while varying standard scale cuts (and, where applicable, alternative summary statistics) and test for structured dependence of the inferred rewrite amplitude/shape.
+  \item \textbf{(P1) Rewrite parsimony:} compare information criteria (AIC/BIC) for $\Lambda$CDM vs.\ low-parameter rewrite families; require that any added flexibility is justified by predictive improvement, not just in-sample fit.
+  \item \textbf{(P3) Mismatch proxies:} when heterogeneity proxies are available (e.g., variance-like summary diagnostics, lensing-systematics splits), test whether inferred rewrite amplitudes correlate with them as predicted by closure-induced corrections.
+  \item \textbf{(P2) Gating sensitivity:} repeat audits under alternative masks/selection/gating choices (tomographic splits, redshift cuts) to separate true staging fingerprints from selection-driven artifacts.
+  \item \textbf{(Reproducibility) Evidence bundles:} for each run, record the configuration, metrics, plots, and provenance, and publish the figure/table provenance mapping used in the manuscript.
+\end{itemize}
+
+A key point is that these predictions do not require committing to a single microphysical alternative to $\Lambda$; they require treating closure as a hypothesis with observable audit consequences.
+
+\subsection{Limitations}\label{sec:discussion:limitations}
+We close with explicit limitations, which also identify the highest-value next steps.
+
+\begin{itemize}
+  \item \textbf{Background-probe degeneracy:} with current SN+BAO geometry alone, the best-fit rewrite family collapses to a constant-like correction ($m\simeq 0$), making it difficult to distinguish a fundamental $\Lambda$ from a constant closure correction on the basis of geometry alone.
+  \item \textbf{Physical LSS backend unavailable in baseline environment:} the DES Y3 and KiDS LSS results here demonstrate audit protocol mechanics on public vectors but do not constitute a physical 3$\times$2pt likelihood reproduction (Limitation~\ref{box:surrogate_lss}).
+  \item \textbf{DES Y6 3$\times$2pt public artifacts not yet available:} the pipeline is switch-ready, but this manuscript does not report Y6 3$\times$2pt constraints because the relevant likelihood/data products were not public at the time of writing.
+  \item \textbf{Rewrite family is phenomenological:} the rewrite term used here is intentionally low-dimensional, designed to test closure hypotheses; mapping $\Delta_H(z)$ to specific inhomogeneity models is a separate step that should be constrained by audits across probes and staging. Additionally, the BAO $\alpha$-likelihood is used in its released compressed form with a fixed sound-horizon ratio (full $r_d(\theta)$ modeling is deferred).
+\end{itemize}
+
+\section{Conclusion}\label{sec:conclusion}
+This paper has presented a Six Birds Theory (SBT) framing of dark energy as a closure/rewrite term induced by coarse-graining and route mismatch between packaging and evolution. We defined the minimal primitives (lens, completion, packaging, mismatch diagnostics), demonstrated the mechanism in toy systems, showed that homogeneous inference can manufacture $\Omega_\Lambda>0$ on null-$\Lambda$ heterogeneous synthetic data, and introduced a heterogeneity-proxy rewrite family that matches $\Lambda$CDM fit quality in that synthetic setting while improving cross-probe posterior-predictive performance.
+
+On public data products, we implemented reproducible pipelines and audits for DES SN5YR and DES Y6 BAO background probes and established an LSS audit protocol on public vectors (DES Y3 and KiDS-450) with explicit staging and robustness machinery. The central message is not that $\Lambda$ is false, but that \emph{closure is a testable hypothesis}: if a correction term is packaging-induced, it should leave staging and cross-probe audit signatures that can be checked systematically as higher-fidelity likelihood releases become available.
+
+\section*{Acknowledgements}
+This work used publicly released data products from the Dark Energy Survey (DES) and KiDS collaborations. All remaining errors are our own.
+
+\appendix
+\section{Supplementary: DES Y3 scale-cut staging sweep under surrogate backend}\label{app:lss_scale_cut}
+This appendix records the DES Y3 scale-cut sweep performed as a staging (P4) demonstration on the public 2pt vectors.
+We progressively remove small-angle (or high-$\ell$) points via a minimum-scale cut and re-run the probe-split PPD evaluation for each cut.
+In the reported sweep, the optimal cut value coincides for both macro families and both directions (argmin $x_{\min}\approx 25.41$ in the run configuration), and the resulting curves should be interpreted cautiously because the surrogate backend can induce degeneracies not present in a physical theory engine.
+In particular, identical optima across models are plausibly an artifact of the surrogate degeneracy and should not be interpreted as a physical staging signature.
+We therefore treat this sweep as confirming that the \emph{staging machinery is in place} (block map $\to$ scale-cut mask $\to$ refit $\to$ held-out metrics), while deferring physical interpretation of staging dependence to a future backend-enabled analysis.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig_y3_block_boundaries.png}
+\caption{DES Y3 2pt vector diagnostic: block boundary visualization used to validate the per-element block index (probe/statistic segments) that defines our probe splits and masks.}
+\label{fig:y3_block_boundaries}
+\end{figure}
+
+\section{Reproducibility}\label{app:repro}
+This appendix describes how to reproduce the evidence artifacts (plots, tables, and metrics) used in the manuscript. The repository is designed so that (i)~external datasets are fetched through a registry with provenance and caching, (ii)~each experiment produces a self-describing run bundle (configuration, metrics, provenance, plots), and (iii)~the manuscript uses only \emph{vendored} figures and tables that are tracked in the repository.
+The repository is available at \url{https://github.com/ioannist/six-birds-de} \cite{sixbirds_de_repo}.
+
+\subsection{Paper build}\label{app:repro:paper}
+From the repository root, the manuscript PDF is built by:
+\begin{verbatim}
+make paper
+\end{verbatim}
+The build writes \texttt{\detokenize{docs/paper/build/sixbirds_dark_energy.pdf}}.
+
+\subsection{External datasets: registry, caching, and provenance}\label{app:repro:data}
+External datasets are managed through a registry and fetch utility to prevent silent drift and to preserve provenance. Dataset fetches are described by a YAML registry (see \texttt{\detokenize{data/registry.yaml}}) and executed via:
+\begin{verbatim}
+python scripts/fetch_data.py --dataset <dataset_key>
+\end{verbatim}
+Each fetched dataset is stored under \texttt{\detokenize{data/raw/<dataset_key>/}} and accompanied by a provenance record (URL, expected hash if provided, observed hash, byte count, timestamp, platform, and Python version). Re-fetching a dataset results in a cache hit when hashes match.
+
+\subsection{Experiment run bundles (manifest system)}\label{app:repro:manifests}
+Every experiment script writes a run bundle of the form \texttt{results/\allowbreak <exp\_name>/\allowbreak <timestamp>\_<gitsha>/} containing a resolved \texttt{config.yaml}, quantitative \texttt{metrics.json}, \texttt{provenance.json}, and at least one plot or table. Each run bundle also includes a short \texttt{RUN\_LOG.md} summary used as lab notes (see \texttt{docs/\allowbreak experiments/}).
+
+\subsection{From run bundles to paper artifacts (vendoring)}\label{app:repro:vendoring}
+The manuscript includes figures and quantitative tables only from tracked ``vendored'' artifacts:
+\texttt{\detokenize{docs/paper/figures/}} and \texttt{\detokenize{docs/paper/tables/}}.
+Vendoring is performed via:
+\begin{verbatim}
+python scripts/vendor_figures.py
+python scripts/vendor_tables.py
+\end{verbatim}
+Each vendoring step writes a provenance YAML file recording, for each included artifact, the originating run folder, source file, output path, hash, and timestamp: \texttt{docs/\allowbreak paper/\allowbreak figures/\allowbreak provenance.yaml} and \texttt{docs/\allowbreak paper/\allowbreak tables/\allowbreak provenance.yaml}. This ensures that the manuscript can be audited against the exact experimental outputs used at the time of writing.
+
+\subsection{One-command evidence suites and metrics aggregation}\label{app:repro:onecommand}
+For convenience, the repository provides umbrella targets that regenerate the public-data evidence suites (assuming required datasets have been fetched):
+\begin{verbatim}
+make exp-public-evidence-background
+make exp-public-evidence-lss
+\end{verbatim}
+A repository-wide aggregation of experiment metrics can be generated by:
+\begin{verbatim}
+make collect-metrics
+\end{verbatim}
+which writes \texttt{\detokenize{results/_aggregate/metrics_table.csv}} as a flattened table over all discovered \texttt{metrics.json} files.
+
+\subsection{Evidence mapping}\label{app:repro:map}
+Table~\ref{tab:evidence_map} maps each plot and quantitative table in the manuscript to its generating script/command, dataset key(s), and the run bundle used, together with the tracked vendored artifact included in the paper build.
+
+\input{tables/evidence_map.tex}
+
+\bibliographystyle{unsrt}
+\bibliography{refs}
+
+\end{document}

@@ -1,0 +1,24 @@
+schema_version: 0
+seed: 123
+
+dataset:
+  key: des_y3a2_datavectors_2pt
+  file: 2pt_maglim_covupdate.fits
+  kind: fits_2pt
+
+mask:
+  kind: all
+  first_n: null
+  indices: null
+
+split:
+  kind: none
+  A: null
+  B: null
+
+theory_stub:
+  frac_sigma: 0.1
+
+run:
+  exp_name: lss_config_smoke
+  note: "Y3 maglim smoke config"

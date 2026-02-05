@@ -1,0 +1,8 @@
+exp_name: 3x2pt_smoke_like
+dataset_key: des_y3a2_datavectors_2pt
+fits_filename: 2pt_maglim_covupdate.fits
+mask:
+  kind: all
+  first_n: null
+theory_stub:
+  frac_sigma: 0.1
