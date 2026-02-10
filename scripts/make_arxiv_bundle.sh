@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PAPER_DIR="$ROOT_DIR/docs/paper"
 BUILD_DIR="$PAPER_DIR/build"
 STAGE_DIR="$BUILD_DIR/arxiv_staging"
-ZIP_PATH="$BUILD_DIR/sixbirds_dark_energy_arxiv.zip"
+ZIP_PATH="$BUILD_DIR/arxiv_source_upload.zip"
 
 rm -rf "$STAGE_DIR"
 mkdir -p "$STAGE_DIR/tables" "$STAGE_DIR/figures"

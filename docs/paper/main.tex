@@ -1,5 +1,7 @@
 \documentclass[11pt]{article}
 
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage[margin=1in]{geometry}
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
@@ -12,6 +14,12 @@
 \graphicspath{{figures/}}
 
 \input{macros}
+
+% Affiliation helper (HAL-compatible author block).
+\makeatletter
+\newcommand{\affiliation}[1]{\gdef\@affiliation{#1}}
+\newcommand{\printaffiliation}{\begin{center}\small \@affiliation\end{center}}
+\makeatother
 
 % Theorem-like environments (used lightly; proofs omitted in this manuscript).
 \theoremstyle{definition}
@@ -35,26 +43,25 @@
 % Cover-page footer style (matches sixbirds-mathematics)
 \fancypagestyle{firstpage}{%
   \fancyhf{}
-  \fancyfoot[C]{\scriptsize DOI: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480} \quad \textcopyright\ 2026 Automorph Inc.}
+  \fancyfoot[C]{\scriptsize DOI: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480} \quad \textcopyright\ 2026 Automorph Inc. \quad Licensed under CC-BY 4.0 International.}
   \renewcommand{\headrulewidth}{0pt}
   \renewcommand{\footrulewidth}{0pt}
 }
 
-\title{A Six Birds' Eye View of Dark Energy:\\Closure, Route Mismatch, and Audits for Apparent Acceleration}
-\author{Ioannis Tsiokos\\\texttt{ioannis@automorph.io}}
+\title{A Six Birds' Eye View of Dark Energy: Closure, Route Mismatch, and Audits for Apparent Acceleration}
+\author{Ioannis Tsiokos\textsuperscript{1}}
+\affiliation{\textsuperscript{1}Automorph Inc., 1207 Delaware Ave \#4131, Wilmington, DE 19806, USA}
 \date{5 February 2026}
 
 \begin{document}
 \maketitle
 \thispagestyle{firstpage}
+\printaffiliation
 
 \begin{abstract}
-Empirical cosmology infers late-time acceleration by fitting homogeneous FLRW models to data products that are, by construction, coarse-grained summaries of an inhomogeneous universe. This procedure makes it difficult to separate a fundamental component from a closure correction required by the coarse-graining itself. We apply Six Birds Theory (SBT) to treat cosmological modeling as a closure package consisting of a lens (specifying what is retained), a completion (specifying how discarded structure is filled in), and audits (testing whether the packaged macro description is dynamically coherent under evolution).
-
-Operationally, we implement a minimal computational API for lenses, completions, packaging operators, idempotence defects, and route mismatch, together with provenance-tracked run bundles and PPD-style cross-probe audits. In calibrated toy systems, route mismatch is (numerically) zero in a linear control regime and becomes strictly positive when nonlinearity is turned on; in a patch-expansion proxy, a homogeneous-control case yields $Q(t)\approx 0$, whereas heterogeneous initial conditions produce a positive acceleration proxy ($Q_{\rm peak}\approx 1.74$) and $\ddot a_{\mathcal{D}}>0$ for $\sim 99\%$ of late-time samples. Using synthetic distance--redshift data from a null-$\Lambda$ heterogeneous generator, homogeneous $\Lambda$CDM fitting recovers $\Omega_\Lambda\simeq 0.60$, and a heterogeneity-proxy rewrite term matches $\Lambda$CDM fit quality and improves held-out prediction of a heterogeneity proxy by $\sim 100\times$ in RMSE. On public DES SN5YR and DES Y6 BAO releases we demonstrate the same provenance and audit pipeline.
-
-These results turn ``dark energy'' into an audit-driven rewrite hypothesis with staging and probe-split tests rather than a default new fluid. We are explicit that a fundamental cosmological constant is not ruled out here; current background probes prefer an approximately constant correction over the sampled redshift range and our LSS demonstrations are protocol-level under a surrogate backend pending physical 3$\times$2pt likelihoods.
+Empirical cosmology infers late-time acceleration by fitting homogeneous FLRW models to data products that are, by construction, coarse-grained summaries of an inhomogeneous universe. This procedure makes it difficult to separate a fundamental component from a closure correction required by the coarse-graining itself. We apply Six Birds Theory (SBT) to treat cosmological modeling as a closure package consisting of a lens (specifying what is retained), a completion (specifying how discarded structure is filled in), and audits (testing whether the packaged macro description is dynamically coherent under evolution). Operationally, we implement a minimal computational API for lenses, completions, packaging operators, idempotence defects, and route mismatch, together with provenance-tracked run bundles and PPD-style cross-probe audits. In calibrated toy systems, route mismatch is (numerically) zero in a linear control regime and becomes strictly positive when nonlinearity is turned on; in a patch-expansion proxy, a homogeneous-control case yields $Q(t)\approx 0$, whereas heterogeneous initial conditions produce a positive acceleration proxy ($Q_{\rm peak}\approx 1.74$) and $\ddot a_{\mathcal{D}}>0$ for $\sim 99\%$ of late-time samples. Using synthetic distance--redshift data from a null-$\Lambda$ heterogeneous generator, homogeneous $\Lambda$CDM fitting recovers $\Omega_\Lambda\simeq 0.60$, and a heterogeneity-proxy rewrite term matches $\Lambda$CDM fit quality and improves held-out prediction of a heterogeneity proxy by $\sim 100\times$ in RMSE. On public DES SN5YR and DES Y6 BAO releases we demonstrate the same provenance and audit pipeline. These results turn ``dark energy'' into an audit-driven rewrite hypothesis with staging and probe-split tests rather than a default new fluid. We are explicit that a fundamental cosmological constant is not ruled out here; current background probes prefer an approximately constant correction over the sampled redshift range and our LSS demonstrations are protocol-level under a surrogate backend pending physical 3$\times$2pt likelihoods.
 \end{abstract}
+\noindent\textbf{keywords:} dark energy; coarse-graining; six birds; emergence calculus; cosmology
 
 \section{Introduction}\label{sec:intro}
 Cosmological ``dark energy'' is usually introduced as an additional component in the stress--energy budget of an otherwise homogeneous Friedmann--Lema\^{i}tre--Robertson--Walker (FLRW) universe. Empirically, the case for late-time acceleration is established by comparing model-predicted distance measures and clustering statistics to survey data products, and the resulting minimal phenomenological description is $\Lambda$CDM \cite{Riess1998SN,Perlmutter1999SN,Weinberg2013Acceleration}. The conceptual step that often remains implicit is that the fitted homogeneous description is treated as a closed macro-dynamical system: the model is evolved forward in time at the macro level, and its predictions are compared directly to observations. This paper asks what is required for that ``macro closure'' step to be justified, and what it means when it fails.
