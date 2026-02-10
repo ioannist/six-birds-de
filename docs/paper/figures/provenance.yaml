@@ -5,7 +5,7 @@ fig_des_sn5yr_mu_residuals.png:
   sha256: 4a6bf70baabf7b07843f9c35a36065966c2ebb6e8ce6737297f1bcf8e8b9b8da
   source_file: sn5yr_mu_residuals.png
   source_relpath: results/fit_des_sn5yr/20260205T121850Z_0e613291189050d851e90a930e75f83ee7085b9b/sn5yr_mu_residuals.png
-  timestamp_utc: '2026-02-06T19:02:54.285787Z'
+  timestamp_utc: '2026-02-10T11:41:23.983032Z'
 fig_des_y6_bao_alpha_likelihood.png:
   bytes: 50888
   dest_relpath: docs/paper/figures/fig_des_y6_bao_alpha_likelihood.png
@@ -13,7 +13,7 @@ fig_des_y6_bao_alpha_likelihood.png:
   sha256: 91c131028d68c9f3bafa7a6cb2ef04aecc5fd0827cda0a6ec793a21705cc8bfa
   source_file: alpha_likelihood.png
   source_relpath: results/fit_des_y6_bao/20260203T075814Z_nogit/alpha_likelihood.png
-  timestamp_utc: '2026-02-06T19:02:54.286044Z'
+  timestamp_utc: '2026-02-10T11:41:23.983312Z'
 fig_infer_distance_fit.png:
   bytes: 29275
   dest_relpath: docs/paper/figures/fig_infer_distance_fit.png
@@ -21,7 +21,7 @@ fig_infer_distance_fit.png:
   sha256: 1087ed4c67487236af5cdc8d0876275ae8045bc1503bd8322ccafbd2e00362f0
   source_file: distance_fit.png
   source_relpath: results/infer_distance/20260202T190430Z_nogit/distance_fit.png
-  timestamp_utc: '2026-02-06T19:02:54.284626Z'
+  timestamp_utc: '2026-02-10T11:41:23.981990Z'
 fig_ppd_background_bao_alpha.png:
   bytes: 34889
   dest_relpath: docs/paper/figures/fig_ppd_background_bao_alpha.png
@@ -29,7 +29,7 @@ fig_ppd_background_bao_alpha.png:
   sha256: 3a8a175390f785e7c6af013dcdf29ac267f9bd521d2d491996eacc46c72320af
   source_file: ppd_bao_alpha.png
   source_relpath: results/ppd_background/20260203T094137Z_nogit/ppd_bao_alpha.png
-  timestamp_utc: '2026-02-06T19:02:54.286275Z'
+  timestamp_utc: '2026-02-10T11:41:23.983545Z'
 fig_ppd_synth_rmse_across_seeds.png:
   bytes: 13184
   dest_relpath: docs/paper/figures/fig_ppd_synth_rmse_across_seeds.png
@@ -37,7 +37,7 @@ fig_ppd_synth_rmse_across_seeds.png:
   sha256: 9c81f1060e3ac3348b9f7a0660de8a266995b165370bd1615b5462812f71058c
   source_file: ppd_rmse_across_seeds.png
   source_relpath: results/ppd_synthetic/20260202T201136Z_nogit/ppd_rmse_across_seeds.png
-  timestamp_utc: '2026-02-06T19:02:54.285474Z'
+  timestamp_utc: '2026-02-10T11:41:23.982407Z'
 fig_rewrite_vs_lambda_distance_fit.png:
   bytes: 31092
   dest_relpath: docs/paper/figures/fig_rewrite_vs_lambda_distance_fit.png
@@ -45,7 +45,7 @@ fig_rewrite_vs_lambda_distance_fit.png:
   sha256: f6643e80b66094dd337a7f543f147cb70da001bb7ad6120cf1dcfde256c2c27a
   source_file: rewrite_distance_fit.png
   source_relpath: results/rewrite_vs_lambda/20260202T194715Z_nogit/rewrite_distance_fit.png
-  timestamp_utc: '2026-02-06T19:02:54.284851Z'
+  timestamp_utc: '2026-02-10T11:41:23.982217Z'
 fig_toy1_rm_summary_vs_beta.png:
   bytes: 22822
   dest_relpath: docs/paper/figures/fig_toy1_rm_summary_vs_beta.png
@@ -53,7 +53,7 @@ fig_toy1_rm_summary_vs_beta.png:
   sha256: cb4bb4a78c974c9dcf7c75bddb9268aa23a426c4db77cf0fcf68e58d05696e23
   source_file: rm_summary_vs_beta.png
   source_relpath: results/toy1/20260202T175625Z_nogit/rm_summary_vs_beta.png
-  timestamp_utc: '2026-02-06T19:02:54.284152Z'
+  timestamp_utc: '2026-02-10T11:41:23.981516Z'
 fig_toy2_Q_vs_time.png:
   bytes: 17374
   dest_relpath: docs/paper/figures/fig_toy2_Q_vs_time.png
@@ -61,7 +61,7 @@ fig_toy2_Q_vs_time.png:
   sha256: aa3c775a141c02242048e1d04e1b359b48d2b8ea21c7bbff627d344907d5b456
   source_file: Q_vs_time.png
   source_relpath: results/toy2_patch/20260202T182630Z_nogit/Q_vs_time.png
-  timestamp_utc: '2026-02-06T19:02:54.284396Z'
+  timestamp_utc: '2026-02-10T11:41:23.981758Z'
 fig_y3_block_boundaries.png:
   bytes: 27143
   dest_relpath: docs/paper/figures/fig_y3_block_boundaries.png
@@ -69,4 +69,4 @@ fig_y3_block_boundaries.png:
   sha256: bb4281116b9fafce6ce6636c7452934b694f271fbb7c99bc2c7c1ece549b7d35
   source_file: block_boundaries.png
   source_relpath: results/des_y3_blockmap/20260204T045551Z_nogit/block_boundaries.png
-  timestamp_utc: '2026-02-06T19:02:54.286485Z'
+  timestamp_utc: '2026-02-10T11:41:23.983757Z'

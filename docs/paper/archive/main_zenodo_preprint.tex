@@ -10,7 +10,6 @@
 \usepackage{fancyhdr}
 \usepackage[hidelinks]{hyperref}
 \usepackage{pdflscape}
-\usepackage{orcidlink}
 
 \graphicspath{{figures/}}
 
@@ -44,15 +43,15 @@
 % Cover-page footer style (matches sixbirds-mathematics)
 \fancypagestyle{firstpage}{%
   \fancyhf{}
-  \fancyfoot[C]{\scriptsize Automorph Inc., Wilmington, DE, USA \quad \texttt{ioannis@automorph.io} \quad DOI: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480} \quad \textcopyright\ 2026 \quad CC-BY 4.0 \quad Preprint --- not peer reviewed.}
+  \fancyfoot[C]{\scriptsize DOI: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480} \quad \textcopyright\ 2026 Automorph Inc. \quad Licensed under CC-BY 4.0 International.}
   \renewcommand{\headrulewidth}{0pt}
   \renewcommand{\footrulewidth}{0pt}
 }
 
 \title{A Six Birds' Eye View of Dark Energy: Closure, Route Mismatch, and Audits for Apparent Acceleration}
-\author{Ioannis Tsiokos\,\orcidlink{0009-0009-7659-5964}}
-\affiliation{}
-\date{5 February 2026\\[4pt]{\small Version 2 (revised 10 February 2026) \quad$\cdot$\quad Zenodo v1: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480}}}
+\author{Ioannis Tsiokos\textsuperscript{1}}
+\affiliation{\textsuperscript{1}Automorph Inc., 1207 Delaware Ave \#4131, Wilmington, DE 19806, USA}
+\date{5 February 2026}
 
 \begin{document}
 \maketitle
@@ -60,9 +59,9 @@
 \printaffiliation
 
 \begin{abstract}
-Empirical cosmology infers late-time acceleration by fitting homogeneous FLRW models to data products that are, by construction, coarse-grained summaries of an inhomogeneous universe. This procedure makes it difficult to separate a fundamental component from a closure correction required by the coarse-graining itself. We apply Six Birds Theory (SBT) to treat cosmological modeling as a closure package consisting of a lens (specifying what is retained), a completion (specifying how discarded structure is filled in), and audits (testing whether the packaged macro description is dynamically coherent under evolution). Operationally, we implement a minimal computational API for lenses, completions, packaging operators, idempotence defects, and route mismatch, together with provenance-tracked run bundles and PPD-style cross-probe audits. In calibrated toy systems, route mismatch is (numerically) zero in a linear control regime and becomes strictly positive when nonlinearity is turned on; in a patch-expansion proxy, a homogeneous-control case yields $Q(t)\approx 0$, whereas heterogeneous initial conditions produce a positive acceleration proxy ($Q_{\rm peak}\approx 1.74$) and $\ddot a_{\mathcal{D}}>0$ for $\sim 99\%$ of late-time samples. Using synthetic distance--redshift data from a null-$\Lambda$ heterogeneous generator, homogeneous $\Lambda$CDM fitting recovers $\Omega_\Lambda\simeq 0.60$, and a heterogeneity-proxy rewrite term matches $\Lambda$CDM fit quality and improves held-out prediction of a heterogeneity proxy by $\sim 100\times$ in RMSE. On public DES SN5YR and DES Y6 BAO releases we demonstrate the same provenance and audit pipeline. These results motivate framing ``dark energy'' as an audit-driven rewrite hypothesis with staging and probe-split tests rather than a default new fluid. We are explicit that a fundamental cosmological constant is not ruled out here; current background probes prefer an approximately constant correction over the sampled redshift range and our LSS demonstrations are protocol-level under a surrogate backend pending physical 3$\times$2pt likelihoods.
+Empirical cosmology infers late-time acceleration by fitting homogeneous FLRW models to data products that are, by construction, coarse-grained summaries of an inhomogeneous universe. This procedure makes it difficult to separate a fundamental component from a closure correction required by the coarse-graining itself. We apply Six Birds Theory (SBT) to treat cosmological modeling as a closure package consisting of a lens (specifying what is retained), a completion (specifying how discarded structure is filled in), and audits (testing whether the packaged macro description is dynamically coherent under evolution). Operationally, we implement a minimal computational API for lenses, completions, packaging operators, idempotence defects, and route mismatch, together with provenance-tracked run bundles and PPD-style cross-probe audits. In calibrated toy systems, route mismatch is (numerically) zero in a linear control regime and becomes strictly positive when nonlinearity is turned on; in a patch-expansion proxy, a homogeneous-control case yields $Q(t)\approx 0$, whereas heterogeneous initial conditions produce a positive acceleration proxy ($Q_{\rm peak}\approx 1.74$) and $\ddot a_{\mathcal{D}}>0$ for $\sim 99\%$ of late-time samples. Using synthetic distance--redshift data from a null-$\Lambda$ heterogeneous generator, homogeneous $\Lambda$CDM fitting recovers $\Omega_\Lambda\simeq 0.60$, and a heterogeneity-proxy rewrite term matches $\Lambda$CDM fit quality and improves held-out prediction of a heterogeneity proxy by $\sim 100\times$ in RMSE. On public DES SN5YR and DES Y6 BAO releases we demonstrate the same provenance and audit pipeline. These results turn ``dark energy'' into an audit-driven rewrite hypothesis with staging and probe-split tests rather than a default new fluid. We are explicit that a fundamental cosmological constant is not ruled out here; current background probes prefer an approximately constant correction over the sampled redshift range and our LSS demonstrations are protocol-level under a surrogate backend pending physical 3$\times$2pt likelihoods.
 \end{abstract}
-\noindent\textbf{keywords:} dark energy; coarse-graining; cosmological backreaction; closure; posterior predictive checks; data compression; six birds; cosmology
+\noindent\textbf{keywords:} dark energy; coarse-graining; six birds; emergence calculus; cosmology
 
 \section{Introduction}\label{sec:intro}
 Cosmological ``dark energy'' is usually introduced as an additional component in the stress--energy budget of an otherwise homogeneous Friedmann--Lema\^{i}tre--Robertson--Walker (FLRW) universe. Empirically, the case for late-time acceleration is established by comparing model-predicted distance measures and clustering statistics to survey data products, and the resulting minimal phenomenological description is $\Lambda$CDM \cite{Riess1998SN,Perlmutter1999SN,Weinberg2013Acceleration}. The conceptual step that often remains implicit is that the fitted homogeneous description is treated as a closed macro-dynamical system: the model is evolved forward in time at the macro level, and its predictions are compared directly to observations. This paper asks what is required for that ``macro closure'' step to be justified, and what it means when it fails.
@@ -74,24 +73,17 @@ Six Birds Theory (SBT) provides a vocabulary designed for precisely this situati
 \end{equation}
 so that ``evolve then package'' differs from ``package then evolve.'' When this mismatch is non-negligible, a closed homogeneous macro law cannot be expected to emerge from micro-evolution without modification. SBT classifies such modification as an \emph{operator rewrite}: the effective macro evolution must be changed (the ``P1'' primitive) to restore coherence under the chosen interface.
 
-From this viewpoint, dark energy can be reinterpreted as a rewrite term required by closure. In the standard cosmology pipeline, the lens is determined by the data product (e.g., distance--redshift summaries, BAO dilation measures, or two-point functions), and the completion is the modeling assumption that a homogeneous FLRW spacetime---augmented by a small number of parameters---provides an adequate macro completion. If route mismatch is present, the completion must either be refined (track more macro variables), the lens must be changed (retain more information), or the macro operator must be rewritten. $\Lambda$CDM can then be viewed as one widely successful rewrite family that repairs closure under common lenses.
+From this viewpoint, dark energy is naturally reinterpreted as a rewrite term required by closure. In the standard cosmology pipeline, the lens is determined by the data product (e.g., distance--redshift summaries, BAO dilation measures, or two-point functions), and the completion is the modeling assumption that a homogeneous FLRW spacetime---augmented by a small number of parameters---provides an adequate macro completion. If route mismatch is present, the completion must either be refined (track more macro variables), the lens must be changed (retain more information), or the macro operator must be rewritten. $\Lambda$CDM can then be viewed as one widely successful rewrite family that repairs closure under common lenses.
 
 \paragraph{Scope boundary.}
 This paper does not claim to refute a fundamental cosmological constant, nor does it propose a specific microphysical alternative. Our claim is methodological and testable: \emph{given a particular lens and completion, a nonzero effective acceleration term can arise as the closure correction required by route mismatch}, and this correction should leave audit signatures that differ from those of a truly fundamental component. We therefore focus on (i) making the closure assumptions explicit, (ii) providing reproducible mismatch- and audit-based diagnostics, and (iii) demonstrating the protocol on public data products that do not require proprietary likelihood code. In particular, although we build a switch-ready data layer for 3$\times$2pt large-scale-structure (LSS) vectors, we do not present a full physical 3$\times$2pt likelihood reproduction in this manuscript; instead, we use probe-splitting and staging audits on the public vectors as a closure-consistency demonstration. The public DES Y6 3$\times$2pt cosmology likelihoods were not available at the time of this writing, and our results do not depend on them.
-
-\paragraph{Related work.}
-The idea that cosmological backreaction from inhomogeneities could mimic or contribute to apparent acceleration has a substantial literature.
-Buchert's averaging formalism for dust and perfect-fluid cosmologies \cite{Buchert2000Dust,Buchert2001PerfectFluid} provides the foundational kinematical framework; Clarkson et al.\ \cite{Clarkson2011Averaging} offer a comprehensive review of the averaging, backreaction, and fitting problems.
-R\"as\"anen \cite{Rasanen2004Backreaction} and Kolb et al.\ \cite{Kolb2006Acceleration} explored scenarios in which backreaction could be quantitatively significant, while Green \& Wald \cite{GreenWald2014FLRW} argued on rigorous perturbative grounds that FLRW is a good approximation under standard conditions, placing important constraints on the viability of large backreaction effects.
-Wiltshire \cite{Wiltshire2007Cosmic} proposed a ``timescape'' model treating observers in voids and walls differently, and Buchert et al.\ \cite{Buchert2015Backreaction} subsequently compiled an extensive status report on the backreaction debate.
-Our work does not resolve this debate but contributes a distinct methodological layer: rather than computing backreaction magnitudes within a specific GR averaging scheme, we provide a model-comparison and audit framework that can be applied to any proposed macro description and tested against public data products.
 
 \paragraph{Contributions.}
 We make the following concrete, falsifiable contributions:
 \begin{enumerate}
   \item \textbf{Closure-first formulation of dark energy.} We restate cosmological inference as a packaging problem involving a lens, a completion, and an induced packaging operator, and we identify route mismatch as the mechanism that forces operator rewrite terms at the macro level \cite{Tsiokos2026SixBirds,Tsiokos2026WakeStone}.
   \item \textbf{A reproducible computational and audit toolkit.} We implement a minimal API for lenses, completions, packaging, route mismatch, and idempotence defects, together with run manifests, provenance, and PPD-style cross-probe audits that standardize evidence reporting across experiments.
-  \item \textbf{Mechanism and inference demonstrations.} We provide toy nonlinear and patch-cosmology proxies in which coarse-graining generates mismatch and an effective acceleration proxy; we also show, with synthetic distance--redshift data, that a null-$\Lambda$ heterogeneous generator can be mis-fit by a homogeneous $\Lambda$CDM model, yielding $\Omega_\Lambda>0$ as a closure-induced inference artifact.
+  \item \textbf{Mechanism and inference demonstrations.} We provide toy nonlinear and patch-cosmology proxies in which coarse-graining generates mismatch and an effective acceleration proxy; we also show, with synthetic distance--redshift data, that a null-$\Lambda$ heterogeneous generator can be mis-fit by a homogeneous $\Lambda$CDM model, yielding $\Omega_\Lambda>0$ as an inference illusion.
   \item \textbf{Rewrite without fundamental $\Lambda$.} We introduce a mismatch-derived macro rewrite term that can match $\Lambda$CDM fit quality in the synthetic setting with comparable parameter count, and whose amplitude tracks heterogeneity in the toy generator.
   \item \textbf{Public-data instantiations and audits.} We demonstrate the data/provenance pipeline and cross-probe audits on public DES SN5YR distances and DES Y6 BAO $\alpha$-likelihood releases \cite{DES2024SN5YRCosmology,DES2024SN5YRData,DES2024Y6BAO}, and we apply the same audit protocol to public LSS vectors from DES Y3 and KiDS-450 \cite{DES2022Y3_3x2pt,vanUitert2018KiDSGAMA,KiDSDataProducts}.
 \end{enumerate}
@@ -261,7 +253,7 @@ and the idempotence defect $\iddef(x)$ as in Eq.~\eqref{eq:idempotence_defect}.
 In this construction $\PackageOp$ is exactly idempotent (up to floating point), so $\iddef$ serves primarily as a numerical sanity check, while $\RM$ captures the failure of coarse-grained closure driven by nonlinearity.
 
 \subsection{Toy model 2: patch-expansion proxy and an acceleration diagnostic}\label{sec:methods:toy2}
-Toy~2 is a cosmology-motivated proxy designed to capture the key structural feature relevant to dark energy inference: heterogeneous expansion histories that become ``homogenized'' by a volume-average lens.
+Toy~2 is a cosmology-flavored proxy intended to mimic the key structural feature relevant to dark energy inference: heterogeneous expansion histories that become ``homogenized'' by a volume-average lens.
 
 \paragraph{Patch ensemble.}
 We consider $N$ patches indexed by $i=1,\ldots,N$, each with a local scale factor $a_i(t)$ and matter density $\rho_i(t)$.
@@ -304,7 +296,7 @@ Q(t) \;:=\; 3\,\frac{\ddot a_{\mathcal{D}}(t)}{a_{\mathcal{D}}(t)} \;+\; g_{4\pi
 Positive $Q$ indicates that the domain-average evolution departs from a homogeneous dust closure in the direction of an ``effective acceleration'' term.
 
 \subsection{Synthetic distance--redshift mock and macro-model fits}\label{sec:methods:synthetic_distance}
-To demonstrate how closure mismatch can produce an apparent $\Lambda$-like signal, we treat the Toy~2 domain-average history as a source of synthetic ``observations'' and fit homogeneous macro models to them.
+To demonstrate the \emph{inference illusion} mechanism, we treat the Toy~2 domain-average history as a source of synthetic ``observations'' and fit homogeneous macro models to them.
 
 \paragraph{Redshift mapping.}
 We normalize the domain scale factor so that $a_{\mathcal{D}}(t_0)=1$ at the final simulation time $t_0$ and define
@@ -504,7 +496,7 @@ As expected for the mean-lens packaging in this construction, the idempotence de
 Toy~2 is a patch-expansion proxy in which each patch follows a local decelerating law, but the domain-average history under the volume-average lens can depart from homogeneous dust closure.
 Table~\ref{tab:toy2} reports the diagnostic $Q(t)$ defined in Eq.~\eqref{eq:toy2_Q_def}.
 Under homogeneous initial conditions, $Q$ is consistent with numerical zero (maximum absolute value at machine precision), whereas heterogeneous initial conditions yield a strictly positive peak ($Q_{\rm peak}\approx 1.74$) and a late-time regime in which $\ddot{a}_{\mathcal{D}}>0$ for most sampled times (late-time positive fraction $\approx 0.988$; Table~\ref{tab:toy2}).
-This illustrates the minimal ``apparent acceleration'' mechanism: heterogeneity plus coarse-grained packaging can produce an effective acceleration proxy even when no fundamental $\Lambda$ is present in the generator.
+This establishes the minimal ``apparent acceleration'' mechanism: heterogeneity plus coarse-grained packaging can produce an effective acceleration proxy even when no fundamental $\Lambda$ is present in the generator.
 We emphasize that $Q(t)$ here is a closure diagnostic defined by Eq.~\eqref{eq:toy2_Q_def} for this proxy model; it is not the GR-averaging kinematical backreaction term, and we do not claim Toy~2 constitutes a relativistic backreaction calculation.
 
 \input{tables/tab_toy2_summary.tex}
@@ -516,14 +508,14 @@ We emphasize that $Q(t)$ here is a closure diagnostic defined by Eq.~\eqref{eq:t
 \label{fig:toy2_Q}
 \end{figure}
 
-\subsection{Synthetic inference: \texorpdfstring{$\Omega_\Lambda>0$}{Omega\_Lambda > 0} as a closure-induced artifact}\label{sec:results:synthetic}
+\subsection{Synthetic inference: \texorpdfstring{$\Omega_\Lambda>0$}{Omega\_Lambda > 0} as a closure-induced illusion}\label{sec:results:synthetic}
 We next treat the Toy~2 domain-average history as a generator of synthetic distance--redshift data (Section~\ref{sec:methods:synthetic_distance}) and fit homogeneous macro models to that mock observation.
 This isolates the inference question: what does a homogeneous model infer when the underlying generator is heterogeneous but observed through a coarse lens?
 
 \subsubsection{Homogeneous fits infer \texorpdfstring{$\Omega_\Lambda\simeq 0.6$}{Omega\_Lambda = 0.6} from null-\texorpdfstring{$\Lambda$}{Lambda} synthetic data}\label{sec:results:infer_illusion}
 For one heterogeneous regime, a $\Lambda$CDM background fit yields $\Omega_\Lambda\simeq 0.60$ even though the data were generated from a null-$\Lambda$ heterogeneous toy universe.
 Moreover, the $\Lambda$CDM fit improves the objective dramatically compared to a matter-only homogeneous model (information-criterion improvement $\Delta\mathrm{AIC}\sim 8.2\times 10^{3}$ in this mock; see Table~\ref{tab:synth_inference} for the corresponding chi-square and AIC values).
-This is the closure-induced inference artifact predicted by the packaging viewpoint: when packaging does not commute with micro-evolution, a homogeneous completion introduces an effective rewrite term when forced to match lensed summaries.
+This is the ``inference illusion'' predicted by the closure-first viewpoint: when packaging does not commute with micro-evolution, a homogeneous completion introduces an effective rewrite term when forced to match lensed summaries.
 
 \begin{figure}[t]
 \centering
@@ -629,7 +621,7 @@ For combined fits we use
 
 In both SN-only and SN+BAO fits, the rewrite model matches the best-fit chi-square of $\Lambda$CDM but pays the expected information-criterion penalty for the extra parameter (typically $\Delta\mathrm{AIC}\approx 2$).
 Moreover, the best-fit shape parameter saturates at $m\simeq 0$ in these background-only fits, so the rewrite term collapses to a constant contribution over the probed redshift range.
-This outcome is notable: with current background probes alone, the data prefer a nearly constant closure correction, consistent with why $\Lambda$CDM is phenomenologically successful for geometry.
+This is an informative outcome: with current background probes alone, the data prefer a nearly constant closure correction, consistent with why $\Lambda$CDM is phenomenologically successful for geometry.
 In the closure-first view, time variation (or additional state variables) would be demanded only if audits across multiple probes and staging choices were to require it.
 
 \input{tables/tab_background_fits.tex}
@@ -736,7 +728,7 @@ We also performed a scale-cut (staging) sweep on the DES Y3 vectors to demonstra
 Under the surrogate backend, the staging sweep is best treated as a protocol demonstration rather than a physics result; we therefore summarize it in Appendix~\ref{app:lss_scale_cut}.
 
 \section{Discussion}\label{sec:discussion}
-The standard interpretation of $\Lambda$CDM treats dark energy as an additional component of the cosmic energy budget. The Six Birds Theory (SBT) interpretation offered here is distinct in character: it treats ``dark energy'' as the name we give to an effective correction required to obtain a closed macro description under a chosen observational interface. This section clarifies what that means, what it predicts, and how it can be tested.
+The standard interpretation of $\Lambda$CDM treats dark energy as an additional component of the cosmic energy budget. The Six Birds Theory (SBT) interpretation offered here is different in kind: it treats ``dark energy'' as the name we give to an effective correction required to obtain a closed macro description under a chosen observational interface. This section clarifies what that means, what it predicts, and how it can be tested.
 
 \subsection{Dark energy as a rewrite term induced by mismatch}\label{sec:discussion:rewrite}
 In the closure-first formulation (Section~\ref{sec:framework}), the macro model is not identified with a micro law; it is identified with a \emph{packaged} description $\PackageOp = \Completion\circ\Lens$ together with an effective macro evolution $\widetilde{T}$ satisfying Eq.~\eqref{eq:rewrite_condition}. When route mismatch is negligible, a homogeneous macro model can descend without further correction. When route mismatch is non-negligible (Eq.~\eqref{eq:route_mismatch_def}), an operator rewrite is forced if one insists on a closed macro description under the given lens.
@@ -795,12 +787,6 @@ The repository underlying this manuscript is designed to make these tests ``swit
 
 A key point is that these predictions do not require committing to a single microphysical alternative to $\Lambda$; they require treating closure as a hypothesis with observable audit consequences.
 
-\subsection{Scope of claims}\label{sec:discussion:scope}
-We emphasize that the synthetic demonstrations in this paper show a \emph{mechanism}: that coarse-graining and route mismatch can generate an effective acceleration term under packaging.
-They do not, by themselves, prove that the real universe is null-$\Lambda$.
-The main contribution is the audit protocol---a set of falsifiable, probe-split, and staging-dependent tests that can distinguish a packaging-induced correction from a fundamental component as higher-fidelity data products become available.
-These tests are designed to be applied regardless of the outcome: if $\Lambda$ is fundamental, audits should show no structured staging dependence or cross-probe bias beyond known systematics; if $\Lambda$ is (partly) packaging-induced, the audit signatures described here should be detectable.
-
 \subsection{Limitations}\label{sec:discussion:limitations}
 We close with explicit limitations, which also identify the highest-value next steps.
 
@@ -812,41 +798,12 @@ We close with explicit limitations, which also identify the highest-value next s
 \end{itemize}
 
 \section{Conclusion}\label{sec:conclusion}
-This paper has presented a Six Birds Theory (SBT) framing of dark energy as a closure/rewrite term induced by coarse-graining and route mismatch between packaging and evolution. We defined the minimal primitives (lens, completion, packaging, mismatch diagnostics), demonstrated the mechanism in toy systems, showed that homogeneous inference can yield $\Omega_\Lambda>0$ from null-$\Lambda$ heterogeneous synthetic data, and introduced a heterogeneity-proxy rewrite family that matches $\Lambda$CDM fit quality in that synthetic setting while improving cross-probe posterior-predictive performance.
+This paper has presented a Six Birds Theory (SBT) framing of dark energy as a closure/rewrite term induced by coarse-graining and route mismatch between packaging and evolution. We defined the minimal primitives (lens, completion, packaging, mismatch diagnostics), demonstrated the mechanism in toy systems, showed that homogeneous inference can manufacture $\Omega_\Lambda>0$ on null-$\Lambda$ heterogeneous synthetic data, and introduced a heterogeneity-proxy rewrite family that matches $\Lambda$CDM fit quality in that synthetic setting while improving cross-probe posterior-predictive performance.
 
 On public data products, we implemented reproducible pipelines and audits for DES SN5YR and DES Y6 BAO background probes and established an LSS audit protocol on public vectors (DES Y3 and KiDS-450) with explicit staging and robustness machinery. The central message is not that $\Lambda$ is false, but that \emph{closure is a testable hypothesis}: if a correction term is packaging-induced, it should leave staging and cross-probe audit signatures that can be checked systematically as higher-fidelity likelihood releases become available.
 
 \section*{Acknowledgements}
 This work used publicly released data products from the Dark Energy Survey (DES) and KiDS collaborations. All remaining errors are our own.
-
-\section*{Declarations}
-
-\paragraph{Competing interests.}
-The author declares no competing interests.
-
-\paragraph{Funding.}
-No external funding was received for this research.
-
-\paragraph{Ethics approval.}
-Not applicable; no human or animal participants or personal data were involved.
-
-\paragraph{Data availability.}
-All observational data used in this study are publicly available.
-DES SN5YR distance-modulus data and covariance: Zenodo \href{https://doi.org/10.5281/zenodo.12720778}{10.5281/zenodo.12720778} \cite{DES2024SN5YRData}.
-DES Y6 BAO $\alpha$-likelihood: published with \cite{DES2024Y6BAO}.
-DES Y3 3$\times$2pt data vectors: published with \cite{DES2022Y3_3x2pt}.
-KiDS-450 bandpower products: \url{http://kids.strw.leidenuniv.nl/} \cite{vanUitert2018KiDSGAMA,KiDSDataProducts}.
-Synthetic data and the seeds used to generate them are included in the code repository (see below).
-
-\paragraph{Code availability.}
-The full analysis code, experiment runners, and manuscript build system are available at \url{https://github.com/ioannist/six-birds-de}.
-A permanent archived snapshot is deposited on Zenodo: \href{https://doi.org/10.5281/zenodo.18595154}{10.5281/zenodo.18595154}.
-
-\paragraph{Author contributions.}
-I.\ Tsiokos: Conceptualization, Methodology, Software, Investigation, Data curation, Formal analysis, Visualization, Writing (all stages).
-
-\paragraph{Use of AI assistants.}
-Portions of the codebase were written and edited with the assistance of ChatGPT (OpenAI) and Claude Code (Anthropic). All AI-generated code was reviewed, tested, and validated by the author. The scientific content, analysis design, and interpretation are solely the author's.
 
 \appendix
 \section{Supplementary: DES Y3 scale-cut staging sweep under surrogate backend}\label{app:lss_scale_cut}
@@ -905,22 +862,6 @@ A repository-wide aggregation of experiment metrics can be generated by:
 make collect-metrics
 \end{verbatim}
 which writes \texttt{\detokenize{results/_aggregate/metrics_table.csv}} as a flattened table over all discovered \texttt{metrics.json} files.
-
-\subsection{How to reproduce all figures}\label{app:repro:howto}
-Starting from a clean clone:
-\begin{verbatim}
-git clone https://github.com/ioannist/six-birds-de.git
-cd six-birds-de
-pip install -e ".[dev]"
-python scripts/fetch_data.py --all       # download public datasets
-make exp-all                             # run all experiments
-python scripts/vendor_figures.py         # copy figures to paper dir
-python scripts/vendor_tables.py          # copy tables to paper dir
-make paper                               # build PDF
-\end{verbatim}
-\textbf{Environment:} Python~$\geq$~3.10; tested on Ubuntu~22.04 with NumPy~1.26, SciPy~1.12, Matplotlib~3.8, Astropy~6.0.
-Random seeds are set at the top of each experiment runner (see \texttt{run\_*.py} files).
-Runtime: the full experiment suite completes in under 30~minutes on a 4-core laptop; no GPU is required.
 
 \subsection{Evidence mapping}\label{app:repro:map}
 Table~\ref{tab:evidence_map} maps each plot and quantitative table in the manuscript to its generating script/command, dataset key(s), and the run bundle used, together with the tracked vendored artifact included in the paper build.
