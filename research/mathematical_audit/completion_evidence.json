@@ -1,0 +1,2179 @@
+{
+  "created_utc": "2026-10-13T19:06:01.103067+00:00",
+  "exact_initial_acceleration": {
+    "ddot_volume": "58",
+    "domain_acceleration": "5/3",
+    "dot_volume": "12",
+    "generator_initial_Q": 6.0,
+    "generator_initial_acceleration": 1.666666666666666,
+    "lean_theorem": "SixBirds.Examples.twoPatch_exact_acceleration_witness",
+    "local_accelerations": [
+      "-1/6",
+      "-1/2"
+    ],
+    "volume": "2"
+  },
+  "experiment_commit": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+  "experiment_source_difference": [
+    "lean/Audit.lean",
+    "lean/SixBirds.lean",
+    "lean/SixBirds/AccelerationWitness.lean",
+    "research/mathematical_audit/completion_review.txt"
+  ],
+  "experiments": {
+    "3x2pt_ppd_split": {
+      "artifact_sha256": {
+        "results/3x2pt_ppd_split/20261013T190143Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "48827b059c39a8e66a69ff9a38407ad67275c0888c7021434fb585020d1ddd4f",
+        "results/3x2pt_ppd_split/20261013T190143Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "3bde5219cc26e7adb416b50f9165e486c10420cc31f9521ed464c1ddab0f0242",
+        "results/3x2pt_ppd_split/20261013T190143Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "6211e7626d0a8284b21306d572fe4758aadaad3c8acfcb7c21d787f66fbef095",
+        "results/3x2pt_ppd_split/20261013T190143Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_chi2_blocks.png": "5db62b965414ecee51bf9bcb8cb8ff383c87f4f4f8b5bde1fc713657c7229df6",
+        "results/3x2pt_ppd_split/20261013T190143Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_residuals_B.png": "a178a3962cb7e46b7f3d6dfb9d5329e71354f60df91aca955ef970be4d455d50",
+        "results/3x2pt_ppd_split/20261013T190143Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "dbfa2255e13915735f3c59f165037effcc6adfc3bb316a8c3782b7564331b6d3",
+        "results/3x2pt_ppd_split/20261013T190143Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "0a36fd6e648476e5fa02beda76bdf62384c1e520d1e3c8f1cdc8fcf27e07a471"
+      },
+      "metrics": {
+        "audit_kind": "injected_residual_protocol",
+        "empirical_closure_evidence": false,
+        "fits_path": "/home/repos/six-birds-de/data/raw/des_y3a2_datavectors_2pt/2pt_maglim_covupdate.fits",
+        "independent_prediction": false,
+        "lcdm_stub": {
+          "amps": {
+            "a": -0.050834969216914425
+          },
+          "audit_kind": "injected_residual_protocol",
+          "chi2_A": 1803961.5212730514,
+          "chi2_B": 9092703.921755265,
+          "independent_prediction": false,
+          "jitter_used": 0.0,
+          "rmse_B": 0.21081177405020432
+        },
+        "n_A": 500,
+        "n_B": 500,
+        "n_data": 1000,
+        "r0_amp": 0.1,
+        "rewrite_stub": {
+          "amps": {
+            "a": -0.10000000000000005,
+            "b": -0.1
+          },
+          "audit_kind": "injected_residual_protocol",
+          "chi2_A": 1.7479265056836327e-24,
+          "chi2_B": 5.3959097410608156e-24,
+          "independent_prediction": false,
+          "jitter_used": 0.0,
+          "rmse_B": 6.501679745392429e-17
+        },
+        "selection_rule": "fixed_split_and_amplitude_before_scoring",
+        "split": "first_half"
+      },
+      "provenance": {
+        "exp_name": "3x2pt_ppd_split",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/3x2pt_ppd_split/20261013T190143Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:46.417566+00:00"
+      }
+    },
+    "3x2pt_smoke_like": {
+      "artifact_sha256": {
+        "results/3x2pt_smoke_like/20261013T190200Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/3x2pt_smoke_residuals.png": "38dca14c6869c8afe6840b9731f4a7ba984a65f3c0f2e30c4ee41c62a8686b98",
+        "results/3x2pt_smoke_like/20261013T190200Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "40b35df9ee9473649a688c015e05cb33456e92f0007c055f83184e6f28c130d4",
+        "results/3x2pt_smoke_like/20261013T190200Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/backend_info.json": "bc1da49a47625fc685467137bd512fe8c4dfd64de7ed44ef8471ed61adf5065b",
+        "results/3x2pt_smoke_like/20261013T190200Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "f1d2f4b78365865e58303b6200e8398add7520f60b580ca8d090208a3a5b1f99",
+        "results/3x2pt_smoke_like/20261013T190200Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "dfb3a7e157cb23da32d07554d357b949893be98eb728139b78054ef0ccc1fa48",
+        "results/3x2pt_smoke_like/20261013T190200Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "1f80673a833541cfdd3a33e923b1eb6ab18c4770e4e41d3cf28977f3649cb12b",
+        "results/3x2pt_smoke_like/20261013T190200Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "127450bebd923b039b0b617ae18e0ef5b0a2b25e9c558114d3ecb932baa7ce85"
+      },
+      "metrics": {
+        "audit_kind": "injected_residual_protocol",
+        "chi2": 2.394388718966158,
+        "chi2_over_n": 0.0023943887189661578,
+        "fits_path": "/home/repos/six-birds-de/data/raw/des_y3a2_datavectors_2pt/2pt_maglim_covupdate.fits",
+        "frac_sigma": 0.1,
+        "independent_prediction": false,
+        "jitter_used": 0.0,
+        "mask_kind": "all",
+        "n_data": 1000,
+        "n_used": 1000,
+        "ref_format": null,
+        "ref_path": null,
+        "theory_backend_kind": "stub",
+        "theory_kind": "t_ref = y + frac_sigma*sqrt(diag(cov))"
+      },
+      "provenance": {
+        "exp_name": "3x2pt_smoke_like",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/3x2pt_smoke_like/20261013T190200Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:02:04.858912+00:00"
+      }
+    },
+    "des_y3_blockmap": {
+      "artifact_sha256": {
+        "results/des_y3_blockmap/20261013T190117Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "94a1e18b33bcf0c6096188896c307adb141324532e975b225adbb4239f50e9e8",
+        "results/des_y3_blockmap/20261013T190117Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/block_boundaries.png": "1342d8bd0244345abfc270b114942ad6dae0b8d187b56316cbf325b6ca2ca083",
+        "results/des_y3_blockmap/20261013T190117Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/block_counts.csv": "067c2d0b952422b538f546a290496dda4edcf4540e4181e24f2e7e1204012cd1",
+        "results/des_y3_blockmap/20261013T190117Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/block_index.csv": "5e2d4d849642d8355f8a0f1c2761a2f6ff6d2f8f4bfb2343edf0437e523445a7",
+        "results/des_y3_blockmap/20261013T190117Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "511e69af79e25c97c55db51ab8f4f58eb1135f0218993a26546d57ea3d2a8837",
+        "results/des_y3_blockmap/20261013T190117Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "9f151de75be0ce9842c6950a3bbd4d52e143e50c272c6493a5751072359c2228",
+        "results/des_y3_blockmap/20261013T190117Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "a910d36c2e72575b4250dea1b162416a9ced7318ea55f4feb631c69ea0fdbc07"
+      },
+      "metrics": {
+        "block_index_csv": "block_index.csv",
+        "fits_file": "data/raw/des_y3a2_datavectors_2pt/2pt_maglim_covupdate.fits",
+        "n_clust": 120,
+        "n_data": 1000,
+        "n_ggl": 480,
+        "n_shear": 400,
+        "n_unknown": 0,
+        "plot_file": "block_boundaries.png",
+        "unique_probes": [
+          "clustering",
+          "ggl",
+          "shear"
+        ],
+        "unique_stats": [
+          "gammat",
+          "wtheta",
+          "xim",
+          "xip"
+        ]
+      },
+      "provenance": {
+        "exp_name": "des_y3_blockmap",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/des_y3_blockmap/20261013T190117Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:22.084705+00:00"
+      }
+    },
+    "des_y3_vector_sanity": {
+      "artifact_sha256": {
+        "results/des_y3_vector_sanity/20261013T190111Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "f0202579aa2b91fb4e41630205b6646a363a8f7b8fac14e685136a12f5605213",
+        "results/des_y3_vector_sanity/20261013T190111Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "3f0159de24ab5b3fe10468b76cd61a29aad6186d66bbd66f3777e1880a7bcee6",
+        "results/des_y3_vector_sanity/20261013T190111Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "705f056b925cc817f33406ac8b5f54c5c2e06f724e7c2675dfb9a56007453883",
+        "results/des_y3_vector_sanity/20261013T190111Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "1a2b2a9fae1cce90ab8f24dd7b7f77501eea67855703dea9bda097e445b896dd",
+        "results/des_y3_vector_sanity/20261013T190111Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/y3_2pt_datavector_components.png": "e0d8424584c63818f75c1e0d105fad5a1b2daa8585c1fa0ed1a1a1be329a27fe"
+      },
+      "metrics": {
+        "chain_columns": [
+          "col0",
+          "col1",
+          "col2",
+          "col3",
+          "col4",
+          "col5",
+          "col6",
+          "col7",
+          "col8",
+          "col9",
+          "col10",
+          "col11",
+          "col12",
+          "col13",
+          "col14",
+          "col15",
+          "col16",
+          "col17",
+          "col18",
+          "col19",
+          "col20",
+          "col21",
+          "col22",
+          "col23",
+          "col24",
+          "col25",
+          "col26",
+          "col27",
+          "col28",
+          "col29",
+          "col30",
+          "col31",
+          "col32",
+          "col33",
+          "col34",
+          "col35",
+          "col36",
+          "col37"
+        ],
+        "chain_n_rows": 22781,
+        "chain_summary": {},
+        "maglim_chol_jitter_used": 0.0,
+        "maglim_chol_success": true,
+        "maglim_cond_est": 8680082206.45308,
+        "maglim_cov_shape": [
+          1000,
+          1000
+        ],
+        "maglim_extraction_method": "DECLARED_SPECTRA_CONCAT",
+        "maglim_min_eig_est": 4.523655028927844e-15,
+        "maglim_n_data": 1000,
+        "maglim_spectra_used": [
+          "xip",
+          "xim",
+          "gammat",
+          "wtheta"
+        ],
+        "redmagic_chol_jitter_used": 0.0,
+        "redmagic_chol_success": true,
+        "redmagic_cond_est": 28841085219.47547,
+        "redmagic_cov_shape": [
+          900,
+          900
+        ],
+        "redmagic_extraction_method": "DECLARED_SPECTRA_CONCAT",
+        "redmagic_min_eig_est": 4.568676243904877e-15,
+        "redmagic_n_data": 900,
+        "redmagic_spectra_used": [
+          "xip",
+          "xim",
+          "gammat",
+          "wtheta"
+        ]
+      },
+      "provenance": {
+        "exp_name": "des_y3_vector_sanity",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/des_y3_vector_sanity/20261013T190111Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:16.313426+00:00"
+      }
+    },
+    "fit_des_sn5yr": {
+      "artifact_sha256": {
+        "results/fit_des_sn5yr/20261013T185604Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "fffac12219d95d677ff5ed05f8c8058e1d5ece97b680afe1a8dfd61c63f5b117",
+        "results/fit_des_sn5yr/20261013T185604Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "c3f2b9ba1b539468d93425b282ed0164d8db61afe9156430db0c8176ad2b9cfa",
+        "results/fit_des_sn5yr/20261013T185604Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "45d1622112bedd63792b387989cd698985c78f7525815012dfa67107d94dc6c5",
+        "results/fit_des_sn5yr/20261013T185604Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "4fb34857a11f7d6ab5e0fd0fb209b100ca86ea8af4ae192be80368a928dda77f",
+        "results/fit_des_sn5yr/20261013T185604Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn5yr_mu_residuals.png": "3dc0856de41a7ad598393f7ca1f55697c6e04278547e5143d6cc00d453b9f181",
+        "results/fit_des_sn5yr/20261013T185604Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "a1f51f529eec8fed1ce4a3e44dc7828c6285fa2bb10576a1eefae69ec9a83884"
+      },
+      "metrics": {
+        "cov_jitter": 0.0,
+        "cov_min_eig": null,
+        "cov_psd_correction": false,
+        "cov_stat_file": "/home/repos/six-birds-de/data/raw/des_sn5yr_distances/extracted/4_DISTANCES_COVMAT/DES-SN5YR-1.3/4_DISTANCES_COVMAT/STATONLY.txt.gz",
+        "cov_stat_format": "flat",
+        "cov_stat_index_base": null,
+        "cov_stat_matrix_kind": "statistical_total",
+        "cov_sys_file": "/home/repos/six-birds-de/data/raw/des_sn5yr_distances/extracted/4_DISTANCES_COVMAT/DES-SN5YR-1.3/4_DISTANCES_COVMAT/STAT+SYS.txt.gz",
+        "cov_sys_format": "flat",
+        "cov_sys_index_base": null,
+        "cov_sys_matrix_kind": "systematics_plus_stat",
+        "delta_aic_total": -0.4332592300511351,
+        "hubble_diagram_columns": [
+          "CID",
+          "CIDint",
+          "IDSURVEY",
+          "TYPE",
+          "zHEL",
+          "zHELERR",
+          "zCMB",
+          "zCMBERR",
+          "zHD",
+          "zHDERR",
+          "VPEC",
+          "VPECERR",
+          "MWEBV",
+          "HOST_ZSPEC",
+          "HOST_ZSPECERR",
+          "HOST_RA",
+          "HOST_DEC",
+          "HOST_ANGSEP",
+          "HOST_DDLR",
+          "HOST_LOGMASS",
+          "HOST_LOGMASS_ERR",
+          "HOST_COLOR",
+          "HOST_COLOR_ERR",
+          "PKMJD",
+          "PKMJDERR",
+          "x1",
+          "x1ERR",
+          "c",
+          "cERR",
+          "mB",
+          "mBERR",
+          "mB_corr",
+          "x0",
+          "x0ERR",
+          "COV_x1_c",
+          "COV_x1_x0",
+          "COV_c_x0",
+          "NDOF",
+          "FITPROB",
+          "PROB_SCONE",
+          "PROB_SNIRFV19",
+          "PROB_SNNDESCC",
+          "PROB_SNNJ17",
+          "PROB_SNNV19",
+          "MU",
+          "MUERR_FINAL",
+          "PROBCC_BEAMS",
+          "biasCor_mu",
+          "biasCor_muCOVSCALE",
+          "biasCor_muCOVADD"
+        ],
+        "hubble_diagram_file": "/home/repos/six-birds-de/data/raw/des_sn5yr_distances/extracted/4_DISTANCES_COVMAT/DES-SN5YR-1.3/4_DISTANCES_COVMAT/DES-SN5YR_HD+MetaData.csv",
+        "k_cosmo_lcdm": 1,
+        "k_cosmo_wcdm": 2,
+        "k_total_lcdm": 2,
+        "k_total_wcdm": 3,
+        "lcdm_M_hat": 0.02137936298177055,
+        "lcdm_aic_total": 1644.083106665798,
+        "lcdm_bic_total": 1655.1061559625796,
+        "lcdm_chi2": 1640.083106665798,
+        "lcdm_loglike": -820.041553332899,
+        "lcdm_om": 0.3519536001884417,
+        "mu_err_col": "MUERR_FINAL",
+        "n_data": 1829,
+        "sigma_median_stat_sys": 0.17214957711246345,
+        "sn_redshift_convention": "zHD radial distance; (1+zHEL) luminosity prefactor",
+        "wcdm_M_hat": 0.03070855158569388,
+        "wcdm_aic_total": 1644.516365895849,
+        "wcdm_bic_total": 1661.0509398410215,
+        "wcdm_chi2": 1638.516365895849,
+        "wcdm_loglike": -819.2581829479245,
+        "wcdm_om": 0.266609811763059,
+        "wcdm_w": -0.8011299660158702
+      },
+      "provenance": {
+        "exp_name": "fit_des_sn5yr",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/fit_des_sn5yr/20261013T185604Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:56:13.287416+00:00"
+      }
+    },
+    "fit_des_y6_bao": {
+      "artifact_sha256": {
+        "results/fit_des_y6_bao/20261013T185614Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "99e06931f577738382b7d3924219a4e300d3b7729514ce21d0dbfc3af7f99c8d",
+        "results/fit_des_y6_bao/20261013T185614Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/alpha_likelihood.png": "2385642a189694ff5c902631ef8b1ef516736226d73324cdc3397cc3c18eda83",
+        "results/fit_des_y6_bao/20261013T185614Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "dea094154a2b6d427923f08254e4d2a24c33da589d7be13b455822e10d68b5e5",
+        "results/fit_des_y6_bao/20261013T185614Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "c5f35c7671b0a57194c9d23c752dde55409674eafd57aed932308dae064b3111",
+        "results/fit_des_y6_bao/20261013T185614Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "9f2818263320ff373f95e3e6c0e520097c484e8ac41c10a8cafa5fe4672a9cc7",
+        "results/fit_des_y6_bao/20261013T185614Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "603595a1a60e3d39b6408619611a87b83210a96549446a71ef3e5598f965d136"
+      },
+      "metrics": {
+        "alpha_hat_combined": 0.9571,
+        "alpha_sigma_est_combined": 0.0200999442706577,
+        "bao_H0": "fixed_to_fiducial",
+        "bao_curve": "released_fid_consensus",
+        "bao_sound_horizon_ratio": "fixed",
+        "curve_files": {
+          "acf": "/home/repos/six-birds-de/data/raw/des_y6_bao_release/extracted/DESY6BAO_likelihood/likelihood_acf.txt",
+          "aps": "/home/repos/six-birds-de/data/raw/des_y6_bao_release/extracted/DESY6BAO_likelihood/likelihood_aps.txt",
+          "fid": "/home/repos/six-birds-de/data/raw/des_y6_bao_release/extracted/DESY6BAO_likelihood/likelihood_fid.txt",
+          "pcf": "/home/repos/six-birds-de/data/raw/des_y6_bao_release/extracted/DESY6BAO_likelihood/likelihood_pcf.txt"
+        },
+        "curve_modes": {
+          "acf": {
+            "combination": "single_statistic",
+            "mode": "delta_chi2"
+          },
+          "aps": {
+            "combination": "single_statistic",
+            "mode": "delta_chi2"
+          },
+          "fid": {
+            "combination": "released_consensus",
+            "mode": "delta_chi2"
+          },
+          "pcf": {
+            "combination": "single_statistic",
+            "mode": "delta_chi2"
+          }
+        },
+        "delta_aic": 0.01963415882074715,
+        "fid_params_used": {
+          "H0_fid": 67.4,
+          "ol_fid": 0.685,
+          "om_fid": 0.315
+        },
+        "flat_lcdm_aic": 2.000000000012495,
+        "flat_lcdm_chi2": 1.2494875822332226e-11,
+        "flat_lcdm_om": 0.40528189754697314,
+        "ocdm_aic": 2.019634158833242,
+        "ocdm_chi2": 0.019634158833242217,
+        "ocdm_om": 0.05,
+        "z_eff": 0.851
+      },
+      "provenance": {
+        "exp_name": "fit_des_y6_bao",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/fit_des_y6_bao/20261013T185614Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:56:14.765332+00:00"
+      }
+    },
+    "infer_distance": {
+      "artifact_sha256": {
+        "results/infer_distance/20261013T185545Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "2475738495f48015307b3f371497320a26273f0cd077431088111291598c19d5",
+        "results/infer_distance/20261013T185545Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "3d3d92539f27c9d0429c9e183f19e63675b8e2e674d3dec9eb77996efbbfb639",
+        "results/infer_distance/20261013T185545Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/distance_fit.png": "9a3c8d419ffbca101910fa1cc8509669a06c237492ed3a1a4cb0f82013896d0d",
+        "results/infer_distance/20261013T185545Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "76f8de3495ea51ce4134ce33123183366b257116f1a40b4d4173b3915d22431f",
+        "results/infer_distance/20261013T185545Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "2168c3f1985d1eb914b6e567acad46713ef10bb20d1759e59cc25d0f1782567f",
+        "results/infer_distance/20261013T185545Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "59472f24ab075558c6dee579eab3b89739b6116bc611c48e02a970cbda6e566d"
+      },
+      "metrics": {
+        "aic_lcdm": 257.32909844662504,
+        "aic_matter_only": 8475.313197121155,
+        "chi2_lcdm": 253.32909844662507,
+        "chi2_matter_only": 8473.313197121155,
+        "delta_aic": 8217.98409867453,
+        "delta_chi2": 8219.98409867453,
+        "distance_kind": "comoving_c_equals_one",
+        "lcdm_H0": 0.04230388015716787,
+        "lcdm_omega_lambda": 0.6015003454849583,
+        "matter_only_H0": 0.034859962571939955,
+        "n_points": 40,
+        "noise_floor": 0.0001,
+        "noise_frac": 0.005,
+        "z_max": 2.0
+      },
+      "provenance": {
+        "exp_name": "infer_distance",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/infer_distance/20261013T185545Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:55:45.510764+00:00"
+      }
+    },
+    "kids450_ppd_probe_split": {
+      "artifact_sha256": {
+        "results/kids450_ppd_probe_split/20261013T190142Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "e66d294d555e984773b0bc203631e75395aac450a5d1bd31daf7e3506231f512",
+        "results/kids450_ppd_probe_split/20261013T190142Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "70d01eb023912ce6072b3fedea7f08c40f62e0c15d38fbf29573b6d6c3a2beb0",
+        "results/kids450_ppd_probe_split/20261013T190142Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "35f67f2173310c344c2d4b15aa944970b0525ebc4e7a551513572c20f3ac8d47",
+        "results/kids450_ppd_probe_split/20261013T190142Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_residuals_testA.png": "5e184d83465b7eddc6e437a2164221298805d3734f77b19845cf8b3a346dc290",
+        "results/kids450_ppd_probe_split/20261013T190142Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_residuals_testB.png": "95923d163268d10281de41d84ff811fccd19f7bba888984cdee0589ccba9b501",
+        "results/kids450_ppd_probe_split/20261013T190142Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "d7089beeed9671bdb3cb36242930e5dd8f160d055285a8db9637084ecd035fdb",
+        "results/kids450_ppd_probe_split/20261013T190142Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "34e29b3986465087e89631c7fc78f76f819d464c6398de584b2cef9dcbf7d1d7"
+      },
+      "metrics": {
+        "A_to_B_lcdm_like_bias_test": -9.659144402509883e-05,
+        "A_to_B_lcdm_like_chi2_test": 0.05602230862000687,
+        "A_to_B_lcdm_like_rmse_test": 0.00026836457035737656,
+        "A_to_B_lcdm_like_rmse_weighted_test": 0.03347306637283381,
+        "A_to_B_rewrite_like_bias_test": -0.00010577282389863854,
+        "A_to_B_rewrite_like_chi2_test": 0.04945857543460228,
+        "A_to_B_rewrite_like_rmse_test": 0.00027888533816462687,
+        "A_to_B_rewrite_like_rmse_weighted_test": 0.03145109709838507,
+        "B_to_A_lcdm_like_bias_test": -2.294311689945521e-07,
+        "B_to_A_lcdm_like_chi2_test": 0.02699148928085543,
+        "B_to_A_lcdm_like_rmse_test": 3.1054781806864335e-07,
+        "B_to_A_lcdm_like_rmse_weighted_test": 0.023234237358198538,
+        "B_to_A_rewrite_like_bias_test": -2.049503842421997e-07,
+        "B_to_A_rewrite_like_chi2_test": 0.02051769709327829,
+        "B_to_A_rewrite_like_rmse_test": 2.4167334287675064e-07,
+        "B_to_A_rewrite_like_rmse_weighted_test": 0.02025719481728815,
+        "audit_kind": "injected_residual_protocol",
+        "cov_chol_jitter_used": 0.0,
+        "dataset_name": "kids450_vuitert18_3x2pt_bandpowers",
+        "ell_bins": [
+          200,
+          331,
+          548,
+          906,
+          1500
+        ],
+        "empirical_closure_evidence": false,
+        "independent_prediction": false,
+        "n_A": 50,
+        "n_B": 50,
+        "n_data": 100
+      },
+      "provenance": {
+        "exp_name": "kids450_ppd_probe_split",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 0,
+        "run_dir": "results/kids450_ppd_probe_split/20261013T190142Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:42.666045+00:00"
+      }
+    },
+    "ppd_background": {
+      "artifact_sha256": {
+        "results/ppd_background/20261013T185616Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "845c3a1c4f268b8366852cb515a33807057f191efe9c7c54f8e82d4ee68c5b8b",
+        "results/ppd_background/20261013T185616Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "f63280514d2a5b233e1c2cf337262bd45a515bc5651e4a08cb1a60fc8a63f988",
+        "results/ppd_background/20261013T185616Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "b4e508d5feae8bc729047166f40ede7af9ef9cc2933d4fb1b0c3e1c414453f41",
+        "results/ppd_background/20261013T185616Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_bao_alpha.png": "22c5d269638c9b2876c55df9a77b5294caefa93be18839cbf3f092616dbef05a",
+        "results/ppd_background/20261013T185616Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_sn_residuals.png": "08acb80a483756cf737f43fddfb7039d414fbd0f128743aedf62fdda028dc3af",
+        "results/ppd_background/20261013T185616Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "27222010ba5430129a18477111d7a36458a58d208c6a32d526d6b5e521ab412e",
+        "results/ppd_background/20261013T185616Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn_residuals_binned.csv": "7fda7244e5792d9c54d3adb043b6b0e6cf0dd8ae369df6c25d9188f716cb3f47",
+        "results/ppd_background/20261013T185616Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "2aa485f36f920ff0bc852be8611e76e83e8bda0e23ad6b6e3fa577af75553177"
+      },
+      "metrics": {
+        "M_hat_sn": 0.02137936298177055,
+        "alpha_pred_bao": 0.95709999917392,
+        "alpha_pred_from_sn": 0.9815410455860185,
+        "bao_H0": "fixed_to_fiducial",
+        "bao_alpha_hat": 0.9571,
+        "bao_curve": "released_fid_consensus",
+        "bao_sigma_est": 0.0200999442706577,
+        "bao_sound_horizon_ratio": "fixed",
+        "bao_z_eff": 0.851,
+        "bias_alpha_sn_to_bao": 0.02444104558601856,
+        "bias_mu_bao_to_sn": 0.04751198979502705,
+        "chi2_hat_bao": 1.2494875822332226e-11,
+        "chi2_hat_sn": 1640.083106665798,
+        "chi2_over_n_pred_sn_from_bao": 0.9018032604994705,
+        "chi2_over_n_sn": 0.8967102824854007,
+        "chi2_pred_sn_from_bao": 1649.3981634535314,
+        "curve_modes": {
+          "acf": {
+            "combination": "single_statistic",
+            "mode": "delta_chi2"
+          },
+          "aps": {
+            "combination": "single_statistic",
+            "mode": "delta_chi2"
+          },
+          "pcf": {
+            "combination": "single_statistic",
+            "mode": "delta_chi2"
+          }
+        },
+        "delta_chi2_at_alpha_pred_from_sn": 1.4442694024789038,
+        "om_hat_bao": 0.40528189754697314,
+        "om_hat_sn": 0.3519536001884417,
+        "reverse_audit": "SN_shape_score_with_intercept_profiled_on_test_data",
+        "rmse_alpha_sn_to_bao": 0.02444104558601856,
+        "rmse_mu_bao_to_sn": 0.2639859173586967,
+        "rmse_mu_weighted_bao_to_sn": 0.9496332241973584,
+        "sn_n": 1829,
+        "sn_redshift_convention": "zHD radial distance; (1+zHEL) luminosity prefactor",
+        "sn_sigma_median": 0.17214957711246345,
+        "zscore_alpha_sn_to_bao": 1.2159757886343043
+      },
+      "provenance": {
+        "exp_name": "ppd_background",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/ppd_background/20261013T185616Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:56:22.225022+00:00"
+      }
+    },
+    "ppd_synthetic": {
+      "artifact_sha256": {
+        "results/ppd_synthetic/20261013T185548Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "38b3438bb19cf77dbf47f7ad22b9dde15c354b59c49ac69be443726d78d0bb4a",
+        "results/ppd_synthetic/20261013T185548Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "5b50376e597180288e266d8375911347f0581c06397e21d971077e47c7140a1d",
+        "results/ppd_synthetic/20261013T185548Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "3fbad9af7c5dc1a6e931d795742edf068a9fbe7fe3dcb87fdd9a811f82f13a0f",
+        "results/ppd_synthetic/20261013T185548Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_rmse_across_seeds.png": "37b6046138f4aaccae62837981005ae64e912f54cd063a164bebba6b3ffa0251",
+        "results/ppd_synthetic/20261013T185548Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_varH_hetero_seed123.png": "ed33d9c58714aa55c0a006c6a3140f29725878ed032beb735fee2cb0c610cd1e",
+        "results/ppd_synthetic/20261013T185548Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "829bbb3f7cda5ca13e7f61dbb996b23aa00173d7f08416467fa7f2d4ea3dfb91",
+        "results/ppd_synthetic/20261013T185548Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "a5d2816d62614f6b77d9161f1fe323754e223099acb6d03fd93ca71f78e86ee2"
+      },
+      "metrics": {
+        "A_cut": 0.1,
+        "A_ref": 1509.9115386472226,
+        "audit_kind": "calibrated_generator_proxy",
+        "distance_kind": "comoving_c_equals_one",
+        "generator_replication": "same_two_population_history_with_new_distance_noise",
+        "hetero_bias_lcdm_mean": -4.188284118590509e-05,
+        "hetero_bias_rewrite_mean": -3.272636668530258e-07,
+        "hetero_rmse_ratio_median": 0.008776066214303843,
+        "hetero_rmse_rows": [
+          {
+            "ratio": 0.009283886818782592,
+            "rmse_lcdm": 5.2477594986400696e-05,
+            "rmse_rewrite": 4.871960523756568e-07,
+            "seed": 123
+          },
+          {
+            "ratio": 0.008776066214303843,
+            "rmse_lcdm": 5.247759498640071e-05,
+            "rmse_rewrite": 4.60546848368072e-07,
+            "seed": 321
+          },
+          {
+            "ratio": 0.005381412756813273,
+            "rmse_lcdm": 5.2477594986400696e-05,
+            "rmse_rewrite": 2.8240359910669695e-07,
+            "seed": 999
+          }
+        ],
+        "homo_rmse_lcdm": 9.596493258658394e-34,
+        "homo_rmse_rewrite": 9.596493258658394e-34,
+        "independent_heterogeneity_realizations": false,
+        "noise_floor": 0.0001,
+        "noise_frac": 0.005,
+        "proxy_information": "external_calibration_on_identical_generator_history",
+        "seed_homo": 123,
+        "seed_template": 468,
+        "test_seeds": [
+          123,
+          321,
+          999
+        ],
+        "variance_prediction_rule": "thresholded_linear_amplitude_ratio_times_template"
+      },
+      "provenance": {
+        "exp_name": "ppd_synthetic",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/ppd_synthetic/20261013T185548Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:55:50.225952+00:00"
+      }
+    },
+    "rewrite_background_vs_lcdm": {
+      "artifact_sha256": {
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "481f57f31f68c88bc9b0dcc00c316dc0e8c4340e05a11d058f6e3e540d502b14",
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/bao_alpha_curve_with_preds.png": "43eb99d48dabe6d0f5ea248524d0cac629874703c04916b467733da56d386bf4",
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "12b5ed978feaed010c2180907d894628e29eb417110e6e98584186261c6eefed",
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/contours_sn_bao.png": "155876734f42eb897f25246ad7d8b553ec88e3d8480c3692b3540a4b040dd3b4",
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/contours_sn_only.png": "2aacc57b88407baadc2bfd434f5b221d838db33c1927c4daf05d7bb700e9efc7",
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "19a64fd5c656abe153cf47b89ced4d7a5f449236e60c4b5c82525b02ee44d682",
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/mu_residuals_compare.png": "e81839ef51247940bb4e0a647a4bee15639e3e4c0437a78344b4c87bd8da48bf",
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/optimizer_receipt.json": "e9c3f28386eb351b41f85d61399077988ae8f79980c83f34c4b1d9bcd846d395",
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "48499e73a9f32c5f93290d4da49627f454589f937bf41995d63fea73fb2d1299",
+        "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "fca0f11776db868f5e40affee83ca616dd779c431ae69bf3760d6f87f5ad74f2"
+      },
+      "metrics": {
+        "A_hat_sn": 0.5520879296717025,
+        "A_hat_snbao": 0.5473572929773038,
+        "alpha_hat": 0.9571,
+        "alpha_outside_support_lcdm_snbao": false,
+        "alpha_outside_support_rw_snbao": false,
+        "alpha_pred_lcdm_snbao": 0.9787379936245343,
+        "alpha_pred_rw_snbao": 0.9787379936245343,
+        "alpha_sigma_est": 0.0200999442706577,
+        "bao_H0": "fixed_to_fiducial",
+        "bao_curve": "released_fid_consensus",
+        "bao_sound_horizon_ratio": "fixed",
+        "delta_aic_sn": 2.0,
+        "delta_aic_snbao": 2.0,
+        "exact_boundary_start": "embedded_best_fit_constant_family_when_admissible",
+        "lcdm_sn_bounds_hit": [
+          false,
+          false
+        ],
+        "lcdm_snbao_bounds_hit": [
+          false,
+          false
+        ],
+        "lcdm_starts": [
+          [
+            0.3,
+            0.7
+          ],
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.2,
+            1.0
+          ]
+        ],
+        "m_hat_sn": 0.0,
+        "m_hat_snbao": 0.0,
+        "optimization_scope": "best_of_declared_starts",
+        "optimizer_receipt": "optimizer_receipt.json",
+        "rewrite_starts": [
+          [
+            0.3,
+            0.7,
+            0.0
+          ],
+          [
+            0.3,
+            0.7,
+            1.0
+          ],
+          [
+            0.3,
+            0.7,
+            3.0
+          ],
+          [
+            0.3,
+            0.7,
+            6.0
+          ]
+        ],
+        "rw_sn_bounds_hit": [
+          false,
+          false,
+          true
+        ],
+        "rw_snbao_bounds_hit": [
+          false,
+          false,
+          true
+        ],
+        "sn_redshift_convention": "zHD radial distance; (1+zHEL) luminosity prefactor"
+      },
+      "optimizer_receipt": {
+        "lcdm_sn": {
+          "aic": 1645.096494865793,
+          "bic": 1661.6310688109654,
+          "chi2_hat": 1639.096494865793,
+          "k": 3,
+          "k_explicit": 2,
+          "k_profiled": 1,
+          "loglike_hat": -819.5482474328965,
+          "message": "Optimization terminated successfully.",
+          "n_data": 1829,
+          "nfev": 169,
+          "nit": 4,
+          "optimization_scope": "best_of_declared_starts",
+          "selected_start": 1,
+          "starts": [
+            {
+              "aic": 1645.0964948657938,
+              "bic": 1661.6310688109663,
+              "chi2_hat": 1639.0964948657938,
+              "k": 3,
+              "k_explicit": 2,
+              "k_profiled": 1,
+              "loglike_hat": -819.5482474328969,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1829,
+              "nfev": 160,
+              "nit": 4,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7
+              ],
+              "theta_hat": [
+                0.2920765140122419,
+                0.5520879146053429
+              ]
+            },
+            {
+              "aic": 1645.096494865793,
+              "bic": 1661.6310688109654,
+              "chi2_hat": 1639.096494865793,
+              "k": 3,
+              "k_explicit": 2,
+              "k_profiled": 1,
+              "loglike_hat": -819.5482474328965,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1829,
+              "nfev": 169,
+              "nit": 4,
+              "success": true,
+              "theta0": [
+                0.5,
+                0.5
+              ],
+              "theta_hat": [
+                0.2920765176548049,
+                0.5520879296717025
+              ]
+            },
+            {
+              "aic": 1645.448796049841,
+              "bic": 1661.9833699950134,
+              "chi2_hat": 1639.448796049841,
+              "k": 3,
+              "k_explicit": 2,
+              "k_profiled": 1,
+              "loglike_hat": -819.7243980249204,
+              "message": "Maximum number of function evaluations has been exceeded.",
+              "n_data": 1829,
+              "nfev": 2000,
+              "nit": 30,
+              "success": false,
+              "theta0": [
+                0.2,
+                1.0
+              ],
+              "theta_hat": [
+                0.32657400491190214,
+                0.5909840446025751
+              ]
+            }
+          ],
+          "success": true,
+          "theta_hat": [
+            0.2920765176548049,
+            0.5520879296717025
+          ]
+        },
+        "lcdm_snbao": {
+          "aic": 1646.4111803659905,
+          "bic": 1662.947394103497,
+          "chi2_hat": 1640.4111803659905,
+          "k": 3,
+          "k_explicit": 2,
+          "k_profiled": 1,
+          "loglike_hat": -820.2055901829953,
+          "message": "Optimization terminated successfully.",
+          "n_data": 1830,
+          "nfev": 182,
+          "nit": 4,
+          "optimization_scope": "best_of_declared_starts",
+          "selected_start": 1,
+          "starts": [
+            {
+              "aic": 1646.4111803659919,
+              "bic": 1662.9473941034983,
+              "chi2_hat": 1640.4111803659919,
+              "k": 3,
+              "k_explicit": 2,
+              "k_profiled": 1,
+              "loglike_hat": -820.2055901829959,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1830,
+              "nfev": 175,
+              "nit": 4,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7
+              ],
+              "theta_hat": [
+                0.3006449030078483,
+                0.5473572823896786
+              ]
+            },
+            {
+              "aic": 1646.4111803659905,
+              "bic": 1662.947394103497,
+              "chi2_hat": 1640.4111803659905,
+              "k": 3,
+              "k_explicit": 2,
+              "k_profiled": 1,
+              "loglike_hat": -820.2055901829953,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1830,
+              "nfev": 182,
+              "nit": 4,
+              "success": true,
+              "theta0": [
+                0.5,
+                0.5
+              ],
+              "theta_hat": [
+                0.30064488828921376,
+                0.5473572929773038
+              ]
+            },
+            {
+              "aic": 1646.8162127818332,
+              "bic": 1663.3524265193396,
+              "chi2_hat": 1640.8162127818332,
+              "k": 3,
+              "k_explicit": 2,
+              "k_profiled": 1,
+              "loglike_hat": -820.4081063909166,
+              "message": "Maximum number of function evaluations has been exceeded.",
+              "n_data": 1830,
+              "nfev": 2000,
+              "nit": 28,
+              "success": false,
+              "theta0": [
+                0.2,
+                1.0
+              ],
+              "theta_hat": [
+                0.3330384003563565,
+                0.5787466834045649
+              ]
+            }
+          ],
+          "success": true,
+          "theta_hat": [
+            0.30064488828921376,
+            0.5473572929773038
+          ]
+        },
+        "rewrite_sn": {
+          "aic": 1647.096494865793,
+          "bic": 1669.1425934593565,
+          "chi2_hat": 1639.096494865793,
+          "k": 4,
+          "k_explicit": 3,
+          "k_profiled": 1,
+          "loglike_hat": -819.5482474328965,
+          "message": "Optimization terminated successfully.",
+          "n_data": 1829,
+          "nfev": 80,
+          "nit": 1,
+          "optimization_scope": "best_of_declared_starts",
+          "selected_start": 4,
+          "starts": [
+            {
+              "aic": 1647.096494872388,
+              "bic": 1669.1425934659514,
+              "chi2_hat": 1639.096494872388,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -819.548247436194,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1829,
+              "nfev": 335,
+              "nit": 4,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7,
+                0.0
+              ],
+              "theta_hat": [
+                0.2920765053526143,
+                0.5520879411788768,
+                6.189886983485688e-09
+              ]
+            },
+            {
+              "aic": 1647.1041008539398,
+              "bic": 1669.1501994475034,
+              "chi2_hat": 1639.1041008539398,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -819.5520504269699,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1829,
+              "nfev": 1160,
+              "nit": 11,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7,
+                1.0
+              ],
+              "theta_hat": [
+                0.2944689835095514,
+                0.5521358411517726,
+                8.366789554384296e-10
+              ]
+            },
+            {
+              "aic": 1647.0965903917252,
+              "bic": 1669.1426889852887,
+              "chi2_hat": 1639.0965903917252,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -819.5482951958626,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1829,
+              "nfev": 1176,
+              "nit": 12,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7,
+                3.0
+              ],
+              "theta_hat": [
+                0.29243510970856257,
+                0.5522574183362456,
+                8.613040010443913e-10
+              ]
+            },
+            {
+              "aic": 1647.101390424126,
+              "bic": 1669.1474890176896,
+              "chi2_hat": 1639.101390424126,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -819.550695212063,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1829,
+              "nfev": 1370,
+              "nit": 13,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7,
+                6.0
+              ],
+              "theta_hat": [
+                0.2880120047224864,
+                0.5475456787267742,
+                1.447357888140832e-09
+              ]
+            },
+            {
+              "aic": 1647.096494865793,
+              "bic": 1669.1425934593565,
+              "chi2_hat": 1639.096494865793,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -819.5482474328965,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1829,
+              "nfev": 80,
+              "nit": 1,
+              "success": true,
+              "theta0": [
+                0.2920765176548049,
+                0.5520879296717025,
+                0.0
+              ],
+              "theta_hat": [
+                0.2920765176548049,
+                0.5520879296717025,
+                0.0
+              ]
+            }
+          ],
+          "success": true,
+          "theta_hat": [
+            0.2920765176548049,
+            0.5520879296717025,
+            0.0
+          ]
+        },
+        "rewrite_snbao": {
+          "aic": 1648.4111803659905,
+          "bic": 1670.4594653493323,
+          "chi2_hat": 1640.4111803659905,
+          "k": 4,
+          "k_explicit": 3,
+          "k_profiled": 1,
+          "loglike_hat": -820.2055901829953,
+          "message": "Optimization terminated successfully.",
+          "n_data": 1830,
+          "nfev": 79,
+          "nit": 1,
+          "optimization_scope": "best_of_declared_starts",
+          "selected_start": 4,
+          "starts": [
+            {
+              "aic": 1648.4111803731048,
+              "bic": 1670.4594653564466,
+              "chi2_hat": 1640.4111803731048,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -820.2055901865524,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1830,
+              "nfev": 333,
+              "nit": 4,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7,
+                0.0
+              ],
+              "theta_hat": [
+                0.3006448409081834,
+                0.547357226983642,
+                6.189886983485688e-09
+              ]
+            },
+            {
+              "aic": 1648.4221661239887,
+              "bic": 1670.4704511073305,
+              "chi2_hat": 1640.4221661239887,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -820.2110830619944,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1830,
+              "nfev": 1242,
+              "nit": 11,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7,
+                1.0
+              ],
+              "theta_hat": [
+                0.3029990603776216,
+                0.5467825596390529,
+                2.3968564567388457e-12
+              ]
+            },
+            {
+              "aic": 1648.4954662025186,
+              "bic": 1670.5437511858604,
+              "chi2_hat": 1640.4954662025186,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -820.2477331012593,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1830,
+              "nfev": 892,
+              "nit": 9,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7,
+                3.0
+              ],
+              "theta_hat": [
+                0.28781977032270845,
+                0.5202703831415715,
+                1.081689799777111e-12
+              ]
+            },
+            {
+              "aic": 1649.7855890470632,
+              "bic": 1671.833874030405,
+              "chi2_hat": 1641.7855890470632,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -820.8927945235316,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1830,
+              "nfev": 1184,
+              "nit": 12,
+              "success": true,
+              "theta0": [
+                0.3,
+                0.7,
+                6.0
+              ],
+              "theta_hat": [
+                0.27563788608878,
+                0.3505893184200103,
+                1.215480606398995
+              ]
+            },
+            {
+              "aic": 1648.4111803659905,
+              "bic": 1670.4594653493323,
+              "chi2_hat": 1640.4111803659905,
+              "k": 4,
+              "k_explicit": 3,
+              "k_profiled": 1,
+              "loglike_hat": -820.2055901829953,
+              "message": "Optimization terminated successfully.",
+              "n_data": 1830,
+              "nfev": 79,
+              "nit": 1,
+              "success": true,
+              "theta0": [
+                0.30064488828921376,
+                0.5473572929773038,
+                0.0
+              ],
+              "theta_hat": [
+                0.30064488828921376,
+                0.5473572929773038,
+                0.0
+              ]
+            }
+          ],
+          "success": true,
+          "theta_hat": [
+            0.30064488828921376,
+            0.5473572929773038,
+            0.0
+          ]
+        }
+      },
+      "provenance": {
+        "exp_name": "rewrite_background_vs_lcdm",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/rewrite_background_vs_lcdm/20261013T185623Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:09.219548+00:00"
+      }
+    },
+    "rewrite_effective_w_validate": {
+      "artifact_sha256": {
+        "results/rewrite_effective_w_validate/20261013T190110Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/H_frac_residuals.png": "4f4f25b8f9e72692919b17aad312e2172b2eb4c7319c157d81ab56a38546fa75",
+        "results/rewrite_effective_w_validate/20261013T190110Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "dabb4c763f62dbc955cb8d9484485b772971e35a3b9e9457403c3368ac782385",
+        "results/rewrite_effective_w_validate/20261013T190110Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "4f2a3fdb16ef455b2177c2181a5169ea95558f3c71343b0954598ad29febc70d",
+        "results/rewrite_effective_w_validate/20261013T190110Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "65e01ca0bc6636a77dbfda26fc9a87672659e05de4d3571cb0d77a432f705031",
+        "results/rewrite_effective_w_validate/20261013T190110Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "8ad7e5f2c1054aacea9438c8043ca4e9956d7df93f567421dcc84ff9ae68ad98"
+      },
+      "metrics": {
+        "A": 0.554624,
+        "H0": 67.4,
+        "bridge_kind": "H_only_flat_CPL_approximation",
+        "m": 0.0,
+        "max_frac_err": 0.002165440911357765,
+        "n_grid": 201,
+        "om": 0.317071,
+        "physical_growth_prediction": false,
+        "rms_frac_err": 0.0011686804813316265,
+        "w0_hat": -0.9071110336363833,
+        "wa_hat": 0.4529218275451621,
+        "z_max": 2.0
+      },
+      "provenance": {
+        "exp_name": "rewrite_effective_w_validate",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/rewrite_effective_w_validate/20261013T190110Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:10.196513+00:00"
+      }
+    },
+    "rewrite_vs_lambda": {
+      "artifact_sha256": {
+        "results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/A_vs_delta_rho.png": "91dadbc51c938d7ae42524be2dbae44a8eead186f24ef21411f1d83b73f1acb8",
+        "results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "b507724e4c347029d4a8c7940ae2fe12a47124af6132059d1f9d27bb09bad601",
+        "results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "a2b772c632461282777b652236672d0242ffd9e951fd8d9e43c506e4b803550b",
+        "results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "6ef6f0d6d56e23a4b9a58ae7fc4179e9f79262c3b54c6f73469fbc2ca45224bf",
+        "results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "ff34f85b811ccc8327df0ed1989c07198b3198df4946dd5a3ef29e94bd6a66ad",
+        "results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/rewrite_distance_fit.png": "96c5bd55817a4ef91754971036b1d582f1e203b2c6753fd582e787b5d9850dee",
+        "results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "32620f99670f626d84285a181001075971204effee826782088ade45d29fc02e",
+        "results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sweep.csv": "af3f3859c399ccc5f36dd9cf2cd2eed34e9a63f44daa8dbda8aedae8a143a5e4"
+      },
+      "metrics": {
+        "A_monotone_increasing": true,
+        "aic_lcdm": 383.6089507957003,
+        "aic_matter_only": 8590.540586364341,
+        "aic_rewrite": 382.592528314682,
+        "chi2_lcdm": 379.6089507957003,
+        "chi2_matter_only": 8588.540586364341,
+        "chi2_rewrite": 378.592528314682,
+        "delta_aic_lcdm_minus_rewrite": 1.01642248101831,
+        "delta_chi2_rewrite_minus_lcdm": -1.01642248101831,
+        "distance_kind": "comoving_c_equals_one",
+        "lcdm_omega_lambda": 0.602428541331113,
+        "proxy_information": "generator_heterogeneity_shape_supplied",
+        "rewrite_A": 1509.9115386472226,
+        "rewrite_H0_convention": "matter_coefficient_sqrt_not_present_Hubble_rate",
+        "rewrite_H_present": 0.038641566421606974,
+        "rewrite_family": "subtractive_generator_proxy",
+        "spearman_pvalue": 0.3333333333333333,
+        "spearman_pvalue_method": "exact_two_sided_pairing_permutations",
+        "spearman_rho": 1.0,
+        "sweep_rows": [
+          {
+            "A_best": 1.5570329174637179e-18,
+            "delta_rho": 0.3,
+            "proxy_scale": 0.060102750056334746,
+            "z_max": 2.0
+          },
+          {
+            "A_best": 2.420514048159904e-16,
+            "delta_rho": 0.6,
+            "proxy_scale": 0.167058275824512,
+            "z_max": 2.0
+          },
+          {
+            "A_best": 844.2229913350823,
+            "delta_rho": 0.9,
+            "proxy_scale": 0.29033900053381345,
+            "z_max": 2.0
+          }
+        ]
+      },
+      "provenance": {
+        "exp_name": "rewrite_vs_lambda",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 468,
+        "run_dir": "results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:55:47.709658+00:00"
+      }
+    },
+    "scale_sweep": {
+      "artifact_sha256": {
+        "results/scale_sweep/20261013T185551Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "335095aae3940d3d3065953525cf64061d0e64ed79baa94c2bfcf1b5bee06dd4",
+        "results/scale_sweep/20261013T185551Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "f3fbad29aeb5b4f7f7a62e2772c96cf4893040d149a120dbfdfa4097bc0a6ab0",
+        "results/scale_sweep/20261013T185551Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/delta_max_vs_L.png": "fcb858bcb808cdeaae92d0bf76dee48b68620c2c7d559462debb2e8aac2218c5",
+        "results/scale_sweep/20261013T185551Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "4fe54be69a754d271b92822c4b5d3a38a2949bdeb04757fb5f9a1ea490a2427a",
+        "results/scale_sweep/20261013T185551Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "896dd3a06a197d7fe4625f50db5621c84d57dbb59a1e55441d7d9836dc61d6e1",
+        "results/scale_sweep/20261013T185551Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/rm_mean_late_vs_L.png": "81fc1dfec5da4831eacc342a267ccb82250002650db878ae5cd340d340dda1f2",
+        "results/scale_sweep/20261013T185551Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "b6f3d2df19a526a19c8eb19104161c60026132dc3d55f62e760d4f67deb08e91"
+      },
+      "metrics": {
+        "L_list": [
+          1,
+          2,
+          4,
+          5,
+          10,
+          20,
+          25,
+          50,
+          100,
+          125,
+          250,
+          500
+        ],
+        "L_min_delta": 1,
+        "RM_at_L_min_delta": 0.0,
+        "delta_max_list": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          5.847935775681473e-16,
+          9.63370400749824e-16,
+          4.715998197389796e-16,
+          7.370660205929666e-16,
+          1.6717061304259354e-15,
+          2.6801022966645575e-15,
+          1.4098083921610154e-15,
+          1.885745754155791e-15
+        ],
+        "delta_summary": "delta_max",
+        "params": {
+          "N": 500,
+          "delta_rho": 0.8,
+          "dt": 0.02,
+          "g4pi": 1.0,
+          "kappa_scale": 5.0,
+          "rho_mean": 1.0,
+          "seed": 123,
+          "steps": 250
+        },
+        "rm_L1": 0.0,
+        "rm_Lmax": 0.0001297164296760418,
+        "rm_mean_late_list": [
+          0.0,
+          5.742229301551903e-07,
+          1.0554080950360617e-06,
+          1.2795897415389228e-06,
+          2.470336985759324e-06,
+          4.824405532617915e-06,
+          5.850688343119066e-06,
+          1.1609846322031011e-05,
+          2.4101883002612653e-05,
+          3.10125605548238e-05,
+          5.819905683152058e-05,
+          0.0001297164296760418
+        ]
+      },
+      "provenance": {
+        "exp_name": "scale_sweep",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/scale_sweep/20261013T185551Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:55:52.177203+00:00"
+      }
+    },
+    "sn5yr_cov_sanity": {
+      "artifact_sha256": {
+        "results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "3752001ece9241fd3b9a68c40254b44fcfe6c0cbf722ccaae976d31579c4be48",
+        "results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "8e2805a2a5397336b43fb66fa5077845214c232af0d23eefd79ba11a135851b5",
+        "results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "13ae6c2076b13b4c5fcd7729b7b6b8b43cc3212146f0c8225624a7a5f0c1f35e",
+        "results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "61f5d2357a5631b21e1cdfd79bc07d968b129ad3d4c70205301c2afeead19f0b",
+        "results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn5yr_corr_block_stat+sys.png": "0079e523d9b91a7cfd5437d2d1077c826a32d1ba186804c82b01f9e7795cd142",
+        "results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn5yr_corr_block_stat.png": "1a933f8176674fcec6658107d84e37b4216c9df858401ec86e2016eda3042e9f",
+        "results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn5yr_sigma_hist_stat+sys.png": "ad756495d5c9855432e61afffa4c7b10dfe75a1eb733d4690623fc723ae6726c",
+        "results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn5yr_sigma_hist_stat.png": "62d8dffed6a8e9a772d93b52c0e05a4eda56879fae2686c738474dd90718e73d"
+      },
+      "metrics": {
+        "stat": {
+          "chol_jitter_used": 0.0,
+          "chol_success_no_jitter": true,
+          "corr_diag_median": 1.0,
+          "corr_offdiag_max_abs": 0.0,
+          "diag_max": 202151.40015625002,
+          "diag_median": 0.027093159999999998,
+          "diag_min": 0.0021715600000000003,
+          "index_base_detected": null,
+          "matrix_kind_detected": "statistical_total",
+          "min_eig": null,
+          "n_cov": 1829,
+          "n_mu": 1829,
+          "plot_corr_path": "/home/repos/six-birds-de/results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn5yr_corr_block_stat.png",
+          "plot_sigma_path": "/home/repos/six-birds-de/results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn5yr_sigma_hist_stat.png",
+          "psd_correction": false,
+          "sigma_max": 449.6125,
+          "sigma_median": 0.1646,
+          "sigma_min": 0.0466,
+          "symmetry_max_abs": 0.0,
+          "triplet_max_i": null,
+          "triplet_max_j": null,
+          "triplet_min_i": null,
+          "triplet_min_j": null
+        },
+        "stat+sys": {
+          "chol_jitter_used": 0.0,
+          "chol_success_no_jitter": true,
+          "corr_diag_median": 1.0,
+          "corr_offdiag_max_abs": 0.7635279243920583,
+          "diag_max": 202151.40131391602,
+          "diag_median": 0.029635476900000002,
+          "diag_min": 0.0031816590000000003,
+          "index_base_detected": null,
+          "matrix_kind_detected": "systematics_plus_stat",
+          "min_eig": null,
+          "n_cov": 1829,
+          "n_mu": 1829,
+          "plot_corr_path": "/home/repos/six-birds-de/results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn5yr_corr_block_stat+sys.png",
+          "plot_sigma_path": "/home/repos/six-birds-de/results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sn5yr_sigma_hist_stat+sys.png",
+          "psd_correction": false,
+          "sigma_max": 449.6125012874042,
+          "sigma_median": 0.17214957711246345,
+          "sigma_min": 0.05640619646811865,
+          "symmetry_max_abs": 0.0,
+          "triplet_max_i": null,
+          "triplet_max_j": null,
+          "triplet_min_i": null,
+          "triplet_min_j": null
+        }
+      },
+      "provenance": {
+        "exp_name": "sn5yr_cov_sanity",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/sn5yr_cov_sanity/20261013T185553Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:56:03.300510+00:00"
+      }
+    },
+    "toy1": {
+      "artifact_sha256": {
+        "results/toy1/20261013T185542Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "e85b0d08f2fa5135d6d8e3862989fe8759af58026797cfab259e788a9e075c42",
+        "results/toy1/20261013T185542Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "74841319d285a9acadbe0bfb690c1535881d7b885af8f8df48bc3e63f34af41c",
+        "results/toy1/20261013T185542Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "c6c33b116a78acfab5257b90fa1efebee817bb764e5f64a2fbd7e07d56580cce",
+        "results/toy1/20261013T185542Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "b03d546dd98fc5d52bd26d7aab5148fac08df378a9dd52dee8ef791e9113a761",
+        "results/toy1/20261013T185542Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/rm_summary_vs_beta.png": "f3c10945b498803b648161f73f7dd663723ef952600c5fccf46ef396469882c9",
+        "results/toy1/20261013T185542Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/rm_vs_time_by_n.png": "48d6e8792ccf4ee77a0b4bf726a8dbdd1e7612627491c4ec721d44f97b8b12fa",
+        "results/toy1/20261013T185542Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "06a6ceaae15a05bc46313372d4527c3750c3ae39d2170215841011fdc9c4dde4"
+      },
+      "metrics": {
+        "beta_large_rm_max": 0.08103953271192499,
+        "beta_linear_case_rm_max": 0.0,
+        "beta_small_rm_max": 0.020259883177980997,
+        "delta_max_overall": 7.021666937153402e-15,
+        "idempotence_space": "microstate_L2",
+        "mismatch_norm": "absolute_mean_difference",
+        "mismatch_space": "lens",
+        "rm_by_n_summary": [
+          {
+            "beta": 2.0,
+            "delta_max": 8.777083671441753e-17,
+            "n": 10,
+            "rm_max": 0.04602866069319561,
+            "rm_mean_late": 6.402447839917897e-08
+          },
+          {
+            "beta": 2.0,
+            "delta_max": 5.551115123125783e-16,
+            "n": 100,
+            "rm_max": 0.09522303023749523,
+            "rm_mean_late": 2.1575718743894503e-07
+          },
+          {
+            "beta": 2.0,
+            "delta_max": 7.021666937153402e-15,
+            "n": 1000,
+            "rm_max": 0.08036351821987206,
+            "rm_mean_late": 2.1283217708804523e-07
+          }
+        ],
+        "rm_summary_stat": "rm_max",
+        "rm_vs_beta_table": [
+          {
+            "beta": 0.0,
+            "delta_max": 0.0,
+            "rm_max": 0.0,
+            "rm_mean_late": 0.0
+          },
+          {
+            "beta": 0.25,
+            "delta_max": 7.021666937153402e-15,
+            "rm_max": 0.010129941588990665,
+            "rm_mean_late": 5.18071143186475e-06
+          },
+          {
+            "beta": 0.5,
+            "delta_max": 3.510833468576701e-15,
+            "rm_max": 0.020259883177980997,
+            "rm_mean_late": 1.6437653499231514e-06
+          },
+          {
+            "beta": 1.0,
+            "delta_max": 3.510833468576701e-15,
+            "rm_max": 0.04051976635596277,
+            "rm_mean_late": 4.82948791964569e-07
+          },
+          {
+            "beta": 2.0,
+            "delta_max": 8.777083671441752e-16,
+            "rm_max": 0.08103953271192499,
+            "rm_mean_late": 2.1889072436057348e-07
+          }
+        ]
+      },
+      "provenance": {
+        "exp_name": "toy1",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/toy1/20261013T185542Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:55:43.141136+00:00"
+      }
+    },
+    "toy2_patch": {
+      "artifact_sha256": {
+        "results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/Q_vs_time.png": "bb080c4108d3d47d7da3f57f97630298808097bf2abb78c6aa4c93fa7a982eb6",
+        "results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "9ca9f6f8b177478d0397dd3e0c82b74864a9e97d066ee8c63d26f4708f05ace1",
+        "results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/aD_vs_time.png": "f35e3efd09405bab78c774767664834119f9137072a09a2f985e91760666f54e",
+        "results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "927c107d9c78c52f053617883ff8065e905eabbc4ad47e6928279cdb38844a3e",
+        "results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ddot_aD_vs_time.png": "a3f8062d33758201d40384c88eda32283bcebc290bcc238c6733f83b6a18d416",
+        "results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "06cab6d2f441f9245dc93768d1e59b8c056b515bc0d7fbeeef5ce423ad4928ab",
+        "results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "5a6325bf86ca6910211ca52e27c68d34e420460bab71ea6d3a82b927828c9f55",
+        "results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "db178d930f103651b1be0f0b906cc8d6decb012897204245ad6e83103c6d158e"
+      },
+      "metrics": {
+        "Q_identity": "6*volume_weighted_var_H",
+        "density_weighting": "volume",
+        "energy_relative_error_max": 3.1491349283418103e-09,
+        "friedmann_density_coefficient": "2*g4pi/3",
+        "hetero_Q_mean_late": 3.2553925131062474e-05,
+        "hetero_Q_peak": 1.7420340032028814,
+        "hetero_frac_ddot_aD_pos": 0.9975020815986678,
+        "hetero_frac_ddot_aD_pos_late": 0.9875518672199171,
+        "homogeneous_Q_max_abs": 6.6560138878022845e-31
+      },
+      "provenance": {
+        "exp_name": "toy2_patch",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 123,
+        "run_dir": "results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T18:55:44.342579+00:00"
+      }
+    },
+    "y3_ppd_probe_split": {
+      "artifact_sha256": {
+        "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "33a9e4580a57c8999110aa8480ac9c9c225fa3e79ad54149fb90bcc6721f4619",
+        "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "85eef44c9089bf07a415be38a0cd49e88b1c8f07a44305e06219c00ac954abcc",
+        "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "9ecb0c52f98329f9df08a8e0bd40495b95c228b6c3363ad6913d784477fcdd8b",
+        "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_residuals_testA.png": "b4eff48685f5aab2f0585e1d9aabcd2e315036528f3828f53cac0b6b9fa83419",
+        "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/ppd_residuals_testB.png": "4273b5ade2de524564e543f5fba9eedf2f1c1eb2420881c0d1af85b4e128c4d6",
+        "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "6dc2b70df17d362000e9b695322636cc7878304db8e2f01818c6529c59d2b3a5",
+        "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/residuals_trainA_testB.csv": "a923f6e295f06d1df6ad8a0e00aafb39c39113ab128f876e71870e5c7c995c39",
+        "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/residuals_trainB_testA.csv": "fa4a91c40ba766dbd649574d8448f8f0450c2b41ac7cde5d0a966c5f2cb4d03f",
+        "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "954a15a0fd4ff705ed2995563372fc29ecd5534ba3e9f60bbb8158bc03154a56"
+      },
+      "metrics": {
+        "A_to_B_lcdm_like_bias_test": -7.372914888314471e-06,
+        "A_to_B_lcdm_like_chi2_over_n_test": 0.00019416282024229255,
+        "A_to_B_lcdm_like_chi2_test": 0.11649769214537553,
+        "A_to_B_lcdm_like_chi2_train": 0.032611170710881876,
+        "A_to_B_lcdm_like_rmse_test": 1.9189478053161014e-05,
+        "A_to_B_lcdm_like_rmse_weighted_test": 0.013934231957387983,
+        "A_to_B_rewrite_like_bias_test": -7.571778138870525e-06,
+        "A_to_B_rewrite_like_chi2_over_n_test": 0.00014753218322560862,
+        "A_to_B_rewrite_like_chi2_test": 0.08851930993536516,
+        "A_to_B_rewrite_like_chi2_train": 3.0604784223025245e-29,
+        "A_to_B_rewrite_like_rmse_test": 2.038642293830578e-05,
+        "A_to_B_rewrite_like_rmse_weighted_test": 0.012146282691655444,
+        "B_to_A_lcdm_like_bias_test": -2.257321539663359e-08,
+        "B_to_A_lcdm_like_chi2_over_n_test": 0.0001684334630165711,
+        "B_to_A_lcdm_like_chi2_test": 0.06737338520662844,
+        "B_to_A_lcdm_like_chi2_train": 0.07264655385497022,
+        "B_to_A_lcdm_like_rmse_test": 3.157319658111071e-08,
+        "B_to_A_lcdm_like_rmse_weighted_test": 0.012978191823847077,
+        "B_to_A_rewrite_like_bias_test": -2.6959692139771688e-08,
+        "B_to_A_rewrite_like_chi2_over_n_test": 7.634380721230062e-05,
+        "B_to_A_rewrite_like_chi2_test": 0.03053752288492025,
+        "B_to_A_rewrite_like_chi2_train": 0.04971969890721741,
+        "B_to_A_rewrite_like_rmse_test": 4.171598695181357e-08,
+        "B_to_A_rewrite_like_rmse_weighted_test": 0.008737494332604779,
+        "audit_kind": "injected_residual_protocol",
+        "beta_x": 0.1,
+        "empirical_closure_evidence": false,
+        "independent_prediction": false,
+        "kappa_probe": {
+          "clustering": 0.4,
+          "ggl": -0.2,
+          "shear": 0.0
+        },
+        "n_A": 400,
+        "n_B": 600,
+        "n_data": 1000,
+        "rewrite_bridge_w0": -0.907111,
+        "rewrite_bridge_wa": 0.452922,
+        "surrogate_frac_sigma": 0.1
+      },
+      "provenance": {
+        "exp_name": "y3_ppd_probe_split",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 0,
+        "run_dir": "results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:28.102480+00:00"
+      }
+    },
+    "y3_ppd_robustness": {
+      "artifact_sha256": {
+        "results/y3_ppd_robustness/20261013T190135Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "ddfde1283e77bd1133ddedb3e825e50c6eb20081288d54552e2ff51e39e22d9e",
+        "results/y3_ppd_robustness/20261013T190135Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "81e7e889670fcb5fdee9d2f1c3834c05c6e3bd557a9ec7ba650429587fc7c972",
+        "results/y3_ppd_robustness/20261013T190135Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/improvement_hist.png": "951041ad0324796811f40bd625860630610efc01f2448de07ee6f3c31aa805c9",
+        "results/y3_ppd_robustness/20261013T190135Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "619b9cbda3f9a3612a9385c6fc94f566978d8a096f061175b26c69715e641555",
+        "results/y3_ppd_robustness/20261013T190135Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "af0cab687bcba94f977a53996e90051b86b6512f8472f696009b5440a013127e",
+        "results/y3_ppd_robustness/20261013T190135Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/robustness_runs.csv": "99549e2ef093a72fbadadbf7fbb907f008015189afe15ae88fd31b11809008cf",
+        "results/y3_ppd_robustness/20261013T190135Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/robustness_summary.csv": "a35b6e9385ebf0ea4add4a93f1299246f4dfd58aa3953aab3c0563e2ca2ef14e"
+      },
+      "metrics": {
+        "audit_kind": "injected_residual_protocol",
+        "canonical_direction": "AtoB",
+        "canonical_split": "shear_vs_rest",
+        "empirical_closure_evidence": false,
+        "improvement_iqr_canonical": 0.019408616608945283,
+        "improvement_median_canonical": 0.0057149929656728354,
+        "improvement_n_canonical": 9,
+        "independent_prediction": false,
+        "max_scenarios": 30,
+        "n_failed": 0,
+        "n_ok": 26,
+        "n_scenarios_requested": 216,
+        "n_scenarios_run": 30,
+        "n_skipped": 4,
+        "sampling_applied": true
+      },
+      "provenance": {
+        "exp_name": "y3_ppd_robustness",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 0,
+        "run_dir": "results/y3_ppd_robustness/20261013T190135Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:41.118942+00:00"
+      }
+    },
+    "y3_ppd_with_geometry": {
+      "artifact_sha256": {
+        "results/y3_ppd_with_geometry/20261013T190147Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "57e76f8b9ec31a83138fa450cd55afc68ceae86f46d5707e2c7f065cc6fa87c7",
+        "results/y3_ppd_with_geometry/20261013T190147Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "bf2d37f7d9b3a5222077fe822da8950d6fb96fbff1519133d2e92027ab297d68",
+        "results/y3_ppd_with_geometry/20261013T190147Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/heldout_chi2_AtoB.png": "adbe25168b427438292d2192643853973f5c8cfda53f2e94fe22da846d272de1",
+        "results/y3_ppd_with_geometry/20261013T190147Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/heldout_chi2_BtoA.png": "927e9fcf72528043bdde25c5e7f197949cd4cc85673a971bf06d3c6ddc9fadc7",
+        "results/y3_ppd_with_geometry/20261013T190147Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "3b02ce128e0a5f3c437d3d06b488cd5533ce7d07e025674c9ddf2efd51922178",
+        "results/y3_ppd_with_geometry/20261013T190147Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "15757fadc6eb5d68aed516acc0a5b0d96514d162c835754222109041eecaf4ca",
+        "results/y3_ppd_with_geometry/20261013T190147Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/summary.csv": "f6131bb3322d81ebef1bf6b471602c853a5621a0fa2662e1ae558fc4426904c4"
+      },
+      "metrics": {
+        "audit_kind": "injected_residual_protocol",
+        "bao_H0": "fixed_to_fiducial",
+        "bao_curve": "released_fid_consensus",
+        "bao_sound_horizon_ratio": "fixed",
+        "chi2_A_lcdm_anchors": 1.2201949383125692,
+        "chi2_A_lcdm_noanchors": 0.7185724561078409,
+        "chi2_A_rewrite_anchors": 1.1190450602435127,
+        "chi2_A_rewrite_noanchors": 0.4984657666294236,
+        "chi2_B_lcdm_anchors": 1.070578670302249,
+        "chi2_B_lcdm_noanchors": 0.6749610323126475,
+        "chi2_B_rewrite_anchors": 0.9966939265329352,
+        "chi2_B_rewrite_noanchors": 0.9966939265329352,
+        "empirical_closure_evidence": false,
+        "independent_prediction": false,
+        "n_A": 400,
+        "n_B": 600,
+        "n_data": 1000,
+        "plot_files": [
+          "heldout_chi2_AtoB.png",
+          "heldout_chi2_BtoA.png"
+        ],
+        "sn_redshift_convention": "zHD radial distance; (1+zHEL) luminosity prefactor"
+      },
+      "provenance": {
+        "exp_name": "y3_ppd_with_geometry",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 0,
+        "run_dir": "results/y3_ppd_with_geometry/20261013T190147Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:58.973761+00:00"
+      }
+    },
+    "y3_scale_cut_sweep": {
+      "artifact_sha256": {
+        "results/y3_scale_cut_sweep/20261013T190129Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "3a27c92d1051c5c2a7441028baa1a17a19538e5f10c6487693193caf1be347a9",
+        "results/y3_scale_cut_sweep/20261013T190129Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/chi2_test_vs_xmin_AtoB.png": "bd95dca73c255e4520b991dc34f96b0fe7ec8d7bc73a2121b90b180963ec99c4",
+        "results/y3_scale_cut_sweep/20261013T190129Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/chi2_test_vs_xmin_BtoA.png": "addcda0b939bfd9b317ff68e83c95ad042d45baa21bc84bd8323ec8675e656e1",
+        "results/y3_scale_cut_sweep/20261013T190129Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "d498718595f707ddc3e573a77ffd7df361b973cd5b320fda8be016daa76c6172",
+        "results/y3_scale_cut_sweep/20261013T190129Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "c2f4d9a43950f9b378d7af1823bd5cbb8ccde4cbbfc1d4f0431fb7764754ca29",
+        "results/y3_scale_cut_sweep/20261013T190129Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/params_vs_xmin.png": "be879407114f118004e7bf97d8d1a2d0842991832ff25df659724f58eb5cca0e",
+        "results/y3_scale_cut_sweep/20261013T190129Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "ef5b49e5a30a01b1ff1c458ddb2028b4fe903447f3a360adb0209cf5b43b4984",
+        "results/y3_scale_cut_sweep/20261013T190129Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/sweep_summary.csv": "b3860bf3cceb1a0f766abb7a3b7bc032ca5ed2b59d42a22e43e9b8f731a8f095"
+      },
+      "metrics": {
+        "audit_kind": "injected_residual_protocol",
+        "chi2_min_A_to_B_lcdm_like": 0.04198035506984988,
+        "chi2_min_A_to_B_rewrite_like": 0.03377664522395022,
+        "chi2_min_B_to_A_lcdm_like": 0.0207683636854549,
+        "chi2_min_B_to_A_rewrite_like": 0.002098745486241775,
+        "delta_chi2_A_to_B_lcdm_like": 0.07451733707552566,
+        "delta_chi2_A_to_B_rewrite_like": 0.054742664711414944,
+        "delta_chi2_B_to_A_lcdm_like": 0.046605021521173545,
+        "delta_chi2_B_to_A_rewrite_like": 0.028438777398678474,
+        "empirical_closure_evidence": false,
+        "independent_prediction": false,
+        "n_data_full": 1000,
+        "nonflat_check_passed": true,
+        "x_min_values_used": [
+          0.0,
+          2.827713020823,
+          3.524029787368,
+          4.39138159228,
+          6.816395703458,
+          10.574359423897,
+          16.396172031315,
+          25.409992709359
+        ],
+        "xmin_min_chi2_A_to_B_lcdm_like": 25.409992709359,
+        "xmin_min_chi2_A_to_B_rewrite_like": 25.409992709359,
+        "xmin_min_chi2_B_to_A_lcdm_like": 25.409992709359,
+        "xmin_min_chi2_B_to_A_rewrite_like": 25.409992709359
+      },
+      "provenance": {
+        "exp_name": "y3_scale_cut_sweep",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 0,
+        "run_dir": "results/y3_scale_cut_sweep/20261013T190129Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:01:34.329365+00:00"
+      }
+    },
+    "y3_shear_physical_smoke": {
+      "artifact_sha256": {
+        "results/y3_shear_physical_smoke/20261013T190206Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/RUN_LOG.md": "d31405a53799bee501be3242cf00f2fef4cffa812faa177a7c0f00eb7b6a1e49",
+        "results/y3_shear_physical_smoke/20261013T190206Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/backend_probe.json": "a452e441beedfdc307ec7ddb811774bad057705b33334349270484e7b77ce9f3",
+        "results/y3_shear_physical_smoke/20261013T190206Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/config.yaml": "0c7b5ba22bcf59b25e30ddac7026b95111a67462b536570d6e00797d06f82b63",
+        "results/y3_shear_physical_smoke/20261013T190206Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/metrics.json": "6c9798861f510588fd2c64822cd7969e950e5e31ba4726d5b100e429189bdfc4",
+        "results/y3_shear_physical_smoke/20261013T190206Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/provenance.json": "ec2133473b441d51e78fbffd98ae222096efedc85d1b88c0c32a2e8aa89f705f",
+        "results/y3_shear_physical_smoke/20261013T190206Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/shear_data_preview.png": "c51d917966c4fd4d0332644c30fbe3bfab3bbf54c675340f5f83a3007f966735",
+        "results/y3_shear_physical_smoke/20261013T190206Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77/shear_subset.csv": "1c4802e932b7836313ea5033086bf3e4d7cfb8fd8f88172602b8622dc4c020ca"
+      },
+      "metrics": {
+        "audit_kind": "finite_multipole_shear_smoke",
+        "backend_attempted": "pyccl",
+        "backend_available": false,
+        "blocked_reason": "ModuleNotFoundError: No module named 'pyccl'",
+        "full_survey_likelihood": false,
+        "n_used": 400,
+        "note": "To enable physical mode: python -m pip install -e '.[dev,lss]' then rerun."
+      },
+      "provenance": {
+        "exp_name": "y3_shear_physical_smoke",
+        "git_dirty": false,
+        "git_sha": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "package_versions": {
+          "matplotlib": "3.11.2",
+          "numpy": "2.4.4",
+          "pandas": "3.0.6",
+          "pyyaml": "6.0.1",
+          "scipy": "1.17.1",
+          "sixbirds-cosmo": null
+        },
+        "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "random_seed": 0,
+        "run_dir": "results/y3_shear_physical_smoke/20261013T190206Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77",
+        "timestamp_utc": "2026-10-13T19:02:10.752059+00:00"
+      }
+    }
+  },
+  "implementation_commit": "97566177ec6de8998999be8b01d8598185071ed9",
+  "lean": {
+    "axiom_audit": [
+      "'zeroRouteMismatch_of_commute' does not depend on any axioms",
+      "'routeMismatch_of_commute' does not depend on any axioms",
+      "'idempotenceDefectAt_of_idempotent' does not depend on any axioms",
+      "'zeroRouteMismatch_packaging_of_intertwining' does not depend on any axioms",
+      "'routeMismatch_packaging_of_homomorphism_section' does not depend on any axioms",
+      "'packaging_idempotent_of_section' does not depend on any axioms",
+      "'macroDescends_iff_fiberCompatible' does not depend on any axioms",
+      "'no_macroDescends_of_fiber_witness' does not depend on any axioms",
+      "'fiberCompatible_iff_packaged_evolution' does not depend on any axioms",
+      "'route_readout_zero_of_exact' does not depend on any axioms",
+      "'idempotence_readout_zero_of_exact' does not depend on any axioms",
+      "'SixBirds.Examples.descent_with_nonzero_mismatch' does not depend on any axioms",
+      "'SixBirds.Examples.first_section' does not depend on any axioms",
+      "'SixBirds.Examples.quadratic_no_macro_law' does not depend on any axioms",
+      "'SixBirds.Lemmas.routeMismatch_of_commute' does not depend on any axioms",
+      "'SixBirds.Lemmas.idempotenceDefectAt_of_idempotent' does not depend on any axioms",
+      "'SixBirds.Lemmas.routeMismatch_packaging_of_homomorphism_section' does not depend on any axioms",
+      "'SixBirds.Examples.twoPatch_exact_acceleration_witness' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    ],
+    "source_commit": "97566177ec6de8998999be8b01d8598185071ed9",
+    "toolchain": "leanprover/lean4:v4.31.0"
+  },
+  "packages": {
+    "astropy": "8.0.1",
+    "numpy": "2.4.4",
+    "pandas": "3.0.6",
+    "pytest": "9.0.3",
+    "scipy": "1.17.1"
+  },
+  "paper_freeze": {
+    "baseline_commit": "9b302e7",
+    "changed_paths": [],
+    "paths": [
+      "docs/paper",
+      "docs/live.main.tex",
+      "docs/live.main.log",
+      "scripts/build_paper.sh"
+    ],
+    "sha256": {
+      "docs/paper/README.md": "e78f93a756a4f125c6300c4c6a2b3527af79d53c170f60a78b044d982950739e",
+      "docs/paper/SUBMISSION_NOTES.md": "de4cfd00fdab3df6e312e6658a45f5d857fb58a0fce8abdb3b7d0fa802dc2974",
+      "docs/paper/archive/main_zenodo_preprint.tex": "f78ab13e1b8ef6a4249d936ff889a1d6ee2d304913038877614fa7ce048e3b2c",
+      "docs/paper/archive/refs_zenodo_preprint.bib": "b2e209e8cfc7440ec7f82c804665c2dc2cc85f195366f3a8775f06acd0363be7",
+      "docs/paper/figures/README.md": "354629bc7e6aa6c64f16bcf099e5a2d4d5f38feac7dd74b601ed97ac5e8f647a",
+      "docs/paper/figures/fig_des_sn5yr_mu_residuals.png": "4a6bf70baabf7b07843f9c35a36065966c2ebb6e8ce6737297f1bcf8e8b9b8da",
+      "docs/paper/figures/fig_des_y6_bao_alpha_likelihood.png": "91c131028d68c9f3bafa7a6cb2ef04aecc5fd0827cda0a6ec793a21705cc8bfa",
+      "docs/paper/figures/fig_infer_distance_fit.png": "1087ed4c67487236af5cdc8d0876275ae8045bc1503bd8322ccafbd2e00362f0",
+      "docs/paper/figures/fig_ppd_background_bao_alpha.png": "3a8a175390f785e7c6af013dcdf29ac267f9bd521d2d491996eacc46c72320af",
+      "docs/paper/figures/fig_ppd_synth_rmse_across_seeds.png": "9c81f1060e3ac3348b9f7a0660de8a266995b165370bd1615b5462812f71058c",
+      "docs/paper/figures/fig_rewrite_vs_lambda_distance_fit.png": "f6643e80b66094dd337a7f543f147cb70da001bb7ad6120cf1dcfde256c2c27a",
+      "docs/paper/figures/fig_toy1_rm_summary_vs_beta.png": "cb4bb4a78c974c9dcf7c75bddb9268aa23a426c4db77cf0fcf68e58d05696e23",
+      "docs/paper/figures/fig_toy2_Q_vs_time.png": "aa3c775a141c02242048e1d04e1b359b48d2b8ea21c7bbff627d344907d5b456",
+      "docs/paper/figures/fig_y3_block_boundaries.png": "bb4281116b9fafce6ce6636c7452934b694f271fbb7c99bc2c7c1ece549b7d35",
+      "docs/paper/figures/provenance.yaml": "749b390a4412b0fd82ecbafd55e3abcd90d7526b49436cb0706e119101b0ff22",
+      "docs/paper/macros.tex": "9d01e377714a46e1f6c6eda49bf1354756df8caf10f92b03b19abcd7e7a95bfd",
+      "docs/paper/main.tex": "a29ad909a18f8c4d32098cc80d5b79a9387a5badc92a899af4e45317feb7cbff",
+      "docs/paper/refs.bib": "fa81189c30330b35027235d12c9914b22065f5d3c6e4336c445663b46300c545",
+      "docs/paper/tables/README.md": "e1dfca45d00c1dcdda66cada0e19b564a277d357c050899f3e3d7082cad15263",
+      "docs/paper/tables/evidence_map.tex": "acc939da80bac02ec447091347a06a38461681094f596abcdf4d407e646ee474",
+      "docs/paper/tables/provenance.yaml": "4af860c29c4514734a5961ecfa27968a65815259f34317dd9b37aa0ad8922c5d",
+      "docs/paper/tables/tab_background_fits.csv": "fa8621c66fd664206d71f5154ef29ba4ef204e293d19fc1fb877c51f7c00f095",
+      "docs/paper/tables/tab_background_fits.tex": "f383872e7f201e45468acb090f51072440b788fca3cb9fb7e3aba882bd69e17c",
+      "docs/paper/tables/tab_synth_inference_compare.csv": "da28f2d50e73deafc83bfeaae0fcf52b7e3c89340dc2c370734436cb600a2693",
+      "docs/paper/tables/tab_synth_inference_compare.tex": "a7446f5906da530f27c859b0fb6636568c03647252ad2527cd9ce5bbda1c699a",
+      "docs/paper/tables/tab_toy1_summary.csv": "a979ffcb6ac8569ca26fdc1b1a3683911bc628fb3fc6f161d3b1d24df112b080",
+      "docs/paper/tables/tab_toy1_summary.tex": "cab6299a891529119b98b5ad580d4ccd8cbafafbaebe839314fff6395833d4bc",
+      "docs/paper/tables/tab_toy2_summary.csv": "6f9026d42ea02c5dd5a5ed185bcf99b5a332084a87bc42590221dbe525a2f9a4",
+      "docs/paper/tables/tab_toy2_summary.tex": "3b6782cd76a64feaddb4f1dfb40faacc67dc1374c0492ffee2ae4693be65da78"
+    }
+  },
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "source_alignment": {
+    "block_values_equal_vector": true,
+    "covariance_ordering": [
+      "xip",
+      "xim",
+      "gammat",
+      "wtheta"
+    ],
+    "n_data": 1000,
+    "source_bin_labels": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "source_redshifts": 300
+  },
+  "source_sha256": {
+    "configs/3x2pt_y3_maglim_smoke.yaml": "6b3fee8e3fd164b188995034b7920757814a2fc41241e5f889720b7dd9e932a8",
+    "configs/3x2pt_y6_3x2pt_smoke.yaml": "759a316880518dec24eee1f66e53270a6b54f88638a27dfb0c7be8e40458343d",
+    "configs/lss/kids450_ppd_probe_split.yaml": "73bfbfe7a210515357554ae3f18bfd2a168f16e8a7470cb79ad7b2d99c1e8652",
+    "configs/lss/smoke_small.yaml": "a992b57b6065140713bbe5f1f4608449783b947c28cb8c12e4c48d29f3a62ec9",
+    "configs/lss/y3_maglim_smoke.yaml": "2d198d36c17da354631b7acc0338ca3afdc85d794ead4aac85c158245151a554",
+    "configs/lss/y3_ppd_probe_split.yaml": "fac4750199125af3ee74bf291b72a6070d5c4a1860f4017066c6c6afc0c51fe1",
+    "configs/lss/y3_ppd_robustness.yaml": "96945e0e25d2956961544d40861e3504fa0bfa133298752694904a76a5ee48c1",
+    "configs/lss/y3_ppd_with_geometry.yaml": "162597b8b1ecbcfd6954c13bffc5285a5993656f4bfa038c202b5e73fffc8836",
+    "configs/lss/y3_scale_cut_sweep.yaml": "1a7d8178a3ff6600ac1549ce954dbabcc2f466b638d21f127dd7e44f5be553b4",
+    "configs/lss/y3_shear_physical_smoke.yaml": "94f7e8ea6d6fd558100d5db4342d75374c36f53e1f4d227080a55b06181cf4ab",
+    "experiments/_smoke_fit.py": "85ada49285e3a8a8e081f02c9beea1f1746a11a09c99c5f07b906bedc7fd83cc",
+    "experiments/_smoke_lss_config.py": "9690eb1cf8d29db0a1641c604b57eef34bebcddf8df2c374b7a2b0f3a74b9c46",
+    "experiments/_smoke_manifest.py": "8b4f468cba993fe892bf600a5597a433c638f9df65fc19094681362585075868",
+    "experiments/run_3x2pt_ppd_split.py": "44d6957de28be14b4779c5418aaaf631f8935cee26810dad4ac83c24dee38239",
+    "experiments/run_3x2pt_smoke_like.py": "abea5eb915bf8aa2f274fa332749458df7e00c249839ebca0a5365ee1931a8ae",
+    "experiments/run_des_sn5yr_cov_sanity.py": "be8e39b84b8986d0aec7512dfa97dc1b07a33d141c559135fb4dea3458ad690a",
+    "experiments/run_des_y3_blockmap.py": "556b1da1c125b98b30cfded4afa27a447e98b2d0a5ef4fcd0f15a792c245e0e2",
+    "experiments/run_des_y3_chain_sanity.py": "ce96ef2ec1842830f62ce307bec67cc0abeefd9b3db192030376bc9839c65842",
+    "experiments/run_des_y3_vector_sanity.py": "f688b4254ab31a7b71712b19d335f5644a196787bf05d6b07cd7914314105802",
+    "experiments/run_des_y6_3x2pt_smoke.py": "5345f346aed51f108be686b748604fea58700dceba974fa456f69a5df5dbe65e",
+    "experiments/run_fit_des_sn5yr.py": "13ef13197f282365fe7fe433dedc49326a7cdbcdba53afc5ea753af4e3332176",
+    "experiments/run_fit_des_y6_bao.py": "406ce9980ca677542f57d5dec27c7505e07562cbb892e3b23db305868c2a0d89",
+    "experiments/run_infer_distance.py": "74bd602949a43d01acd70428805140ebf14ab4f65576201a341fae20687aafee",
+    "experiments/run_kids450_ppd_probe_split.py": "6bd1218499a9ccf4974b2fb7067a0ff22808656e38c9cc38bfffe305afa35b30",
+    "experiments/run_lss_backend_probe.py": "03d6c5a90518dce727065b83fb9da36507f1af549b1156317d0fc0c71a7a410b",
+    "experiments/run_ppd_background.py": "6d7623cea5a2ad3822f6b3c9d8502c3aab77c6adcea1ad99982f5493c3841ac4",
+    "experiments/run_ppd_synthetic.py": "2630cac3caa7bdb4d391835f2af688fff9f4a72cb77fd190b0e573130ced1241",
+    "experiments/run_rewrite_background_vs_lcdm.py": "698b32e3e23ac3b7da5b8712e7db7ae61b98bebb014a11f0fb612c29dc7ffd5d",
+    "experiments/run_rewrite_effective_w_validate.py": "fcc6da874480d334966cf4b4a1b7dfc664e91dccb09c092565bd51603edd92f4",
+    "experiments/run_rewrite_vs_lambda.py": "95ebe8b7089c5c78ac45466274b660a9844715aed068499e76022e2de0c5c96a",
+    "experiments/run_scale_sweep.py": "16df497ce7558ce2ad35547b39f949f16ad7631dd78c125a174f25b5d4bbab58",
+    "experiments/run_toy1.py": "730c5e3cb3175281479b64bd4b66c05d8f44fd8b15c1e91b2fd9667bbf6a3941",
+    "experiments/run_toy2_patch.py": "df8cd7c257a6200a9e760f3f2680fb2b576298608ef7c0fd645ef71c6a4f5c2c",
+    "experiments/run_y3_ppd_probe_split.py": "6214ba77300cb089dd26a5e776c98cf350bdcc879d54a67f19f86a9db4383635",
+    "experiments/run_y3_ppd_robustness.py": "b9a23d6b24c19c634a69985fe2b1f92160713cb5229a7ef9d7f3ca8db1be9f39",
+    "experiments/run_y3_ppd_with_geometry.py": "df18a75c3bf4ca14e0f7aede5907b2d0188d503d247a5af47b6ca3cc46ca6a47",
+    "experiments/run_y3_scale_cut_sweep.py": "66a816f24d8c2729396d065b361d75a0ea70d05d772ac28d046e8f6b4a9c9f85",
+    "experiments/run_y3_shear_physical_smoke.py": "20c76518063e9f2b8b05b8f4af6cc5b3bca98a3f8ada476dd04ac18fbbda3083",
+    "lean/Audit.lean": "7eaebb7a097f00406e28475109322a825d3e4171bdd6f65b5c1a1d13acfe0482",
+    "lean/SixBirds.lean": "7c41c6206c2d07911ba6faca90db639cc823aa2b0436653b755d20edd66e6897",
+    "lean/SixBirds/AccelerationWitness.lean": "558c5c0dd270731b728b88c0dd3ff6356fae9ed2972395dd986247cf3a95b54a",
+    "lean/SixBirds/Defs.lean": "ad87d704836a88effdcc5ef368130a1ccc0a0921182a27b7b4e62e7e8e83bc7c",
+    "lean/SixBirds/Examples.lean": "0309b375c02338d3e7918ad184d91b3b9b3e2f586625f7784b33ad5220cb61d6",
+    "lean/SixBirds/Lemmas.lean": "246a57287a9d477a1ac003f3ff2bc0ef22789c44cb69d6583433f238a2b06217",
+    "lean/lake-manifest.json": "6c84168c092f0994c702ae1dab3608e087df7d3f0b298cd9bdeddbc4b26d2a66",
+    "lean/lakefile.lean": "63555342422d901243313ff7665f9e5a8cf183cd08c9201a4060034ad888499d",
+    "lean/lean-toolchain": "efac0b94923b2d8b6840cd35be9177ad0fc5ab2332f4f4311c98712cee92fdee",
+    "src/sixbirds_cosmo/__init__.py": "9ab812b55dd8b2d7885c6e69f0b4cff533e1afb00f7aa4118c54f7419dda2b55",
+    "src/sixbirds_cosmo/audit_ppd.py": "4a3303f2dcf903dd4dba2c98613d92b654e169f5a42f3e881a6b46ad42cb6521",
+    "src/sixbirds_cosmo/core.py": "ae22a092677d0f0476526242ef3e1d0701d9d16b155e045274820818e562132b",
+    "src/sixbirds_cosmo/cosmo_background.py": "aa95ca27407e77fd3b26184d2f800e1f987a0aa0b98546e95173be3d37b496c6",
+    "src/sixbirds_cosmo/data_registry.py": "9eb40b7981ab34479db31d0c4e678a6274396c8d9e43ac28b3141cc92ea2a2ef",
+    "src/sixbirds_cosmo/datasets/__init__.py": "ac14603cc58d9195c961e6a0f68ef97849e233822e88dc0d9cb3f41747eb042b",
+    "src/sixbirds_cosmo/datasets/des_sn5yr.py": "a51a5eec50c4cb093677ffdcfc6d2788ba63f68c9cf6e4f2972b1c73999c4c29",
+    "src/sixbirds_cosmo/datasets/des_y3_2pt.py": "58c99d7e7cfd78db8f5cd084ed4360b65f02cceb822d7511189e04f15c22d3ba",
+    "src/sixbirds_cosmo/datasets/des_y3_chain_meta.py": "e70fcc58439fcd5872488d62db7afba2aef1376259f57043289aaa8173294244",
+    "src/sixbirds_cosmo/datasets/des_y6_bao.py": "8ba249344108121e0aa68df4d820edbe2ef13e81b2c72ac9a7cfa79f7986bf61",
+    "src/sixbirds_cosmo/datasets/kids450_vuitert18.py": "6210f20188b9f3a90a80fffc01dea851770768194cf11964253a2a0588402526",
+    "src/sixbirds_cosmo/infer/__init__.py": "13bff443232d806ea471ae31b8a2e4887b975d18dcdb5dfce95d840840e4c03f",
+    "src/sixbirds_cosmo/infer/fit.py": "cb8b0f5c3f79ab7ef92fe3c003bc415838651a2e2c2126657c2931b573dc027b",
+    "src/sixbirds_cosmo/infer_distance.py": "3e80c749f2207331d47de90324564b7411cbbee5d2abf8882581aec57ef6d391",
+    "src/sixbirds_cosmo/likelihoods/__init__.py": "c982c04338e6bfdedf69d7b228ff7995199e174ffb1ce54e614fea08c281d994",
+    "src/sixbirds_cosmo/likelihoods/base.py": "12ea168ce1624a7b973fde03b410d5a84a32308af2e8d73407cd8e15a756a1af",
+    "src/sixbirds_cosmo/likelihoods/gaussian_vector.py": "93dce0b3326d865810ecd2d73a727cf0364601364c95798577e75a556fcda303",
+    "src/sixbirds_cosmo/lss/__init__.py": "a0a97956a7fc648103bc10a6773b43fac4ad3f835b70635e5f8a139deed8fc7e",
+    "src/sixbirds_cosmo/lss/config.py": "795f4e9150f15129db3b40da95754deaeb1142565d837311551388ea41d031ca",
+    "src/sixbirds_cosmo/lss/masks.py": "6ad76d66ce38f55f6b00d6d837b8f3ef5f192407206ba85c509872025f82396b",
+    "src/sixbirds_cosmo/lss/ppd_probe_split.py": "66d776de2b28455c781063da775d171bdd74207b7e116bd3a20247ae7ff66b97",
+    "src/sixbirds_cosmo/lss/theory/__init__.py": "00692e29b0d03189565f022e529472a0997e9da5285910f5c15979b87ed495f8",
+    "src/sixbirds_cosmo/lss/theory/base.py": "2db1e8197f76277fd643f95f40811c0de45916c5a84a20543375002404479aac",
+    "src/sixbirds_cosmo/lss/theory/reference.py": "0cef18b9607a38f11380f49c57b601f7498272fb5dd17787f29d8c9c645ea4f9",
+    "src/sixbirds_cosmo/lss/theory/stub.py": "0a5c3256cb6e272c8188baad86b0dd111043da6281f30282da205514ed81820a",
+    "src/sixbirds_cosmo/manifest.py": "bd207a39068d1f97963c9f2388ce9c2fdaab62eb4546b97ba36603d94d01fc84",
+    "src/sixbirds_cosmo/numerics.py": "e08122a52d6fbae1b85cdc0531849365c5c8b7b71b68a860de051e6e462acc24",
+    "src/sixbirds_cosmo/ppd/__init__.py": "a71d4b9ece12ee09e40ef7b763763b2e5557fe95471ec3bfca3f1552ca55e853",
+    "src/sixbirds_cosmo/ppd/block_split.py": "fcd924b9a7781f03c3e9558f98ad06b434436a8d7f8293efcf36eeac9704b1d4",
+    "src/sixbirds_cosmo/ppd/ppd_gaussian.py": "71009cb4bf26b75ba4e123bd8a63f3cb2ed4d502d5bef957af6ec4df297777a2",
+    "src/sixbirds_cosmo/reporting.py": "dfb8e26a2d4a21a3d0b607030dee802071d229334431806421ad7274e8d988d2",
+    "src/sixbirds_cosmo/rewrite.py": "08d42804e270f45593b7675657a3301abf79bcc1d84ef5515671ca85d5769d93",
+    "src/sixbirds_cosmo/rewrite_background.py": "31735cd043f78124befc856681fa9a7828f2ba27e9a6f846ad924bb1c3ff50a3",
+    "src/sixbirds_cosmo/rewrite_effective_w.py": "f0c4c4dd67e128f26fff2575f42ffac5b049fe7fba06b319f550b41bdb17c818",
+    "src/sixbirds_cosmo/toy1.py": "6507fe846cc3bc6b00478c0701b115a74f06abb007f3af5421472b609019fa50",
+    "src/sixbirds_cosmo/toy2_patch.py": "14a590002052b43a37ccafd26a7947031e28e0fa9055c147d3dfa5a0f98cd636",
+    "tests/test_audit_completion.py": "c3dcc4babe0a9b24c577c550ef6df9502a7bab3a48c08fb1259cf1ebe1f8779f",
+    "tests/test_core.py": "ea6595f8c26d89dde00fd8f9350adbcd370c33df7d3d65d66610c203be2ef9fe",
+    "tests/test_cosmo_background.py": "9873d1983adfe4167e1a59e1e6dad12fc847b7556673c89b4928d9458f795d52",
+    "tests/test_cosmo_wcdm.py": "2d6899458906eeacdaf72f77f8711569e201e67374b58ddd3f91bfd19de4ead6",
+    "tests/test_des_sn5yr_cov_parser.py": "a3f308c3d325efb70fd542d82e9e75ce6f5527a6dfc81466dcbc055d49d42333",
+    "tests/test_des_y3_chain_meta.py": "2d75f0dd74fa8f91b59f860e7eeb35e645b9134efbe3608e5338c5bf20db35b1",
+    "tests/test_gaussian_vector.py": "0003b65fb742c4effac57b4ec2d321c9217873b3b393cca16f6dff2074c8efbb",
+    "tests/test_import.py": "8b1bac5f9d1a425f394bb267ebd8fc5361707f7bde038be075e4d30595221d74",
+    "tests/test_lss_config.py": "e2741ee20d91aff4e786401909ab1ea9e90a97e1d23b1ae0c81cbf69260d533e",
+    "tests/test_lss_masks.py": "10cfc6d703bf3a754aa4f6c049a6828e001e9e87103cc08474af9297990a9c87",
+    "tests/test_lss_ppd_probe_split.py": "a952827b3deb16684f8d81754ace83358e77aecac16b319e7ce934af7c7d56c2",
+    "tests/test_lss_theory_backends.py": "c3930db4bf9af693e58e4fe015a261a0421dfd54243a2542af0bacfb89285a0e",
+    "tests/test_mathematical_regressions.py": "ba99c7a05b3b24edaf4797b65e9e539cdaf9c31e0ca5dc06edbc2aeaea2f2eec",
+    "tests/test_rewrite_background.py": "8961adb37b8caec0a86f517c0ee35f4843cad9879d83be124ba17187f8f45976",
+    "tests/test_y6_switch_ready.py": "42ba21628a2496919c5809f2da34b780920fcc24388c5732cb5d9783899d9a46"
+  },
+  "tests": {
+    "command": "PYTHONPATH=src OPENBLAS_NUM_THREADS=1 MPLCONFIGDIR=/tmp/de-audit-mpl python -m pytest -q",
+    "passed": 96,
+    "source_commit": "bfa9bdeba8652e7e08c666e1cf5d0a656985db77"
+  }
+}
