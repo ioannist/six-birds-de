@@ -136,6 +136,19 @@ commit from overwriting each other's evidence. Existing files remain untouched.
 
 Current completion requirements and evidence
 
+Exact strengthening of the toy existence claim: take two patches with
+a_void=a_wall=1, g4pi=rho_mean=1, f_void=delta_rho=1/2 and kappa_scale=52/3.
+The initializer gives densities (1/2,3/2), curvatures (26/3,0), and velocities
+(3,1), since 9=(2/3)*(1/2)+26/3 and 1=(2/3)*(3/2). Local accelerations are
+(-1/6,-1/2). Hence V=2, dot V=12 and ddot V=58, and
+ddot a_D/a_D=58/(3*2)-2*12^2/(9*2^2)=5/3>0. The same generator code returns
+Q(0)=6 and ddot a_D(0)=5/3 to roundoff. This gives a literal admissible initial
+state with positive proxy acceleration while both dust patches decelerate.
+Smooth local ODE evolution preserves positivity for a sufficiently small
+time neighborhood; no global acceleration or relativistic realization is
+claimed. AccelerationWitness.lean verifies the exact rational initial-state
+equations with kernel checking, without a numerical oracle or a local axiom.
+
 Starting-state checkpoint: 9b302e7 contains the original six changed files and
 precedes every mathematical repair. It remains in the repository history.
 
@@ -146,10 +159,14 @@ the conditional template readout, covariance/intercept formulas, and protocol
 scope. This supplement adds whole-interval background domains, exact flat
 constant-w embedding, source ordering, and the optimizer comparison.
 
-Lean correctness: the pinned v4.31.0 build succeeds and Audit.lean reports no
-transitive axioms for all 17 exported theorems. The formal scope remains the
-abstract closure mathematics and explicit counterexamples. Numeric cosmology,
-GR dynamics, and the empirical pipeline are not claimed as Lean theorems.
+Lean correctness: the pinned v4.31.0 build succeeds and Audit.lean checks all
+18 exported theorems. The original 17 have no transitive axioms. The new rational
+acceleration witness uses Lean's standard propext, Classical.choice and
+Quot.sound through core rational arithmetic; these dependencies are explicitly
+recorded, not represented as axiom-free. There is no sorryAx or custom axiom.
+The formal scope is abstract closure mathematics, explicit counterexamples,
+and the exact rational initial-state witness. ODE existence/evolution, GR and
+the empirical pipeline are not claimed as Lean theorems.
 
 Experiment correctness: the completion verification reruns the affected source
 paths on cached data and records their current commit, metrics and artifact

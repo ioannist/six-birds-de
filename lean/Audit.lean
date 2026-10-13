@@ -18,3 +18,4 @@ import SixBirds
 #print axioms SixBirds.Lemmas.routeMismatch_of_commute
 #print axioms SixBirds.Lemmas.idempotenceDefectAt_of_idempotent
 #print axioms SixBirds.Lemmas.routeMismatch_packaging_of_homomorphism_section
+#print axioms SixBirds.Examples.twoPatch_exact_acceleration_witness
