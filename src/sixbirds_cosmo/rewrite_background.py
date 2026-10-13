@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.integrate import cumulative_trapezoid, quad
+from scipy.optimize import brentq
 from sixbirds_cosmo.cosmo_background import _positive_scale
 
 
@@ -32,6 +33,8 @@ def g_powerlaw(z: np.ndarray | float, m: float) -> np.ndarray | float:
 def E_rewrite(z: np.ndarray | float, om: float, A: float, m: float) -> np.ndarray | float:
     """Dimensionless E(z) for rewrite background with curvature closure."""
     z_arr, scalar = _as_array(z)
+    if not np.all(np.isfinite([om, A, m])) or min(om, A, m) < 0:
+        raise ValueError("rewrite om, amplitude and shape must be finite and nonnegative")
     if np.any(z_arr < -1.0):
         raise ValueError("Redshift z must be >= -1.")
     ok = 1.0 - om - A
@@ -41,6 +44,29 @@ def E_rewrite(z: np.ndarray | float, om: float, A: float, m: float) -> np.ndarra
         raise ValueError("Non-positive E^2 encountered in rewrite model.")
     Ez = np.sqrt(E2)
     return _reshape_output(Ez, z_arr.shape, scalar)
+
+
+def rewrite_interval_minimum(z_max: float, om: float, A: float, m: float) -> tuple[float, float]:
+    """Return the E^2 minimum over [0,z_max] in the declared positive family.
+
+    Writing u=1+z gives f'(u)=u*D(u), where
+    D=3*om*u+2*ok-m*A*u^(-m-2). Its derivative is nonnegative, so endpoints
+    and its unique possible interior zero exhaust all minimum candidates.
+    This is a floating evaluation of an analytic criterion, not an interval
+    arithmetic certificate for arbitrarily near-degenerate coefficients.
+    """
+    if not np.isfinite(z_max) or z_max < 0 or not np.all(np.isfinite([om, A, m])) or min(om, A, m) < 0:
+        raise ValueError("interval and rewrite coefficients must be finite and nonnegative")
+    ok = 1 - om - A
+    def derivative_factor(u):
+        return 3 * om * u + 2 * ok - m * A * u**(-m-2)
+    points = [1., 1. + z_max]
+    if derivative_factor(points[0]) < 0 < derivative_factor(points[-1]):
+        points.append(brentq(derivative_factor, points[0], points[-1]))
+    u = np.array(points)
+    values = om * u**3 + ok * u**2 + A * u**(-m)
+    i = int(np.argmin(values))
+    return float(u[i] - 1), float(values[i])
 
 
 def H_rewrite(z: np.ndarray | float, H0: float, om: float, A: float, m: float) -> np.ndarray | float:
@@ -73,6 +99,10 @@ def comoving_distance_rewrite(
 
     shape = z_arr.shape
     z_flat = z_arr.reshape(-1)
+    z_max = float(np.max(z_flat)) if z_flat.size else 0.0
+    _, minimum = rewrite_interval_minimum(z_max, om, A, m)
+    if not np.isfinite(minimum) or minimum <= 0:
+        raise ValueError("rewrite E^2 must be positive on the entire distance interval")
 
     if method == "trapz":
         z_max = float(np.max(z_flat)) if z_flat.size else 0.0

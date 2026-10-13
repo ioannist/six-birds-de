@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List
+import re
 
 import numpy as np
 import pandas as pd
@@ -41,6 +42,8 @@ def _extract_covariance(hdul) -> tuple[np.ndarray, str]:
 
     # Fallback: search table columns for square vector
     for hdu in hdul:
+        if "cov" not in (hdu.name or "").lower():
+            continue
         if not hasattr(hdu, "data") or hdu.data is None:
             continue
         if not hasattr(hdu, "columns") or hdu.columns is None:
@@ -65,7 +68,7 @@ def _extract_vector_from_hdu(hdu) -> np.ndarray | None:
     if not hasattr(hdu, "data") or hdu.data is None:
         return None
     data = hdu.data
-    if isinstance(data, np.ndarray):
+    if isinstance(data, np.ndarray) and data.dtype.names is None:
         if data.ndim == 1 and _is_numeric_array(data):
             return np.asarray(data, dtype=float)
         if data.ndim == 2 and 1 in data.shape and _is_numeric_array(data):
@@ -81,70 +84,76 @@ def _extract_vector_from_hdu(hdu) -> np.ndarray | None:
 def _extract_vector_direct(hdul) -> tuple[np.ndarray | None, str]:
     for hdu in hdul:
         name = (hdu.name or "").lower()
-        if "data" in name or "vector" in name:
+        if "cov" not in name and ("data" in name or "vector" in name):
             vec = _extract_vector_from_hdu(hdu)
             if vec is not None:
                 return vec, f"DATA_VECTOR_HDU:{hdu.name}"
-    for hdu in hdul:
-        vec = _extract_vector_from_hdu(hdu)
-        if vec is not None:
-            return vec, f"DATA_VECTOR_HDU:{hdu.name}"
     return None, "DATA_VECTOR_NOT_FOUND"
 
 
-def _extract_vector_from_spectra(hdul) -> tuple[np.ndarray | None, List[str], List[Dict[str, int]], str]:
-    spectra_hdu = None
+def _spectrum_names(hdul) -> tuple[list[str], list[int] | None]:
+    """Read the declared covariance ordering, including repeated FITS A formats."""
     for hdu in hdul:
-        name = (hdu.name or "").lower()
-        if "spectra" in name and hasattr(hdu, "data") and hdu.data is not None:
-            spectra_hdu = hdu
-            break
-    if spectra_hdu is None or not hasattr(spectra_hdu, "columns"):
+        if "cov" not in (hdu.name or "").lower():
+            continue
+        labels = sorted(int(m.group(1)) for key in hdu.header
+                        if (m := re.fullmatch(r"NAME_(\d+)", key)))
+        if labels:
+            if labels != list(range(len(labels))):
+                raise ValueError("covariance spectrum labels must be consecutive")
+            names = [str(hdu.header[f"NAME_{i}"]).strip() for i in labels]
+            starts = [hdu.header.get(f"STRT_{i}") for i in labels]
+            if any(type(start) is not int or start < 0 for start in starts) or starts[0] != 0 or any(b <= a for a, b in zip(starts, starts[1:])):
+                raise ValueError("covariance spectrum starts must be distinct increasing integers from zero")
+            if len(set(name.lower() for name in names)) != len(names):
+                raise ValueError("covariance spectrum names must be distinct")
+            return names, starts
+    for hdu in hdul:
+        if "spectra" not in (hdu.name or "").lower() or not hasattr(hdu, "columns"):
+            continue
+        cols = [col.name for col in hdu.columns if re.fullmatch(r"\d*A", str(col.format))]
+        if not cols:
+            raise ValueError("declared spectra table has no string name column")
+        preferred = [c for c in cols if c.lower() in {"name", "extname", "spectrum"}]
+        if len(preferred) != 1 and len(cols) != 1:
+            raise ValueError("declared spectra table has ambiguous name columns")
+        column = preferred[0] if len(preferred) == 1 else cols[0]
+        names = [(val.decode() if isinstance(val, bytes) else str(val)).strip()
+                 for val in hdu.data[column]]
+        if not names or any(not n for n in names) or len(set(n.lower() for n in names)) != len(names):
+            raise ValueError("declared spectrum names must be nonempty and distinct")
+        return names, None
+    return [], None
+
+
+def _extract_vector_from_spectra(hdul) -> tuple[np.ndarray | None, List[str], List[Dict[str, int]], str]:
+    ext_names, expected_starts = _spectrum_names(hdul)
+    if not ext_names:
         return None, [], [], "SPECTRA_NOT_FOUND"
+    return _extract_declared_spectra(hdul, ext_names, expected_starts)
 
-    str_cols = []
-    for col in spectra_hdu.columns:
-        if col.format is None:
-            continue
-        if col.format.startswith("A"):
-            str_cols.append(col.name)
-    if not str_cols:
-        return None, [], [], "SPECTRA_NO_STRING_COL"
 
-    name_col = str_cols[0]
-    ext_names = [str(val).strip() for val in spectra_hdu.data[name_col]]
-    spectra_used = []
-    slices = []
-    values = []
+def _extract_declared_spectra(hdul, ext_names, expected_starts):
+    """Do not silently replace a missing VALUE column by a bin-number column."""
+    values, slices, spectra_used = [], [], []
     start = 0
-    for ext in ext_names:
-        if not ext:
-            continue
-        try:
-            hdu = hdul[ext]
-        except Exception:
-            continue
-        vec = None
-        if hasattr(hdu, "columns") and hdu.columns is not None:
-            cols = [c.name for c in hdu.columns if np.issubdtype(c.dtype, np.number)]
-            if "VALUE" in hdu.columns.names:
-                vec = np.asarray(hdu.data["VALUE"], dtype=float).reshape(-1)
-            elif cols:
-                vec = np.asarray(hdu.data[cols[0]], dtype=float).reshape(-1)
-        elif hasattr(hdu, "data") and isinstance(hdu.data, np.ndarray):
-            if hdu.data.ndim == 1:
-                vec = np.asarray(hdu.data, dtype=float).reshape(-1)
-        if vec is None:
-            continue
+    for j, ext in enumerate(ext_names):
+        if expected_starts is not None and expected_starts[j] != start:
+            raise ValueError("spectrum length does not agree with covariance start metadata")
+        hdu = hdul[ext]
+        if not hasattr(hdu, "columns") or "VALUE" not in hdu.columns.names:
+            raise ValueError(f"spectrum {ext} requires an explicit VALUE column")
+        vec = np.asarray(hdu.data["VALUE"], dtype=float).reshape(-1)
+        if not np.all(np.isfinite(vec)):
+            raise ValueError("spectrum values must be finite")
         end = start + len(vec)
         spectra_used.append(ext)
         slices.append({"name": ext, "start": start, "end": end})
         values.append(vec)
         start = end
+    return np.concatenate(values), spectra_used, slices, "DECLARED_SPECTRA_CONCAT"
 
-    if not values:
-        return None, [], [], "SPECTRA_NO_VALUES"
-    return np.concatenate(values).astype(float), spectra_used, slices, "SPECTRA_TABLE_CONCAT"
+
 
 
 def _extract_vector_from_known(hdul) -> tuple[np.ndarray | None, List[str], List[Dict[str, int]], str]:
@@ -232,9 +241,7 @@ def _build_block_rows_from_hdu(hdu, start_idx: int) -> pd.DataFrame:
 
     exclude = [c for c in [value_col, bin1_col, bin2_col, x_col] if c]
     if value_col is None:
-        value_col = _first_float_column(cols, hdu, exclude)
-    if value_col is None:
-        raise ValueError(f"Could not identify value column in HDU {hdu.name}.")
+        raise ValueError(f"An explicit VALUE column is required in HDU {hdu.name}.")
 
     values = np.asarray(hdu.data[value_col], dtype=float).reshape(-1)
     x = np.asarray(hdu.data[x_col], dtype=float).reshape(-1) if x_col else np.full_like(values, np.nan)
@@ -288,14 +295,12 @@ def build_y3_block_index(path: Path, *, prefer_order: str = "spectra_table") -> 
             block_frames.append(_build_block_rows_from_hdu(hdu, start_idx))
             start_idx += len(block_frames[-1])
 
-        if prefer_order == "spectra_table" and spectra_hdu is not None:
-            str_cols = [col.name for col in spectra_hdu.columns if col.format and col.format.startswith("A")]
-            if str_cols:
-                name_col = str_cols[0]
-                ext_names = [str(val).strip() for val in spectra_hdu.data[name_col]]
-                for ext in ext_names:
-                    if ext:
-                        add_hdu_by_name(ext)
+        ext_names, expected_starts = _spectrum_names(hdul)
+        if ext_names:
+            for j, ext in enumerate(ext_names):
+                if expected_starts is not None and expected_starts[j] != start_idx:
+                    raise ValueError("block lengths do not agree with covariance spectrum ordering")
+                add_hdu_by_name(ext)
 
         if not block_frames:
             known_order = ["xip", "xim", "gammat", "wtheta"]
@@ -335,11 +340,22 @@ def load_des_y3_2pt_fits(path: Path) -> Dict[str, Any]:
         vec_spectra, spectra_used, spectra_slices, spectra_method = _extract_vector_from_spectra(hdul)
         vec_known, known_used, known_slices, known_method = _extract_vector_from_known(hdul)
 
+        declared_names, _ = _spectrum_names(hdul)
+        if declared_names and (vec_spectra is None or vec_spectra.size != cov.shape[0]):
+            raise ValueError("declared spectra do not cover the covariance dimension")
+
         data_vector = None
         extraction_method = ""
         spectra_used_final: List[str] = []
         spectra_slices_final: List[Dict[str, int]] = []
-        if vec_direct is not None and vec_direct.size == cov.shape[0]:
+        if declared_names:
+            data_vector = vec_spectra
+            extraction_method = spectra_method
+            spectra_used_final = spectra_used
+            spectra_slices_final = spectra_slices
+            if vec_direct is not None and vec_direct.size == cov.shape[0] and not np.array_equal(vec_direct, vec_spectra):
+                raise ValueError("direct vector disagrees with the declared covariance ordering")
+        elif vec_direct is not None and vec_direct.size == cov.shape[0]:
             data_vector = vec_direct
             extraction_method = direct_method
         elif vec_spectra is not None and vec_spectra.size == cov.shape[0]:

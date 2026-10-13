@@ -262,7 +262,10 @@ class DESY6BAOAlphaDataset(Dataset):
         return alpha
 
     def loglike(self, theta: np.ndarray) -> float:
-        om = float(np.asarray(theta, dtype=float)[0])
+        theta = np.asarray(theta, dtype=float)
+        if theta.shape != (1,) or not np.all(np.isfinite(theta)):
+            raise ValueError("compressed BAO model requires exactly one finite parameter")
+        om = float(theta[0])
         alpha = self.alpha_pred(om)
         if alpha is None:
             return -0.5 * 1e6
@@ -285,6 +288,8 @@ class BAODataset(Dataset):
 
     def loglike(self, theta: np.ndarray) -> float:
         theta = np.asarray(theta, dtype=float)
+        if theta.shape != (2,) or not np.all(np.isfinite(theta)):
+            raise ValueError("BAO vector model requires exactly two finite parameters")
         H0, om = float(theta[0]), float(theta[1])
 
         if self.model_kind == "ocdm":
@@ -295,7 +300,16 @@ class BAODataset(Dataset):
             raise ValueError("model_kind must be 'ocdm' or 'flat_lcdm'.")
 
         z = np.asarray(self.z, dtype=float)
-        obs_type = self.obs_type or ["unknown"] * len(z)
+        data = np.asarray(self.data, dtype=float)
+        if z.ndim != 1 or not len(z) or data.shape != z.shape or not np.all(np.isfinite(z)) or np.any(z < 0) or not np.all(np.isfinite(data)):
+            raise ValueError("BAO data and nonnegative redshifts must be matching finite vectors")
+        if np.shape(self.cov) != (len(z), len(z)):
+            raise ValueError("BAO covariance must match the data vector")
+        if self.obs_type is None or len(self.obs_type) != len(z):
+            raise ValueError("one observable type is required for each BAO data point")
+        if not np.isfinite(self.rd_mpc) or self.rd_mpc <= 0 or not np.isfinite(self.c_km_s) or self.c_km_s <= 0:
+            raise ValueError("BAO sound horizon and light speed must be finite and positive")
+        obs_type = self.obs_type
         predictions: list[float] = []
 
         for zi, obs in zip(z, obs_type):

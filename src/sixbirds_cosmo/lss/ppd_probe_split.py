@@ -7,7 +7,7 @@ from typing import Dict, Tuple
 import numpy as np
 import pandas as pd
 from scipy.linalg import cho_solve
-from sixbirds_cosmo.numerics import factor_covariance, generalized_least_squares
+from sixbirds_cosmo.numerics import factor_covariance, generalized_least_squares, validated_indices
 
 
 def get_probe_split_indices(block_index: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
@@ -48,6 +48,11 @@ def build_surrogate_theory(
     entries, are used. Residuals and fitted coefficients are independent of the
     measured central values. Use a separate fixed reference for predictive tests.
     """
+    y = np.asarray(y, dtype=float)
+    cov = np.asarray(cov, dtype=float)
+    _check_problem(y, cov)
+    if len(block_index) != len(y):
+        raise ValueError("block metadata must match the vector length")
     sigma = np.sqrt(np.diag(cov))
     x = block_index["x"].to_numpy(dtype=float)
     x_z = _zscore_x(x)
@@ -66,6 +71,9 @@ def _normalize_basis(B: np.ndarray) -> np.ndarray:
 
 
 def build_basis(y: np.ndarray, cov: np.ndarray, block_index: pd.DataFrame, *, model: str) -> np.ndarray:
+    _check_problem(np.asarray(y), np.asarray(cov))
+    if len(block_index) != len(y):
+        raise ValueError("block metadata must match the vector length")
     sigma = np.sqrt(np.diag(cov))
     x_z = _zscore_x(block_index["x"].to_numpy(dtype=float))
     if model == "lcdm_like":
@@ -85,7 +93,10 @@ def fit_linear_correction(
     idx_train: np.ndarray,
 ) -> Tuple[np.ndarray, float]:
     """Fit linear parameters minimizing chi2 on training indices."""
-    idx = np.asarray(idx_train, dtype=int)
+    y = np.asarray(y, dtype=float)
+    t0 = np.asarray(t0, dtype=float)
+    _check_problem(y, np.asarray(cov), t0)
+    idx = validated_indices(idx_train, len(y))
     resid = y - t0
     cov_train = cov[np.ix_(idx, idx)]
     B_train = B[idx]
@@ -95,7 +106,11 @@ def fit_linear_correction(
 
 
 def eval_metrics(y: np.ndarray, cov: np.ndarray, t: np.ndarray, idx: np.ndarray) -> Dict[str, float]:
-    idx = np.asarray(idx, dtype=int)
+    y = np.asarray(y, dtype=float)
+    t = np.asarray(t, dtype=float)
+    cov = np.asarray(cov, dtype=float)
+    _check_problem(y, cov, t)
+    idx = validated_indices(idx, len(y))
     resid = (y - t)[idx]
     cov_sub = cov[np.ix_(idx, idx)]
     L = factor_covariance(cov_sub)
@@ -111,3 +126,10 @@ def eval_metrics(y: np.ndarray, cov: np.ndarray, t: np.ndarray, idx: np.ndarray)
         "rmse_weighted": rmse_weighted,
         "bias": bias,
     }
+
+
+def _check_problem(y, cov, theory=None):
+    if y.ndim != 1 or not len(y) or not np.all(np.isfinite(y)) or cov.shape != (len(y), len(y)) or not np.all(np.isfinite(cov)):
+        raise ValueError("data and covariance must be finite and have matching vector dimensions")
+    if theory is not None and (theory.shape != y.shape or not np.all(np.isfinite(theory))):
+        raise ValueError("theory must be a finite vector with the same shape as data")

@@ -17,7 +17,7 @@ def _resolve_params(params: dict) -> dict[str, float | int | str]:
     if "x0_low" not in params or "x0_high" not in params:
         raise ValueError("params must include x0_low and x0_high for uniform init")
 
-    return {
+    resolved = {
         "alpha": float(params["alpha"]),
         "beta": float(params["beta"]),
         "dt": float(params["dt"]),
@@ -25,11 +25,14 @@ def _resolve_params(params: dict) -> dict[str, float | int | str]:
         "x0_low": float(params["x0_low"]),
         "x0_high": float(params["x0_high"]),
     }
+    if not np.all(np.isfinite([resolved[key] for key in ["alpha", "beta", "dt", "x0_low", "x0_high"]])) or resolved["dt"] <= 0 or resolved["x0_low"] > resolved["x0_high"]:
+        raise ValueError("toy parameters must be finite, dt positive and initial interval ordered")
+    return resolved
 
 
 def simulate_micro(n: int, steps: int, params: dict, seed: int) -> dict[str, Any]:
     """Simulate the micro dynamics and report mismatch and idempotence signals."""
-    if n <= 0 or steps <= 0:
+    if not isinstance(n, (int, np.integer)) or not isinstance(steps, (int, np.integer)) or n <= 0 or steps <= 0:
         raise ValueError("n and steps must be positive")
 
     resolved = _resolve_params(params)
@@ -61,6 +64,8 @@ def simulate_micro(n: int, steps: int, params: dict, seed: int) -> dict[str, Any
         rm[t] = float(route_mismatch(T, E, x, space="y"))
         delta[t] = float(idempotence_defect(E, x, space="x"))
         x = T(x)
+        if not np.all(np.isfinite(x)):
+            raise ValueError("micro dynamics overflowed; reduce the step or simulated time range")
         x_mean[t + 1] = float(np.mean(x))
         x_var[t + 1] = float(np.var(x))
 

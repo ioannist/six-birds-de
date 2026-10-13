@@ -107,9 +107,17 @@ def create_run_dir(
     timestamp = _timestamp_utc()
     git_sha, _ = _git_info(root)
     git_tag = git_sha if git_sha is not None else "nogit"
-    run_dir = base / exp_name / f"{timestamp}_{git_tag}"
-    run_dir.mkdir(parents=True, exist_ok=True)
-    return run_dir
+    experiment_dir = base / exp_name
+    experiment_dir.mkdir(parents=True, exist_ok=True)
+    stem = f"{timestamp}_{git_tag}"
+    suffix = 0
+    while True:
+        run_dir = experiment_dir / (stem if suffix == 0 else f"{stem}_{suffix:03d}")
+        try:
+            run_dir.mkdir(exist_ok=False)
+            return run_dir
+        except FileExistsError:
+            suffix += 1
 
 
 def write_config(run_dir: Path, config: dict) -> Path:

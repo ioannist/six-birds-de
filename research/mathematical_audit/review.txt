@@ -1,5 +1,9 @@
 MATHEMATICAL AUDIT — 2026-10-13
 
+This is the first-pass record (commit 8c7c3e8). The additional repairs and
+current completion checks are recorded in completion_review.txt and
+completion_evidence.json. Test counts and run numbers below describe that pass.
+
 Scope and decision
 
 The initial user state is preserved in commit 9b302e7. The audit covers the

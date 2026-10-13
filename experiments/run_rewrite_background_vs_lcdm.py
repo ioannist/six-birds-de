@@ -33,7 +33,7 @@ from sixbirds_cosmo.datasets.des_y6_bao import (
     load_alpha_likelihood_curve,
     load_bao_fiducial_info,
 )
-from sixbirds_cosmo.infer.fit import fit_map
+from sixbirds_cosmo.infer.fit import fit_map_multistart
 from sixbirds_cosmo.likelihoods.base import Dataset
 from sixbirds_cosmo.rewrite_background import (
     distance_modulus_rewrite,
@@ -134,25 +134,6 @@ def bin_residuals(z: np.ndarray, resid: np.ndarray, n_bins: int = 20) -> pd.Data
     return pd.DataFrame(rows)
 
 
-def fit_minimize(objective, theta0, bounds, n_data: int, k: int) -> dict:
-    result = minimize(objective, np.asarray(theta0, dtype=float), method="L-BFGS-B", bounds=bounds)
-    theta_hat = np.asarray(result.x, dtype=float)
-    chi2 = float(result.fun)
-    loglike_hat = -0.5 * chi2
-    return {
-        "theta_hat": theta_hat.tolist(),
-        "loglike_hat": loglike_hat,
-        "success": bool(result.success),
-        "message": str(result.message),
-        "nfev": int(result.nfev) if result.nfev is not None else None,
-        "nit": int(result.nit) if result.nit is not None else None,
-        "k": k,
-        "n_data": n_data,
-        "chi2_hat": chi2,
-        "aic": 2.0 * k - 2.0 * loglike_hat,
-        "bic": k * float(np.log(n_data)) - 2.0 * loglike_hat,
-    }
-
 
 def main() -> None:
     seed = 123
@@ -194,6 +175,7 @@ def main() -> None:
     # Fit functions
     @dataclass
     class SNOnlyLCDM(Dataset):
+        n_profiled_parameters: int = 1
         name: str = "sn_lcdm"
         n_data: int = len(z_sn)
         param_names: list[str] = field(default_factory=lambda: ["om", "ol"])
@@ -204,15 +186,16 @@ def main() -> None:
             om, ol = float(theta[0]), float(theta[1])
             try:
                 chi2, M_hat = chi2_sn_lcdm(z_sn, mu_sn, cho, om, ol, H0=70.0)
-            except Exception:
-                return -0.5 * 1e12
+            except ValueError:
+                return -np.inf
             if not np.isfinite(chi2):
-                return -0.5 * 1e12
+                return -np.inf
             self.last_M_hat = M_hat
             return -0.5 * chi2
 
     @dataclass
     class SNOnlyRewrite(Dataset):
+        n_profiled_parameters: int = 1
         name: str = "sn_rw"
         n_data: int = len(z_sn)
         param_names: list[str] = field(default_factory=lambda: ["om", "A", "m"])
@@ -223,15 +206,16 @@ def main() -> None:
             om, A, m = float(theta[0]), float(theta[1]), float(theta[2])
             try:
                 chi2, M_hat = chi2_sn_rewrite(z_sn, mu_sn, cho, om, A, m, H0=70.0)
-            except Exception:
-                return -0.5 * 1e12
+            except ValueError:
+                return -np.inf
             if not np.isfinite(chi2):
-                return -0.5 * 1e12
+                return -np.inf
             self.last_M_hat = M_hat
             return -0.5 * chi2
 
     @dataclass
     class SNBAOLCDM(Dataset):
+        n_profiled_parameters: int = 1
         name: str = "snbao_lcdm"
         n_data: int = len(z_sn) + 1
         param_names: list[str] = field(default_factory=lambda: ["om", "ol"])
@@ -246,10 +230,10 @@ def main() -> None:
                 chi2_sn, M_hat = chi2_sn_lcdm(z_sn, mu_sn, cho, om, ol, H0=70.0)
                 alpha = alpha_pred_lcdm(z_eff, H0_fid, om, ol, dm_fid)
                 chi2_b, clamped = chi2_bao(alpha, alpha_grid, delta_combined)
-            except Exception:
-                return -0.5 * 1e12
+            except ValueError:
+                return -np.inf
             if not (np.isfinite(chi2_sn) and np.isfinite(alpha) and np.isfinite(chi2_b)):
-                return -0.5 * 1e12
+                return -np.inf
             self.last_M_hat = M_hat
             self.last_alpha_pred = alpha
             self.alpha_outside_support = clamped
@@ -257,6 +241,7 @@ def main() -> None:
 
     @dataclass
     class SNBAORewrite(Dataset):
+        n_profiled_parameters: int = 1
         name: str = "snbao_rw"
         n_data: int = len(z_sn) + 1
         param_names: list[str] = field(default_factory=lambda: ["om", "A", "m"])
@@ -271,10 +256,10 @@ def main() -> None:
                 chi2_sn, M_hat = chi2_sn_rewrite(z_sn, mu_sn, cho, om, A, m, H0=70.0)
                 alpha = alpha_pred_rewrite(z_eff, H0_fid, om, A, m, dm_fid)
                 chi2_b, clamped = chi2_bao(alpha, alpha_grid, delta_combined)
-            except Exception:
-                return -0.5 * 1e12
+            except ValueError:
+                return -np.inf
             if not (np.isfinite(chi2_sn) and np.isfinite(alpha) and np.isfinite(chi2_b)):
-                return -0.5 * 1e12
+                return -np.inf
             self.last_M_hat = M_hat
             self.last_alpha_pred = alpha
             self.alpha_outside_support = clamped
@@ -285,10 +270,25 @@ def main() -> None:
     snbao_lcdm = SNBAOLCDM()
     snbao_rw = SNBAORewrite()
 
-    fit_lcdm_sn = fit_map(sn_lcdm, np.array([0.3, 0.7]), bounds=[(0.05, 1.5), (-0.5, 2.0)])
-    fit_rw_sn = fit_map(sn_rw, np.array([0.3, 0.7, 0.0]), bounds=[(0.05, 1.5), (0.0, 2.0), (0.0, 6.0)])
-    fit_lcdm_snbao = fit_map(snbao_lcdm, np.array([0.3, 0.7]), bounds=[(0.05, 1.5), (-0.5, 2.0)])
-    fit_rw_snbao = fit_map(snbao_rw, np.array([0.3, 0.7, 0.0]), bounds=[(0.05, 1.5), (0.0, 2.0), (0.0, 6.0)])
+    # Compare boundary and interior starts before reading off the correction's
+    # shape. A single run initialized at m=0 cannot establish that preference.
+    lcdm_starts = [[0.3, 0.7], [0.5, 0.5], [0.2, 1.0]]
+    rewrite_starts = [[0.3, 0.7, m] for m in [0.0, 1.0, 3.0, 6.0]]
+    optimizer = {"method": "Powell", "options": {"xtol": 1e-8, "ftol": 1e-10}}
+    # The released piecewise-linear BAO curve has a hard support boundary;
+    # derivative-free searches avoid a false L-BFGS convergence at the start.
+    fit_lcdm_sn = fit_map_multistart(sn_lcdm, lcdm_starts, bounds=[(0.05, 1.5), (-0.5, 2.0)], **optimizer)
+    fit_lcdm_snbao = fit_map_multistart(snbao_lcdm, lcdm_starts, bounds=[(0.05, 1.5), (-0.5, 2.0)], **optimizer)
+    rewrite_starts_sn = list(rewrite_starts)
+    rewrite_starts_snbao = list(rewrite_starts)
+    # Evaluate the nested constant family exactly, not merely at an epsilon
+    # above its boundary after bounded minimization.
+    for baseline, starts in [(fit_lcdm_sn, rewrite_starts_sn), (fit_lcdm_snbao, rewrite_starts_snbao)]:
+        om, ol = baseline["theta_hat"]
+        if 0 <= ol <= 2:
+            starts.append([om, ol, 0.0])
+    fit_rw_sn = fit_map_multistart(sn_rw, rewrite_starts_sn, bounds=[(0.05, 1.5), (0.0, 2.0), (0.0, 6.0)], **optimizer)
+    fit_rw_snbao = fit_map_multistart(snbao_rw, rewrite_starts_snbao, bounds=[(0.05, 1.5), (0.0, 2.0), (0.0, 6.0)], **optimizer)
 
     def bad_fit(fit: dict) -> bool:
         loglike = fit.get("loglike_hat")
@@ -297,39 +297,11 @@ def main() -> None:
         chi2 = -2.0 * loglike
         return chi2 > 1e10 or not fit.get("success", False)
 
-    if bad_fit(fit_lcdm_snbao):
-        def objective(theta):
-            om, ol = float(theta[0]), float(theta[1])
-            try:
-                chi2_sn, _ = chi2_sn_lcdm(z_sn, mu_sn, cho, om, ol, H0=70.0)
-                alpha = alpha_pred_lcdm(z_eff, H0_fid, om, ol, dm_fid)
-                chi2_b, _ = chi2_bao(alpha, alpha_grid, delta_combined)
-            except Exception:
-                return 1e12
-            if not (np.isfinite(chi2_sn) and np.isfinite(alpha) and np.isfinite(chi2_b)):
-                return 1e12
-            return chi2_sn + chi2_b
-
-        fit_lcdm_snbao = fit_minimize(
-            objective, [0.3, 0.7], bounds=[(0.05, 1.5), (-0.5, 2.0)], n_data=len(z_sn) + 1, k=2
-        )
-
-    if bad_fit(fit_rw_snbao):
-        def objective(theta):
-            om, A, m = float(theta[0]), float(theta[1]), float(theta[2])
-            try:
-                chi2_sn, _ = chi2_sn_rewrite(z_sn, mu_sn, cho, om, A, m, H0=70.0)
-                alpha = alpha_pred_rewrite(z_eff, H0_fid, om, A, m, dm_fid)
-                chi2_b, _ = chi2_bao(alpha, alpha_grid, delta_combined)
-            except Exception:
-                return 1e12
-            if not (np.isfinite(chi2_sn) and np.isfinite(alpha) and np.isfinite(chi2_b)):
-                return 1e12
-            return chi2_sn + chi2_b
-
-        fit_rw_snbao = fit_minimize(
-            objective, [0.3, 0.7, 0.0], bounds=[(0.05, 1.5), (0.0, 2.0), (0.0, 6.0)], n_data=len(z_sn) + 1, k=3
-        )
+    fits = {"lcdm_sn": fit_lcdm_sn, "rewrite_sn": fit_rw_sn,
+            "lcdm_snbao": fit_lcdm_snbao, "rewrite_snbao": fit_rw_snbao}
+    if any(bad_fit(fit) for fit in fits.values()):
+        raise RuntimeError("a selected background fit failed; inspect the optimizer before reporting results")
+    (run_dir / "optimizer_receipt.json").write_text(json.dumps(fits, indent=2))
 
     # compute chi2 and AIC/BIC
     def fit_stats(fit, k_total, n_data):
@@ -545,6 +517,11 @@ def main() -> None:
     manifest.save_table(df_summary, summary_path)
 
     metrics = {
+        "optimization_scope": "best_of_declared_starts",
+        "optimizer_receipt": "optimizer_receipt.json",
+        "lcdm_starts": lcdm_starts,
+        "rewrite_starts": rewrite_starts,
+        "exact_boundary_start": "embedded_best_fit_constant_family_when_admissible",
         "sn_redshift_convention": hd["redshift_convention"],
         "bao_curve": "released_fid_consensus",
         "bao_sound_horizon_ratio": "fixed",

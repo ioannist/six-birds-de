@@ -263,6 +263,7 @@ def main() -> int:
             continue
 
         try:
+            scenario_rows = []
             t0 = build_surrogate_theory(
                 y,
                 cov_pert,
@@ -284,7 +285,7 @@ def main() -> int:
                     t = t0 + B @ p_hat
                     metrics = eval_metrics(y, cov_pert, t, idx_test)
 
-                    rows.append(
+                    scenario_rows.append(
                         {
                             "scenario_id": scenario.scenario_id,
                             "split_kind": scenario.split_kind,
@@ -311,6 +312,7 @@ def main() -> int:
                         }
                     )
 
+            rows.extend(scenario_rows)
             n_ok += 1
 
         except Exception as exc:

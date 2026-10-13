@@ -33,6 +33,23 @@ def _reshape_output(values: np.ndarray, shape: tuple[int, ...], scalar: bool) ->
     return values.reshape(shape)
 
 
+def _check_lcdm_interval(z_max: float, om: float, ol: float) -> None:
+    """Check the cubic at endpoints and every interior stationary point.
+
+    An integration grid may miss an interval with E^2<=0. For u=1+z,
+    (E^2)'=u*(3*om*u+2*ok), so there is at most one interior candidate.
+    """
+    if not np.all(np.isfinite([om, ol])):
+        raise ValueError("LCDM coefficients must be finite")
+    candidates = [0.0, z_max]
+    ok = 1 - om - ol
+    if om != 0:
+        point = -2 * ok / (3 * om) - 1
+        if 0 < point < z_max:
+            candidates.append(point)
+    E_lcdm(np.array(candidates), om, ol)
+
+
 def E_lcdm(z: np.ndarray | float, om: float, ol: float) -> np.ndarray | float:
     """Dimensionless expansion rate E(z) for LCDM with curvature."""
     z_arr, scalar = _as_array(z)
@@ -75,6 +92,8 @@ def comoving_distance(
 
     shape = z_arr.shape
     z_flat = z_arr.reshape(-1)
+    z_max = float(np.max(z_flat)) if z_flat.size else 0.0
+    _check_lcdm_interval(z_max, om, ol)
 
     if method == "trapz":
         z_max = float(np.max(z_flat)) if z_flat.size else 0.0
@@ -192,6 +211,9 @@ def luminosity_distance_wcdm(
 
     shape = z_arr.shape
     z_flat = z_arr.reshape(-1)
+    # The positive factor u^3 leaves om+(1-om)*u^(3*w), a monotone function,
+    # so endpoint positivity excludes an interior zero in the flat wCDM case.
+    E_wcdm(np.array([0.0, float(np.max(z_flat)) if z_flat.size else 0.0]), om, w)
 
     if method == "trapz":
         z_max = float(np.max(z_flat)) if z_flat.size else 0.0

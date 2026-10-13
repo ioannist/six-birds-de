@@ -1,10 +1,12 @@
 import argparse
 import json
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+from scipy.integrate import trapezoid
+import re
 
 import matplotlib
 
@@ -22,7 +24,7 @@ from sixbirds_cosmo.reporting import write_run_markdown_stub
 
 
 def _utc_now_iso() -> str:
-    return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 
 def _write_backend_probe(path: Path, payload: dict) -> None:
@@ -31,29 +33,36 @@ def _write_backend_probe(path: Path, payload: dict) -> None:
 
 
 def _theta_to_rad(theta: np.ndarray, unit: str | None) -> np.ndarray:
+    theta = np.asarray(theta, dtype=float)
+    if not np.all(np.isfinite(theta)) or np.any(theta < 0):
+        raise ValueError("shear angles must be finite and nonnegative")
     if unit:
-        u = unit.lower()
-        if "arcmin" in u or "amin" in u:
+        u = unit.lower().strip()
+        if u in {"arcmin", "amin", "arcminute", "arcminutes"}:
             return np.deg2rad(theta / 60.0)
-        if "deg" in u:
+        if u in {"arcsec", "asec", "arcsecond", "arcseconds"}:
+            return np.deg2rad(theta / 3600.0)
+        if u in {"deg", "degree", "degrees"}:
             return np.deg2rad(theta)
-        if "rad" in u:
+        if u in {"rad", "radian", "radians"}:
             return theta
+        raise ValueError(f"unsupported shear angle unit: {unit}")
     # default assumption: arcmin
     return np.deg2rad(theta / 60.0)
 
 
-def _load_nz_from_fits(path: Path) -> tuple[np.ndarray, list[np.ndarray]] | None:
-    try:
-        from astropy.io import fits
-    except Exception:
-        return None
+def _load_nz_from_fits(path: Path) -> tuple[np.ndarray, list[np.ndarray], list[int]] | None:
+    """Read the fiducial SOURCE distribution, not lens bins or realizations.
+
+    Keep FITS BIN labels explicit; column position is not a tomography label.
+    """
+    from astropy.io import fits
 
     with fits.open(path, memmap=False) as hdul:
         nz_hdu = None
         for hdu in hdul:
             name = (hdu.name or "").lower()
-            if "nz" in name and hasattr(hdu, "data") and hdu.data is not None:
+            if name == "nz_source" and hasattr(hdu, "data") and hdu.data is not None:
                 nz_hdu = hdu
                 break
         if nz_hdu is None or not hasattr(nz_hdu, "columns"):
@@ -61,24 +70,28 @@ def _load_nz_from_fits(path: Path) -> tuple[np.ndarray, list[np.ndarray]] | None
         colnames = [c.name for c in nz_hdu.columns]
         z_col = None
         for candidate in colnames:
-            if candidate.lower() in {"z", "redshift"}:
+            if candidate.lower() in {"z_mid", "z", "redshift"}:
                 z_col = candidate
                 break
         if z_col is None:
-            return None
+            raise ValueError("nz_source requires a redshift or Z_MID column")
         z = np.asarray(nz_hdu.data[z_col], dtype=float).reshape(-1)
-        nz_cols = [c for c in colnames if c != z_col]
+        if len(z) < 2 or not np.all(np.isfinite(z)) or np.any(z < 0) or np.any(np.diff(z) <= 0):
+            raise ValueError("source redshifts must be finite, nonnegative and increasing")
+        bins = sorted((int(match.group(1)), c) for c in colnames
+                      if (match := re.fullmatch(r"BIN(\d+)", c, re.IGNORECASE)))
         nz_list = []
-        for c in nz_cols:
-            try:
-                vals = np.asarray(nz_hdu.data[c], dtype=float).reshape(-1)
-            except Exception:
-                continue
-            if np.all(np.isfinite(vals)):
-                nz_list.append(vals)
-        if not nz_list:
-            return None
-        return z, nz_list
+        for _, c in bins:
+            vals = np.asarray(nz_hdu.data[c], dtype=float).reshape(-1)
+            # The public BIN1 kernel contains small signed calibration tails.
+            # Preserve the released kernel rather than clipping it into a new
+            # distribution. The smoke run reports the signed mass explicitly.
+            if vals.shape != z.shape or not np.all(np.isfinite(vals)) or trapezoid(vals, z) <= 0:
+                raise ValueError(f"source kernel {c} must be finite with positive integral")
+            nz_list.append(vals)
+        if not nz_list or len({b for b, _ in bins}) != len(bins):
+            raise ValueError("nz_source must contain distinct BIN columns")
+        return z, nz_list, [b for b, _ in bins]
 
 
 def _toy_nz(n_bins: int, zmax: float, nz_points: int) -> tuple[np.ndarray, list[np.ndarray]]:
@@ -87,13 +100,20 @@ def _toy_nz(n_bins: int, zmax: float, nz_points: int) -> tuple[np.ndarray, list[
     for b in range(n_bins):
         z0 = 0.5 + 0.2 * b
         nz = z**2 * np.exp(-(z / z0) ** 1.5)
-        nz = nz / np.trapz(nz, z)
+        nz = nz / trapezoid(nz, z)
         nz_list.append(nz)
     return z, nz_list
 
 
-def _build_theory_vector(block_df: pd.DataFrame, cosmo, tracers, ell: np.ndarray) -> np.ndarray:
+def _build_theory_vector(block_df: pd.DataFrame, cosmo, tracers, ell: np.ndarray,
+                         *, tracer_bin_ids: list[int]) -> np.ndarray:
     import pyccl as ccl  # type: ignore
+    ell = np.asarray(ell, dtype=float)
+    if ell.ndim != 1 or len(ell) < 2 or not np.all(np.isfinite(ell)) or np.any(ell <= 0) or np.any(np.diff(ell) <= 0):
+        raise ValueError("multipoles must be a finite positive increasing vector")
+    if len(tracer_bin_ids) != len(tracers) or len(set(tracer_bin_ids)) != len(tracers):
+        raise ValueError("tracer labels must identify each tracer exactly once")
+    tracer_index = {label: i for i, label in enumerate(tracer_bin_ids)}
 
     pair_cache: dict[tuple[int, int], np.ndarray] = {}
 
@@ -102,29 +122,36 @@ def _build_theory_vector(block_df: pd.DataFrame, cosmo, tracers, ell: np.ndarray
         if key in pair_cache:
             return pair_cache[key]
         cl = ccl.angular_cl(cosmo, tracers[i], tracers[j], ell)
+        if np.shape(cl) != ell.shape or not np.all(np.isfinite(cl)):
+            raise ValueError("angular power spectrum must be finite and match multipoles")
         pair_cache[key] = cl
         return cl
 
     theory = np.zeros(len(block_df), dtype=float)
     theta_vals = block_df["x"].to_numpy(dtype=float)
-    theta_unit = block_df["x_unit"].iloc[0] if "x_unit" in block_df.columns else None
-    theta_rad = _theta_to_rad(theta_vals, theta_unit)
+    units = block_df["x_unit"].tolist() if "x_unit" in block_df.columns else [None] * len(block_df)
+    theta_rad = np.array([_theta_to_rad(np.array([val]), unit)[0]
+                          for val, unit in zip(theta_vals, units)])
 
     bin1 = block_df["bin1"].to_numpy()
     bin2 = block_df["bin2"].to_numpy()
     stat = block_df["stat"].to_numpy()
 
     for idx in range(len(block_df)):
-        b1 = int(bin1[idx])
-        b2 = int(bin2[idx])
+        if bin1[idx] not in tracer_index or bin2[idx] not in tracer_index:
+            raise ValueError("shear bin label has no corresponding source distribution")
+        b1 = tracer_index[bin1[idx]]
+        b2 = tracer_index[bin2[idx]]
         cl = get_cl(b1, b2)
         t = theta_rad[idx]
         integrand = ell * cl / (2.0 * math.pi)
         if stat[idx] == "xip":
             kernel = j0(ell * t)
-        else:
+        elif stat[idx] == "xim":
             kernel = jv(4, ell * t)
-        theory[idx] = np.trapz(integrand * kernel, ell)
+        else:
+            raise ValueError("shear statistic must be xip or xim")
+        theory[idx] = trapezoid(integrand * kernel, ell)
 
     return theory
 
@@ -187,6 +214,8 @@ def main() -> int:
     }
 
     metrics = {
+        "audit_kind": "finite_multipole_shear_smoke",
+        "full_survey_likelihood": False,
         "backend_attempted": "pyccl",
         "backend_available": False,
         "n_used": int(len(indices)),
@@ -224,6 +253,8 @@ def main() -> int:
 
     nz_data = _load_nz_from_fits(fits_path)
     if nz_data is None:
+        if not physical.get("allow_toy_nz", False):
+            raise ValueError("fiducial nz_source is absent; toy distributions require explicit allow_toy_nz")
         nz_source = "toy"
         bin_vals = block_shear[["bin1", "bin2"]].to_numpy(dtype=int)
         max_bin = int(np.nanmax(bin_vals)) if bin_vals.size else 0
@@ -234,10 +265,10 @@ def main() -> int:
             n_bins = max_bin + 1
             bin_offset = 0
         z, nz_list = _toy_nz(n_bins, zmax, nz_points)
+        tracer_bin_ids = list(range(1, n_bins + 1)) if bin_offset == -1 else list(range(n_bins))
     else:
         nz_source = "fits"
-        z, nz_list = nz_data
-        bin_offset = 0
+        z, nz_list, tracer_bin_ids = nz_data
 
     cosmo = ccl.Cosmology(
         Omega_c=float(fid.get("Omega_c", 0.25)),
@@ -251,12 +282,7 @@ def main() -> int:
 
     ell = np.logspace(np.log10(ell_min), np.log10(ell_max), ell_n)
 
-    # adjust bin indices if necessary
-    if bin_offset != 0:
-        block_shear["bin1"] = block_shear["bin1"].astype(int) + bin_offset
-        block_shear["bin2"] = block_shear["bin2"].astype(int) + bin_offset
-
-    theory = _build_theory_vector(block_shear, cosmo, tracers, ell)
+    theory = _build_theory_vector(block_shear, cosmo, tracers, ell, tracer_bin_ids=tracer_bin_ids)
     resid = y - theory
     chi2, jitter_used = chi2_gaussian(resid, cov)
 
@@ -268,6 +294,12 @@ def main() -> int:
             "n_used": int(len(indices)),
             "chol_jitter_used": float(jitter_used),
             "nz_source": nz_source,
+            "source_bin_labels": tracer_bin_ids,
+            "source_kernel_policy": "released_tabulation_unmodified",
+            "source_negative_mass_fraction": [float(trapezoid(np.maximum(-nz, 0), z) / trapezoid(nz, z)) for nz in nz_list],
+            "approximation": "flat_sky_J0_J4_with_finite_multipole_trapezoid",
+            "ell_range": [ell_min, ell_max],
+            "ell_n": ell_n,
         }
     )
 

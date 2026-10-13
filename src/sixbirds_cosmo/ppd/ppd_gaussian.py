@@ -6,7 +6,7 @@ from typing import Dict, Tuple
 
 import numpy as np
 from scipy.linalg import cho_solve
-from sixbirds_cosmo.numerics import factor_covariance, generalized_least_squares
+from sixbirds_cosmo.numerics import factor_covariance, generalized_least_squares, validated_indices
 
 
 def make_directions(y: np.ndarray, cov: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -46,7 +46,7 @@ def fit_amplitudes_on_block(
     """Fit stub amplitudes on block A."""
     y = np.asarray(y, dtype=float)
     cov = np.asarray(cov, dtype=float)
-    idxA = np.asarray(idxA, dtype=int)
+    idxA = validated_indices(idxA, len(y))
     d1, d2 = make_directions(y, cov)
     r0 = r0_amp * (d1 + d2)
 
@@ -82,6 +82,7 @@ def fit_amplitudes_on_block(
 
 def eval_block_chi2(y: np.ndarray, cov: np.ndarray, idx: np.ndarray, residual_full: np.ndarray) -> float:
     """Compute chi2 on a block for a residual vector."""
+    idx = validated_indices(idx, len(y))
     cov_block = cov[np.ix_(idx, idx)]
     resid_block = residual_full[idx]
     cho, _ = _cho_with_jitter(cov_block)
@@ -102,6 +103,10 @@ def ppd_fit_predict(
     y is used only for its length: the residual r0 is prescribed from covariance
     and metadata. The two-template model can cancel it exactly by construction.
     """
+    idxA = validated_indices(idxA, len(y))
+    idxB = validated_indices(idxB, len(y))
+    if np.intersect1d(idxA, idxB).size:
+        raise ValueError("training and held-out indices must be disjoint")
     fit = fit_amplitudes_on_block(y, cov, idxA, model_kind, r0_amp=r0_amp)
     d1 = fit["d1"]
     d2 = fit["d2"]

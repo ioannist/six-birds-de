@@ -32,25 +32,13 @@ def main() -> None:
     cov = data["cov"]
     n = int(len(y))
 
-    split = None
-    idxA = idxB = None
-    r0_amp = None
-    results = None
-    for split_choice in ["first_half", "alternating"]:
-        idxA, idxB = make_split_indices(n, split=split_choice)
-        for amp in [0.1, 0.2, 0.3, 0.5]:
-            res_lcdm = ppd_fit_predict(y, cov, idxA, idxB, "lcdm_stub", r0_amp=amp)
-            res_rw = ppd_fit_predict(y, cov, idxA, idxB, "rewrite_stub", r0_amp=amp)
-            if res_rw["chi2_B"] <= 0.99 * res_lcdm["chi2_B"]:
-                split = split_choice
-                r0_amp = amp
-                results = {"lcdm_stub": res_lcdm, "rewrite_stub": res_rw}
-                break
-        if results is not None:
-            break
-
-    if r0_amp is None or results is None or split is None:
-        raise AssertionError("Rewrite stub did not improve chi2_B by 1% for tested splits and r0_amp values.")
+    # Declare the control before scoring. Choosing a split or injection amplitude
+    # based on test improvement would make the held-out comparison circular.
+    split = "first_half"
+    r0_amp = 0.1
+    idxA, idxB = make_split_indices(n, split=split)
+    results = {model: ppd_fit_predict(y, cov, idxA, idxB, model, r0_amp=r0_amp)
+               for model in ["lcdm_stub", "rewrite_stub"]}
 
     # Summary table
     rows = []
@@ -112,6 +100,7 @@ def main() -> None:
     plt.close(fig2)
 
     metrics = {
+        "selection_rule": "fixed_split_and_amplitude_before_scoring",
         "audit_kind": "injected_residual_protocol",
         "independent_prediction": False,
         "empirical_closure_evidence": False,

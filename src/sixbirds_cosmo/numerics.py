@@ -6,6 +6,18 @@ import numpy as np
 from scipy.linalg import cho_factor, solve_triangular
 
 
+def validated_indices(indices, n: int, *, allow_empty: bool = False) -> np.ndarray:
+    """Keep row identity explicit: never truncate floats or reinterpret booleans."""
+    idx = np.asarray(indices)
+    if idx.ndim != 1 or not np.issubdtype(idx.dtype, np.integer):
+        raise ValueError("indices must be a one-dimensional integer vector")
+    if not allow_empty and len(idx) == 0:
+        raise ValueError("indices must be nonempty")
+    if np.any(idx < 0) or np.any(idx >= n) or len(np.unique(idx)) != len(idx):
+        raise ValueError("indices must be distinct and in range")
+    return idx
+
+
 def factor_covariance(cov: np.ndarray, *, jitter: float = 0.0):
     """Factor a finite symmetric positive definite covariance.
 

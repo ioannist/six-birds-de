@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Dict
+import math
 
 import yaml
 
@@ -63,7 +64,7 @@ def resolve_lss_config(cfg: Dict[str, Any], *, repo_root: Path | None = None) ->
             raise ValueError("mask.first_n must be an int >= 1 when mask.kind=first_n.")
     if mask_kind == "indices":
         indices = mask.get("indices")
-        if not isinstance(indices, list) or not indices or not all(isinstance(i, int) for i in indices):
+        if not isinstance(indices, list) or not indices or not all(type(i) is int and i >= 0 for i in indices) or len(set(indices)) != len(indices):
             raise ValueError("mask.indices must be a non-empty list of ints when mask.kind=indices.")
 
     split = dict(cfg.get("split", {}))
@@ -73,16 +74,16 @@ def resolve_lss_config(cfg: Dict[str, Any], *, repo_root: Path | None = None) ->
     if split_kind == "custom":
         A = split.get("A")
         B = split.get("B")
-        if not isinstance(A, list) or not A or not all(isinstance(i, int) for i in A):
+        if not isinstance(A, list) or not A or not all(type(i) is int and i >= 0 for i in A) or len(set(A)) != len(A):
             raise ValueError("split.A must be a non-empty list of ints when split.kind=custom.")
-        if not isinstance(B, list) or not B or not all(isinstance(i, int) for i in B):
+        if not isinstance(B, list) or not B or not all(type(i) is int and i >= 0 for i in B) or len(set(B)) != len(B):
             raise ValueError("split.B must be a non-empty list of ints when split.kind=custom.")
         if set(A) & set(B):
             raise ValueError("split.A and split.B must be disjoint.")
 
     theory_stub = dict(cfg.get("theory_stub", {}))
     frac_sigma = theory_stub.get("frac_sigma", 0.1)
-    if not isinstance(frac_sigma, (int, float)) or not float(frac_sigma) > 0 or not float(frac_sigma) == float(frac_sigma):
+    if type(frac_sigma) not in (int, float) or not math.isfinite(frac_sigma) or frac_sigma <= 0:
         raise ValueError("theory_stub.frac_sigma must be a finite float > 0.")
 
     run = dict(cfg.get("run", {}))

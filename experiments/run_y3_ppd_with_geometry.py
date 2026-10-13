@@ -192,7 +192,8 @@ def main() -> int:
         load_alpha_likelihood_curve(bao_raw, "aps"),
         load_alpha_likelihood_curve(bao_raw, "pcf"),
     ]
-    combined = load_alpha_likelihood_curve(bao_raw, "fid")
+    curve_kind = bao_cfg.get("curve_kind", "fid")
+    combined = load_alpha_likelihood_curve(bao_raw, curve_kind)
     alpha_grid = combined["alpha_grid"]
     delta_chi2_grid = combined["delta_chi2_grid"]
     z_eff_bao = load_bao_fiducial_info(bao_raw)["z_eff"]
@@ -348,7 +349,7 @@ def main() -> int:
 
     metrics = {
         "sn_redshift_convention": sn_hd["redshift_convention"],
-        "bao_curve": "released_fid_consensus",
+        "bao_curve": "released_fid_consensus" if curve_kind == "fid" else f"released_{curve_kind}_single_statistic",
         "bao_sound_horizon_ratio": "fixed",
         "bao_H0": "fixed_to_fiducial",
         "audit_kind": "injected_residual_protocol",

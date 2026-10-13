@@ -367,6 +367,9 @@ class DESSN5YRDistanceDataset(Dataset):
 
     def loglike(self, theta: np.ndarray) -> float:
         theta = np.asarray(theta, dtype=float)
+        expected = {"flat_lcdm": 1, "flat_wcdm": 2}.get(self.model_kind)
+        if expected is not None and (theta.shape != (expected,) or not np.all(np.isfinite(theta))):
+            raise ValueError("SN parameter vector must be finite and match the declared model")
         if self.model_kind == "flat_lcdm":
             om = float(theta[0])
             dl = luminosity_distance(self.z, self.H0_fixed, om, 1.0 - om)

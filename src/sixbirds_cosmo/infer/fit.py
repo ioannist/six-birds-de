@@ -20,6 +20,14 @@ def fit_map(
 ) -> Dict[str, Any]:
     """Fit maximum a-posteriori parameters by minimizing negative loglike."""
     theta0 = np.asarray(theta0, dtype=float)
+    if theta0.ndim != 1 or len(theta0) == 0 or not np.all(np.isfinite(theta0)):
+        raise ValueError("optimizer start must be a finite nonempty vector")
+    if type(dataset.n_profiled_parameters) is not int or dataset.n_profiled_parameters < 0:
+        raise ValueError("profiled parameter count must be a nonnegative integer")
+    if dataset.param_names is not None and len(dataset.param_names) != len(theta0):
+        raise ValueError("parameter names and optimizer dimensions must agree")
+    if bounds is not None and (len(bounds) != len(theta0) or any(lo >= hi for lo, hi in bounds)):
+        raise ValueError("optimizer bounds must match parameters with lower < upper")
 
     if bounds is not None:
         method = method or "L-BFGS-B"
@@ -47,6 +55,10 @@ def fit_map(
     else:
         result = minimize(nll, theta0, method=method, bounds=bounds, options=options)
         theta_hat = np.asarray(result.x, dtype=float)
+        # A search may terminate at a worse point near a support boundary.
+        # Retain a better supplied feasible start without inventing its score.
+        if nll(theta0) < nll(theta_hat):
+            theta_hat = theta0.copy()
 
     loglike_hat = float(dataset.loglike(theta_hat))
     k_explicit = int(theta_hat.size)
@@ -101,3 +113,25 @@ def format_fit_summary(
         )
 
     return summary
+
+
+def fit_map_multistart(dataset: Dataset, starts, *, bounds, **kwargs) -> Dict[str, Any]:
+    """Compare explicitly supplied starts without claiming global optimality.
+
+    Keep unsuccessful candidates in the receipt, and fail if the best finite
+    candidate itself did not converge instead of hiding a lower failed fit.
+    """
+    if not starts:
+        raise ValueError("at least one optimizer start is required")
+    candidates = [fit_map(dataset, np.asarray(start, dtype=float), bounds=bounds, **kwargs)
+                  for start in starts]
+    finite = [i for i, fit in enumerate(candidates) if np.isfinite(fit["loglike_hat"])]
+    if not finite:
+        raise RuntimeError("no optimizer start returned a finite likelihood")
+    selected = max(finite, key=lambda i: candidates[i]["loglike_hat"])
+    result = dict(candidates[selected])
+    result["optimization_scope"] = "best_of_declared_starts"
+    result["selected_start"] = selected
+    result["starts"] = [{"theta0": list(map(float, start)), **fit}
+                        for start, fit in zip(starts, candidates)]
+    return result

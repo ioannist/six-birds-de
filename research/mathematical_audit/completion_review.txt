@@ -1,0 +1,176 @@
+COMPLETION PASS — 2026-10-13
+
+This supplements review.txt and its historical evidence.json. The active goal
+is the mathematics, experiment logic, and Lean audit of this repository. The
+paper is intentionally frozen. The user chose protocol-level LSS scope, so a
+physical 3x2pt likelihood or independent synthetic campaign is not an outstanding
+deliverable. The title and toy mechanism remain supported within that scope.
+
+The previous goal turn made concrete progress: it committed the starting state
+and the first mathematical repairs, proved an exact descent criterion, and
+produced fresh numerical evidence. This turn challenged completion, found
+additional defects, repaired them, and checked the affected source paths.
+Both reviews are adversarial self-reviews, not independent agent reviews.
+
+Additional defects and repairs
+
+1. Covariance ordering is substantive, not a cosmetic row choice. The DES FITS
+file explicitly names spectra and starting indices in COVMAT's NAME_i/STRT_i
+headers. The loader and block map now follow this declared ordering together.
+They verify block starts and dimension coverage. Standard FITS repeated-string
+formats such as 16A are recognized in SPECTRA tables. Missing spectra or VALUE
+columns are errors; arbitrary numeric columns are not substituted for either
+observed values or covariance. Synthetic FITS controls deliberately swap the
+conventional xip/xim order and verify the observed-vector/covariance alignment.
+The cached DES ordering remains xip, xim, gammat, wtheta; its 1000 values agree
+exactly with the repaired block map.
+
+2. The optional shear runner previously failed to recognize Z_MID, fell back
+to toy source distributions despite a released nz_source table, and used
+one-based FITS labels as zero-based Python tracer indices. It now selects the
+fiducial nz_source table explicitly, reads only BIN columns, and retains their
+integer labels as an explicit map to tracers. Lens distributions and source
+realization tables cannot be selected accidentally. Missing source kernels
+require an explicit allow_toy_nz choice before a toy fallback is allowed.
+Angles are converted per row, unknown units/statistics fail, and SciPy's
+trapezoid replaces NumPy's removed trapz entry point.
+
+The released first source-bin tabulation contains a small signed calibration
+tail. Its negative integrated mass relative to its net integral is about
+4.10362e-4; the other three fiducial bins are nonnegative. The loader preserves
+the released signed kernel and checks its positive net integral. It does not
+silently project that table into a different probability distribution. A
+successful optional smoke run records the signed mass, original bin labels,
+kernel policy, multipole interval, and flat-sky finite-integral approximation.
+
+The J0 calculation is tested against the analytic transform
+integral_0^infinity ell*exp(-ell^2/2)*J0(ell*theta)/(2*pi) d ell
+=exp(-theta^2/2)/(2*pi), with explicit unequal bin labels and mixed angular
+units. This checks the transform and alignment independently of the CCL
+callback implementation. The baseline environment lacks pyccl, and its actual
+blocked branch is exercised. No installed-CCL end-to-end result or full physical
+survey likelihood is claimed. The existing LSS evidence remains protocol-only.
+The upstream tracer interface and automatic normalization of N(z) were checked
+against https://ccl.readthedocs.io/en/latest/api/pyccl.tracers.html .
+
+3. A single optimizer initialization at m=0 was too weak to support the sampled
+constant-correction conclusion. Merely adding starts exposed a second defect:
+L-BFGS could return success without moving from a starting point near a hard
+BAO support boundary. The background comparison now uses bounded Powell
+searches from three constant-family starts and four rewrite starts (m=0,1,3,6),
+plus the exact embedding of each fitted constant family at m=0 whenever its
+amplitude is admissible. An optimizer receipt retains each start, outcome,
+score, and selected candidate. The profiled SN intercept is counted in that
+receipt. Unsupported points have an actual infinite chi-square, rather than a
+finite fake likelihood, and a selected failed fit is not published as success.
+
+On the repaired inputs the constant-correction conclusion survives. The
+SN-only best constant fit is approximately (om,A)=(.2920765,.5520879) with
+chi2=1639.09649487. The SN+BAO best fit is approximately
+(.3006449,.5473573) with chi2=1640.41118037. The exact nested rewrite at m=0
+attains the same score. The added parameter therefore costs Delta AIC=2.
+This verifies the best candidate among the declared searches; it is not an
+interval-certified global optimization theorem over a continuum.
+
+4. Checking H^2 only at integration samples can miss a negative interior
+interval. Both background distance families now check analytic candidates on
+the entire integration interval. For LCDM, with u=1+z,
+f(u)=om*u^3+ok*u^2+ol has derivative u*(3*om*u+2*ok), so endpoints and its
+possible stationary point suffice.
+
+For the declared nonnegative public rewrite coefficients om,A,m,
+f(u)=om*u^3+ok*u^2+A*u^(-m) has derivative u*D(u), where
+D(u)=3*om*u+2*ok-m*A*u^(-m-2). Here
+D'(u)=3*om+m*(m+2)*A*u^(-m-3)>=0. Consequently endpoints and the unique
+possible interior zero of D exhaust the minimum candidates. A bracketed root
+solve evaluates that candidate before integration. A regression uses
+(om,A,m)=(.05,2,0): both z=0 and z=25 are allowed, but the interior minimum
+at z=13 is negative. A two-point integration grid previously accepted it.
+The repaired code rejects it. These are floating evaluations of an analytic
+criterion, not interval certificates arbitrarily close to degeneracy.
+
+For flat wCDM, f(u)=u^3*(om+(1-om)*u^(3*w)). The parenthesized factor is
+monotone, so endpoint positivity excludes an interior zero. Its distance path
+now performs this check explicitly. The public rewrite also has an exact
+constant-w subfamily when A=1-om: w=-1-m/3, wa=0. This follows by comparing
+the fluid exponent 3*(1+w)=-m and is checked for m=0,1,3,6. The previous
+curved-source to flat-CPL fit remains an H-only approximation; no growth
+prediction is inferred from that scalar match.
+
+5. Integer row identity and data-vector arity are now enforced at the scoring
+interfaces. Floats are not truncated into indices, booleans are not interpreted
+as 0/1 row numbers, repeated or negative indices are rejected, and train/test
+overlap is rejected by the block audit. One observable type is required for
+each BAO-vector datum; mismatched lengths no longer truncate under zip and
+broadcast one prediction over several points. Data/theory shapes are checked
+before LSS residual arithmetic, and likelihood parameters cannot be silently
+ignored while being counted by AIC. Configuration validation excludes infinite
+injection amplitudes and duplicate/negative split indices. Chain metadata no
+longer mistakes the dark-energy parameter w0 for a sample weight via a one-letter
+substring match. Indexed smoke masks are honored with original row identities.
+
+6. The stub block audit formerly selected a split/injection amplitude after
+checking which held-out score showed improvement. Its control now declares
+first_half and amplitude .1 before scoring. The first-pass numerical setting
+is retained without that outcome-based selection rule. The rewrite control's
+ability to cancel the prescribed residual is still a construction property,
+not empirical survey evidence. The injected scope is explicit in its bundle
+and in the ordinary vector smoke bundle. No new empirical predictive claim
+has been added.
+
+7. A robustness scenario could fail at its second model after adding an earlier
+model's successful row to the output. That left an invalid partial success in
+the statistical summary. Scenario rows now commit only after all requested
+fits succeed. An adversarial second-model failure produces four failed rows,
+zero successful scenarios, and no partially green data. The ordinary cached
+suite retains 26 completed scenarios, 4 insufficient-point skips, 0 failures.
+The geometry anchor respects the configured single-statistic or consensus
+BAO curve instead of silently ignoring its curve_kind field.
+
+8. Proxy scoring no longer broadcasts mismatched arrays or extrapolates beyond
+a declared template. A missing reference amplitude cannot silently produce a
+zero variance prediction. Toy inputs are finite with integer population/time
+counts, rather than silently truncating fractional populations. Immutable
+run-directory allocation prevents two runs in the same second at the same
+commit from overwriting each other's evidence. Existing files remain untouched.
+
+Current completion requirements and evidence
+
+Starting-state checkpoint: 9b302e7 contains the original six changed files and
+precedes every mathematical repair. It remains in the repository history.
+
+Mathematical statement coverage: review.txt derives the exact descent criterion,
+common-fiber obstruction, zero-readout direction, the toy mean/variance identity,
+the weighted patch acceleration identity, the population-permutation limitation,
+the conditional template readout, covariance/intercept formulas, and protocol
+scope. This supplement adds whole-interval background domains, exact flat
+constant-w embedding, source ordering, and the optimizer comparison.
+
+Lean correctness: the pinned v4.31.0 build succeeds and Audit.lean reports no
+transitive axioms for all 17 exported theorems. The formal scope remains the
+abstract closure mathematics and explicit counterexamples. Numeric cosmology,
+GR dynamics, and the empirical pipeline are not claimed as Lean theorems.
+
+Experiment correctness: the completion verification reruns the affected source
+paths on cached data and records their current commit, metrics and artifact
+hashes in completion_evidence.json. Unit controls include exact-algebra checks,
+analytic transform/continuum counterexamples, configuration/index/shape defects,
+multi-start receipts, and failed-scenario accounting. The current suite has
+96 passing tests. The first-pass evidence.json remains a historical receipt.
+
+Preserving claims: route mismatch and proxy acceleration persist; the synthetic
+null-Lambda fit and conditional calibration demonstration persist; sampled public
+fits retain the constant correction. Exact descent and a constant-w subfamily
+are established directly rather than assumed. The explicit user decision keeps
+the LSS claim at protocol scope. Unsupported generalization, full physical
+likelihood, GR, adequate synthetic chi-square and posterior-detection claims
+are excluded rather than smuggled into the repaired mathematics.
+
+Paper freeze: tracked paper, bibliography, vendored figure/table, live manuscript
+and build-script contents are compared with 9b302e7. That comparison is empty.
+The paper's later text corrections remain intentionally deferred as requested;
+they are not an outstanding code/audit task.
+
+These requirements are checked against source and fresh command outputs before
+marking the active goal complete. The clean source commit and subsequent
+verification-receipt commit make the repaired implementation reviewable.

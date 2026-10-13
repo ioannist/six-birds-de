@@ -118,7 +118,7 @@ def infer_loglike_columns(columns: List[str]) -> Dict[str, str]:
                     return c
         for key in keys:
             for c in columns:
-                if key in c.lower():
+                if len(key) > 1 and key in c.lower():
                     return c
         return None
 

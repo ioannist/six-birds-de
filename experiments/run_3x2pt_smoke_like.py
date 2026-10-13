@@ -21,6 +21,7 @@ from sixbirds_cosmo.lss.theory.reference import ReferenceVectorBackend
 from sixbirds_cosmo.lss.theory.stub import StubBackend
 from sixbirds_cosmo.likelihoods.gaussian_vector import apply_mask, chi2_gaussian
 from sixbirds_cosmo.reporting import write_run_markdown_stub
+from sixbirds_cosmo.numerics import validated_indices
 
 
 def main() -> None:
@@ -60,14 +61,18 @@ def main() -> None:
     mask_cfg = config_data.get("mask", {})
     mask_kind = mask_cfg.get("kind", "all")
     use_first_n = mask_cfg.get("first_n")
-    if mask_kind == "all" or use_first_n is None:
+    if mask_kind == "all":
         mask = np.arange(len(y))
         mask_kind = "all"
     elif mask_kind == "first_n":
+        if type(use_first_n) is not int or use_first_n <= 0:
+            raise ValueError("first_n mask requires a positive integer")
         mask = np.arange(min(use_first_n, len(y)))
         mask_kind = "first_n"
+    elif mask_kind == "indices":
+        mask = validated_indices(mask_cfg.get("indices"), len(y))
     else:
-        raise ValueError("mask.kind must be 'all' or 'first_n'.")
+        raise ValueError("mask.kind must be 'all', 'first_n' or 'indices'.")
 
     # Apply mask to data/cov
     y_masked, cov_masked = apply_mask(y, cov, mask)
@@ -80,7 +85,7 @@ def main() -> None:
         block_index = pd.DataFrame({"i": mask})
 
     if backend_kind == "stub":
-        backend = StubBackend(y_masked, cov_masked, frac_sigma=frac_sigma)
+        backend = StubBackend(y, cov, frac_sigma=frac_sigma)
         t_pred = backend.predict(np.array([]), block_index)
     elif backend_kind == "reference":
         if ref_path is None:
@@ -128,6 +133,8 @@ def main() -> None:
     manifest.save_table(summary, run_dir / "summary.csv")
 
     metrics = {
+        "audit_kind": "injected_residual_protocol" if backend_kind == "stub" else "fixed_reference_discrepancy",
+        "independent_prediction": False if backend_kind == "stub" else None,
         "n_data": int(len(y)),
         "n_used": n_used,
         "frac_sigma": frac_sigma if backend_kind == "stub" else None,
