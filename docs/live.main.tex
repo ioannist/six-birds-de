@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+\usepackage{pdflscape}
+\usepackage{orcidlink}
+
+\graphicspath{{figures/}}
+
+\input{macros}
+
+% Affiliation helper (HAL-compatible author block).
+\makeatletter
+\newcommand{\affiliation}[1]{\gdef\@affiliation{#1}}
+\newcommand{\printaffiliation}{\begin{center}\small \@affiliation\end{center}}
+\makeatother
+
+% Theorem-like environments (used lightly; proofs omitted in this manuscript).
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\theoremstyle{plain}
+\newtheorem{lemma}[definition]{Lemma}
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
+% Boxed limitation environment for explicit scope/assumption disclaimers.
+\newcounter{limitation}[section]
+\renewcommand{\thelimitation}{\thesection.\arabic{limitation}}
+\newenvironment{limitationbox}[1]{%
+  \refstepcounter{limitation}%
+  \begin{center}
+  \fbox{\parbox{0.95\linewidth}{\textbf{Limitation~\thelimitation\ (#1).}\par\medskip\noindent
+}{%
+  }}
+  \end{center}
+}
+
+% Cover-page footer style (matches sixbirds-mathematics)
+\fancypagestyle{firstpage}{%
+  \fancyhf{}
+  \fancyfoot[C]{\scriptsize DOI: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480} \quad \textcopyright\ 2026 Automorph Inc. \quad Licensed under CC-BY 4.0 International. \quad This manuscript is a preprint and has not been peer reviewed.}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+}
+
+\title{A Six Birds' Eye View of Dark Energy: Closure, Route Mismatch, and Audits for Apparent Acceleration}
+\author{Ioannis Tsiokos\textsuperscript{1}\,\orcidlink{0009-0009-7659-5964}}
+\affiliation{\textsuperscript{1}Automorph Inc., 1207 Delaware Ave \#4131, Wilmington, DE 19806, USA}
+\date{5 February 2026\\[4pt]{\normalsize Version 2 --- revised 10 February 2026}\\[2pt]{\small Originally posted on Zenodo: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480}}}
+
+\begin{document}
+
+\date{5 February 2026\\[4pt]{\normalsize Version 2 --- revised 10 February 2026}\\[2pt]{\small Originally posted on Zenodo: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480}}}
+
+
+\end{document}

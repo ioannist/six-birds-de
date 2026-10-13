@@ -28,6 +28,21 @@ run_tectonic() {
   (cd "$PAPER_DIR" && tectonic -o "$BUILD_DIR" --keep-logs "main.tex")
 }
 
+run_flatten() {
+  local flattener
+  flattener="$(command -v latexpand || command -v texflatten || true)"
+  if [[ -z "$flattener" ]]; then
+    echo "[build_paper] ERROR: missing LaTeX flattener (install latexpand or texflatten)." >&2
+    exit 9
+  fi
+
+  if [[ "$(basename "$flattener")" == "latexpand" ]]; then
+    (cd "$PAPER_DIR" && "$flattener" -o "$BUILD_DIR/main_flat.tex" "main.tex")
+  else
+    (cd "$PAPER_DIR" && "$flattener" "main.tex" > "$BUILD_DIR/main_flat.tex")
+  fi
+}
+
 ensure_tectonic_downloaded() {
   mkdir -p "$CACHE_DIR"
   if [[ -x "$CACHE_DIR/tectonic" ]]; then
@@ -71,6 +86,8 @@ if [[ ! -f "$BUILD_DIR/sixbirds_dark_energy.pdf" ]]; then
   echo "[build_paper] ERROR: expected PDF was not produced." >&2
   exit 3
 fi
+
+run_flatten
 
 # Write HAL metadata sidecar (must match title/abstract/keywords).
 ROOT_DIR="$ROOT_DIR" python - <<'PY'
