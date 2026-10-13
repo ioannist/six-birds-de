@@ -69,6 +69,8 @@ def simulate_micro(n: int, steps: int, params: dict, seed: int) -> dict[str, Any
         "seed": int(seed),
         "n": int(n),
         "steps": int(steps),
+        "mismatch_space": "lens",
+        "mismatch_norm": "absolute_mean_difference",
     }
 
     return {

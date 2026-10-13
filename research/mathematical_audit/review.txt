@@ -1,0 +1,386 @@
+MATHEMATICAL AUDIT — 2026-10-13
+
+Scope and decision
+
+The initial user state is preserved in commit 9b302e7. The audit covers the
+manuscript's mathematical statements, every Lean source, the toy and inference
+models, numerical likelihood primitives, public-data ingestion, and the LSS
+protocol runners. Manuscript files, tables, figures, and bibliography have not
+been edited. This document is an audit record for the later manuscript phase.
+The user chose to retain protocol-level LSS scope rather than build a physical
+backend or add independent predictive experiments during this audit.
+
+The methodological title and explicit toy mechanism can be retained. Exact
+descent must be stated using fiber compatibility. Public-vector injection scores
+cannot be represented as independent held-out evidence about survey central
+values. The synthetic proxy audit is externally calibrated on the same generator
+history, with repeated distance noise; it is not a test on independent patch
+realizations. These scope corrections are necessary, even though the numerical
+toy mechanism and constant public rewrite optimum survive.
+
+1. The exact mathematical target and its proof
+
+Let f:X->Y, U:Y->X, E=U f, and T:X->X. A completion is lawful here when
+f(U(y))=y for every y. This is a hypothesis, not a property of arbitrary maps.
+It immediately gives E(E(x))=U(f(U(f(x))))=U(f(x))=E(x).
+
+An exact deterministic observable law exists when there is S:Y->Y such that
+f(T(x))=S(f(x)) for every x. With a lawful completion this is equivalent to
+
+    f(x)=f(x') implies f(T(x))=f(T(x')) for every x,x'.
+
+Necessity follows by applying the same S to equal arguments. For sufficiency
+define S(y)=f(T(U(y))). Since f(U(f(x)))=f(x), fiber compatibility gives
+f(T(x))=f(T(U(f(x))))=S(f(x)). Thus the law is constructed, rather than placed
+in a hypothesis. An explicit common-fiber pair with distinct evolved readouts
+rules out every S, independently of which completion was chosen.
+
+Equivalently, under the same section hypothesis, observable closure is
+
+    E T = E T E.
+
+Fiber compatibility implies this after application of U. Conversely apply f
+to the displayed equality, use f U=id, and compare two equal-f states. This
+condition is weaker than E T = T E. The latter additionally requires invariance
+of the chosen representative states under T.
+
+Counterexample to the manuscript's unrestricted noncommutation implication:
+X=Bool x Bool, f(b,c)=b, U(b)=(b,false), T(b,c)=(b,true). Then f T=f, so S=id
+is an exact macro law, but E T(b,c)=(b,false) differs from T E(b,c)=(b,true).
+Thus a state-space route discrepancy need not be an observable descent
+obstruction. A rewrite can repair a chosen representative law, but when fiber
+compatibility actually fails, no replacement S on the unchanged observable
+space can exactly reconstruct the original evolution for all microstates.
+Refinement, additional state/history, approximation, or a modified micro law
+is required. A trajectory fit alone is not a proof of autonomous macro closure.
+
+This distinction agrees with HL-META-1 in the repository's knowledge-base
+six_birds_theory.tex: quotient evolution descends precisely when it respects
+the equivalence relation. The corpus's Holonomy with Memory paper similarly
+distinguishes current-compatible transport from a hidden predictive witness.
+No imported Six Birds theorem is being used to infer cosmological acceleration.
+
+Lean repairs: ZeroRouteMismatchAt/ZeroRouteMismatch make the equality meaning
+explicit; NonzeroRouteMismatchAt expresses actual inequality. Historical
+RouteMismatch names remain documented aliases for ZERO mismatch. The old
+commutation proof is correct as an equality proof, not as a positive-defect
+theorem. Homomorphism plus intertwining suffice for packaging commutation;
+the section hypothesis in that original lemma was redundant and is absent
+from the stronger canonical theorem. A separate section-to-idempotence proof
+uses the section hypothesis substantively.
+
+Lean now proves the criterion, the equivalent packaged-evolution condition,
+the obstruction theorem, a noncommuting/descent counterexample, and a concrete
+quadratic non-descent witness. The quadratic witness uses the two-point sum
+lens on Nat x Nat: (0,2) and (1,1) have equal sums (hence equal two-point means),
+but after componentwise squaring have sums 4 and 2. It is a concrete specialization,
+not a mechanization of the entire real-vector logistic toy or its integration.
+
+The manuscript-cited SixBirds.Lemmas qualified declarations now exist, in
+addition to the original root declarations. Lean is pinned to v4.31.0. The
+fresh build and Audit.lean check all 17 theorem exports: each has no transitive
+axiom dependencies. There is no sorry, admitted theorem, native_decide, or local
+axiom. Exact equality implies zero under any readout with d(x,x)=0; the new
+ReflexiveReadout lemmas prove just that direction. No separating-metric law is
+assumed, and zero pseudometric readout does not imply equality in general.
+
+2. Toy 1: an exact calculation and the actual reported norm
+
+For n>0, write mu=mean(x), m2=mean(x_i^2), v=m2-mu^2. With
+T_i(x)=x_i+dt*(alpha*x_i-beta*x_i^2),
+
+    mean(T(x)) = mu + dt*(alpha*mu-beta*(mu^2+v)),
+    T_i(E(x))  = mu + dt*(alpha*mu-beta*mu^2).
+
+Both route outputs are constant vectors, with signed difference -dt*beta*v.
+The experiment uses lens-space absolute mean difference, so RM=|dt*beta|*v.
+An unnormalized microstate L2 norm would instead give sqrt(n)*|dt*beta|*v.
+Idempotence is exact in real arithmetic because the mean of a constant vector
+is that constant. Metadata now records the actual mismatch norm separately
+from the microstate L2 idempotence readout.
+
+Strict positivity requires dt*beta!=0 AND nonzero variance; nonlinearity alone
+does not make the mismatch positive on every state. The observed maxima versus
+beta are observations for the configured sweep, not a universal monotonicity
+theorem along beta-dependent trajectories. Regression checks exercise the
+identity at beta=0 and both signs of beta. Floating equality controls have
+roundoff tolerance; they are not interval certificates.
+
+3. Toy 2: normalization, weighting, and acceleration
+
+The actual ODE is ddot a_i=-(g4pi/3)*rho_i0/a_i^2, with
+dot a_i(0)^2=(2*g4pi/3)*rho_i0+kappa_i and a_i(0)=1. Its conserved quantity is
+
+    dot a_i^2 - (2*g4pi/3)*rho_i0/a_i = kappa_i,
+
+as direct differentiation shows. Thus H_i^2=(2*g4pi/3)*rho_i+kappa_i/a_i^2.
+The coefficient g4pi/3 in the manuscript's local H^2 equation is inconsistent
+with its homogeneous dust acceleration equation; the implemented coefficient
+2*g4pi/3 is consistent. The code was retained and documented accordingly.
+
+Let V=sum(a_i^3), w_i=a_i^3/V, a_D=(V/N)^(1/3), and H_D=sum(w_i*H_i).
+Then dot V/V=3 H_D and
+
+    ddot V/V = 6 sum(w_i H_i^2) - g4pi sum(w_i rho_i),
+    3 ddot a_D/a_D = 6 Var_w(H_i) - g4pi rho_D,
+    rho_D = sum(w_i rho_i) = sum(rho_i0)/V.
+
+Consequently Q=3 ddot a_D/a_D+g4pi*rho_D = 6 Var_w(H_i)>=0.
+rho_D is a volume-weighted density, NOT the unweighted arithmetic mean of
+instantaneous densities written in the manuscript's Q definition. Q>0 denotes
+departure from homogeneous dust closure; positive acceleration specifically
+requires Q>g4pi*rho_D. Local patches remain decelerating. This is an identity
+for the proxy ODE and averaging convention; it does not establish an Einstein
+solution, relativistic light propagation, a shear contribution, or a physical
+GR backreaction magnitude.
+
+Variance is now evaluated as a centered weighted sum, eliminating negative
+roundoff values from subtraction of nearly equal second moments. Q is read
+from the stable identity; an independent test compares it against the volume
+derivative acceleration formula. The RK4 domain is checked at intermediate
+states and output states. Nonpositive scale factors are rejected rather than
+clipped. The conserved-energy drift is recorded. An analytic homogeneous dust
+solution and a step-halving convergence control test the integration separately.
+The realized population fraction/density are recorded when rounding f_void*N.
+
+At N=500, dt=.02, steps=1200 and the existing heterogeneous settings:
+Q_peak=1.7420340032; late-time positive acceleration fraction=.9875518672.
+Maximum relative conserved-energy drift is about 3.15e-9. The Q identity agrees
+with the volume acceleration calculation to about 1.4e-14 absolute. These are
+finite floating computations, not an exhaustive parameter-range theorem.
+
+4. Synthetic distances and the subtractive rewrite
+
+The generator fits COMOVING distance integral dz/H in units c=1. It does not
+multiply by (1+z) to generate luminosity distance, as stated in the methods text.
+All fitted synthetic models use the same comoving convention, so their internal
+comparison is coherent. Run metadata now identifies that convention. Invalid
+scale factors, nonpositive H, duplicate source redshifts, and unsupported
+distance extrapolation are rejected instead of clipped or silently edge-filled.
+
+The synthetic rewrite is H^2=H0^2*(1+z)^3-A*g(z), with a MINUS sign. The
+public rewrite has an additive correction. The two must not be conflated.
+In the synthetic family H0 is the square root of the matter coefficient;
+H_present=sqrt(H0^2-A*g(0)), so the old H0 field is not generally a present
+Hubble rate. The family and the separate present rate are now reported.
+
+Previous clipping of nonpositive H^2 changed the model and a sampled penalty
+did not enforce its full domain. The fit now sets A=fraction*H0^2/R_max,
+0<=fraction<=1-1e-8, where R_max=max_[0,zmax] g(z)/(1+z)^3. This maximum is
+computed on the ENTIRE piecewise-linear proxy: on g=s*z+b, interior stationary
+points are z=(s-3*b)/(2*s), and endpoints are included. This establishes
+strict positivity on the interpolation interval for every admissible fit.
+The small positivity margin is an explicit numerical restriction. Zero proxy
+amplitude is unidentifiable and is rejected. Public evaluation rejects invalid
+H^2 rather than using the clipped surrogate. A constructed interior-maximum
+counterexample and a noiseless parameter-recovery check test the repair.
+
+The original null-Lambda inference survives: Omega_Lambda=.60150 (seed 123).
+At rewrite comparison seed 468, LambdaCDM chi2=379.609 and rewrite chi2=378.593
+for 40 data points and two fitted parameters each. Comparable fit quality is
+justified; an adequate fit at the stated noise is NOT justified (chi2/38~10).
+This is a best-fit point under a misspecified homogeneous flat distance family,
+not a posterior detection, a curvature-controlled causal isolation, or a GR
+alternative to Lambda. The generator itself contains curvature-like terms.
+
+The three-point delta_rho sweep retains Spearman rho=1. Its old asymptotic
+p-value was zero, which is inappropriate for three pairs. Enumerating all six
+pairings gives the exact two-sided p-value 2/6=1/3. The ordering is descriptive
+and does not establish significance or a universal amplitude law.
+
+5. Synthetic proxy audit: what is independently supplied
+
+The initializer shuffles the locations of exactly the same void and wall
+populations. Domain sums are permutation invariant. Thus changing seed at fixed
+parameters does NOT create independent heterogeneous expansion histories.
+Only the synthetic distance observation noise changes. A regression explicitly
+checks this invariance; the experiment records it in its evidence metadata.
+
+The rewrite predictor is a thresholded amplitude ratio times a supplied
+generator-variance template. It is not derived from the Friedmann correction.
+The template calibration and test histories are identical up to permutation,
+and the homogeneous comparator predicts zero variance by its definition.
+The median RMSE ratio .008776 (~114x improvement) survives the repair, but
+its warranted interpretation is calibrated proxy recovery under repeated
+distance noise on the same generator. It does not establish independent
+generator generalization or data-only production of a heterogeneity witness.
+The calibration input and A_cut=.1 are now visible in run metadata. Parameter
+count two applies to the fit conditional on the supplied template, not to the
+full calibration process as though the template were free information.
+
+6. Public background likelihoods
+
+The cached DES-SN5YR 1.3 README says STATONLY is zero and STAT+SYS contains
+additional systematics; the statistical diagonal comes from MUERR_FINAL.
+The loader now follows this specified meaning and never guesses covariance
+versus correlation from the magnitude of diagonal entries. A genuine bug
+caused triplet parser metadata to overwrite the corrected total covariance
+with the raw matrix. The update now excludes the raw cov field. This specific
+overwrite did NOT affect the cached release, which uses the flat-vector format;
+regressions prove that the supported triplet format also retains the diagonal.
+Duplicate zero entries, conflicting symmetric entries, negative indices, and
+noninteger covariance sizes are checked.
+
+The supplied SN likelihood uses radial distance at zHD and the luminosity
+prefactor (1+zHEL). Previously only zHD was used. The repaired loader exposes
+raw mu and mu_cosmological=mu-5*log10[(1+zHEL)/(1+zHD)] separately; runners
+compare the latter with the usual mu_th(zHD). This is exactly equivalent to
+adding the heliocentric correction to predictions, without changing covariance.
+Dataset callers can alternatively supply raw mu and z_hel explicitly.
+
+The intercept formula M_hat=(1^T C^-1 r)/(1^T C^-1 1) is correct. The profiled
+chi-square now evaluates the centered residual directly instead of subtracting
+two large quadratic terms. Generic information criteria count the profiled
+intercept as a fitted parameter; explicit-count and profiled-count fields are
+separate. Background reverse audits profile the intercept on the test SN data:
+they are shape scores with a refitted intercept, not fully held-out calibrated
+distance-vector predictions. Their metadata states this distinction.
+
+ACF, APS, and PCF are correlated statistics from the same DES galaxy sample.
+Summing their one-dimensional chi-squares as if independent artificially
+sharpens the BAO likelihood. All background/anchor runners now use the released
+likelihood_fid consensus curve. The unused independence-combination functions
+have been removed. The release README specifies Delta chi-square and
+z_eff=.851: neither the sign of a column nor a generic fallback redshift now
+determines that meaning. The consensus alpha minimum is .9571 and its
+Delta-chi-square-one half-width is .02009994.
+
+Outside the tabulated alpha support, the likelihood returns zero probability
+(infinite chi-square) rather than flat edge-filled tails. The optimizer uses a
+finite search barrier at unsupported points, but final scores are recomputed
+from the actual likelihood and nonfinite results are not reported successful.
+Bounded one-parameter fits use a scalar search and explicitly compare endpoints.
+
+The BAO shape-only model fixes H0 to the fiducial value as well as fixing the
+sound-horizon ratio. The manuscript's inference that fixed r_d alone removes
+H0 dependence is false: D_M scales as 1/H0. The fixed-H0 assumption is now in
+evidence metadata. No claim of self-consistent sound-horizon modeling is made.
+SN+BAO independence remains a supplied approximation without cross-covariance.
+
+Corrected curved-background fits still give m=0 on SN and on SN+BAO. The latter
+has om~.30064, correction~.54736, chi2~1640.411. The extra rewrite parameter adds
+Delta AIC~2 with essentially identical fit chi-square. This is the expected
+nesting at m=0, not an independent discriminator of the correction's origin.
+Flat SN LambdaCDM has om~.35195 and chi2~1640.083 for 1829 entries.
+
+7. Covariance, linear fits, and backend alignment
+
+Gaussian solves now require a finite symmetric positive definite covariance.
+There is no automatic eigenvalue clipping or undisclosed jitter ladder; jitter
+must be explicitly requested and reported. The cached total SN, DES Y3, and
+KiDS matrices factor without it. KiDS no longer reports successful unjittered
+validation after an unsuccessful ladder, nor accepts inconsistent duplicates.
+Whitened generalized least squares replaces normal equations, avoiding a
+squared condition number. Rank-deficient training bases are rejected because
+unconstrained directions can produce arbitrary held-out predictions.
+
+Boolean masks select indices rather than being converted into repeated 0/1
+indices. Default array distance rejects different shapes instead of permitting
+broadcasting between different state spaces. Fixed reference and stub backends
+respect original row indices even when requested and full-vector lengths happen
+to match; previously an equal-length permutation silently returned wrong rows.
+Regression controls exercise each of these cases. Modern pandas parsing was
+also repaired so the cached-data checks run in the audit environment.
+
+For an unconstrained linear fit, invertible rescaling of basis columns DOES NOT
+change fitted predictions or chi-square. The arbitrary scale of the prescribed
+residual injection does change scores. The manuscript should distinguish these
+two operations rather than attributing score magnitude to basis normalization.
+A basis-unit invariance regression now checks the algebraic fact.
+
+8. LSS protocol scope, retained by user decision
+
+The reference is t0=y+q(C,metadata). Fitting t0+B*p against y yields residual
+-q-B*p, so observed central values cancel. The alternative stub similarly
+prescribes r0 from covariance and metadata; its two-template extension spans
+r0 by construction and can cancel it exactly. Fixed basis before splitting
+prevents coefficient-training leakage, but does not make this y-dependent
+reference independent of the held-out values. Neither direction, staging,
+bootstrap-like subsampling, nor geometry anchoring restores that independence.
+The geometry-anchored LSS residual is explicitly -r0*s(theta) and also contains
+no measured central-value information beyond covariance and metadata.
+
+These are legitimate injected-residual protocol demonstrations: the mechanics
+of masking, fitting, scoring, and provenance are exercised on real covariance
+and metadata. They are not empirical cosmological model comparisons or
+independent prediction of observed survey vectors. Docstrings and all affected
+run bundles now declare audit_kind=injected_residual_protocol,
+independent_prediction=false, and empirical_closure_evidence=false. A test
+changes measured central values and demonstrates invariance of the scores.
+
+The scored C_BB is a marginal block covariance. A calibrated conditional
+Gaussian predictive check would instead use residual
+r_B-C_BA*C_AA^-1*r_A and Schur covariance
+C_BB-C_BA*C_AA^-1*C_AB, together with parameter uncertainty. The existing point
+scores are comparative diagnostics; no calibrated posterior predictive p-value
+or universal distinguishability of fundamental Lambda from closure is proved.
+Staging signatures can depend on systematics or model misspecification, and
+a closure correction can be constant. These signatures are hypotheses requiring
+independent data and physical predictions, not consequences of the Lean core.
+
+DES Y3 and KiDS ingestion, both split directions, staging sweeps, anchor runs,
+and the robustness suite were freshly exercised. Robustness: 26 successes,
+4 insufficient-point skips, 0 failures. Unknown current Y6 online availability
+is not a mathematical result: the smoke test now tests local registry blocking
+offline and labels that scope, rather than treating absent configuration as a
+statement that the collaboration has not released artifacts.
+
+9. Verification, evidence, and adversarial self-review
+
+All 67 Python tests pass, including exact-algebra numerical controls, physical
+domain counterexamples, numerical convergence, covariance semantics, score
+invariance, parameter recovery, and backend alignment. The Lean build succeeds
+under the pinned version and all 17 exported theorems have empty axiom sets.
+The fresh toy, synthetic, public background, and LSS runs are snapshotted in
+evidence.json with original run provenance and artifact hashes. Runs took place
+with a dirty working tree based on the initial checkpoint; their provenance
+honestly records that. Snapshot source hashes identify the repaired sources.
+
+This was a distinct adversarial SELF-REVIEW, not an independent agent review.
+The pass rederived the two toy identities; challenged noncommutation with a
+counterexample; checked hidden template information and seed permutations;
+tested a continuum positivity maximum missed by endpoints; checked statistical
+diagonal retention and large-intercept cancellation; challenged the correlated
+BAO multiplication; and checked rank and basis-unit invariance. These checks
+establish the represented statements and reproducible computations. They do not
+upgrade floating computations into interval-certified theorems or mechanize GR,
+distance integration, cosmological inference, or the entire empirical pipeline.
+
+Deferred manuscript corrections: use the exact fiber criterion; distinguish
+zero from nonzero mismatch; fix the toy-2 density coefficient and volume weighting;
+identify the reported toy-1 norm, comoving synthetic distance, and subtractive
+rewrite; expose the supplied calibration and identical generator histories;
+avoid claiming adequate synthetic fits or significant three-point correlation;
+use the consensus BAO curve and explicit fixed H0; include zHEL in SN distance
+conventions; call reverse SN audits profiled shape scores; and describe LSS
+scores as injected protocol evidence. No manuscript change was made here.
+
+Primary references used to check the data conventions
+
+DES-SN5YR 1.3 cached release:
+data/raw/des_sn5yr_distances/DES-SN5YR_1.3.zip,
+4_DISTANCES_COVMAT/README.md and 5_COSMOLOGY/SN_only_cosmosis_likelihood.py.
+Archived release: https://doi.org/10.5281/zenodo.12720778
+
+DES Y6 BAO paper, section IV.6 (correlated combination):
+https://arxiv.org/html/2402.10696v1
+
+DES Y6 BAO likelihood release conventions:
+https://desdr-server.ncsa.illinois.edu/despublic/y6a2_files/y6_bao/Likelihood/README.md
+
+Reproduction commands (use an interpreter with the project dependencies)
+
+PYTHONPATH=src python -m pytest -q
+cd lean && lake build && lake env lean Audit.lean
+
+Run experiments/run_toy1.py, run_toy2_patch.py, run_infer_distance.py,
+run_rewrite_vs_lambda.py, run_ppd_synthetic.py, run_scale_sweep.py;
+run_des_sn5yr_cov_sanity.py, run_fit_des_sn5yr.py, run_fit_des_y6_bao.py,
+run_ppd_background.py, run_rewrite_background_vs_lcdm.py,
+run_rewrite_effective_w_validate.py; run_des_y3_vector_sanity.py,
+run_des_y3_blockmap.py, run_y3_ppd_probe_split.py, run_y3_scale_cut_sweep.py,
+run_y3_ppd_robustness.py, run_kids450_ppd_probe_split.py,
+run_3x2pt_ppd_split.py, and run_y3_ppd_with_geometry.py.
+
+The final test run used /tmp/neutrino-math-review-venv/bin/python,
+PYTHONPATH=src, OPENBLAS_NUM_THREADS=1 and MPLCONFIGDIR=/tmp/de-audit-mpl.

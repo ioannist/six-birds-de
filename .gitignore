@@ -21,6 +21,7 @@ results/**
 !results/README.md
 docs/paper/build/
 .cache/tectonic/
+lean/.lake/
 
 # Data (keep README and registry)
 data/raw/**

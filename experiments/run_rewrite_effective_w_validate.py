@@ -49,6 +49,8 @@ def main() -> None:
     plt.close(fig)
 
     metrics = {
+        "bridge_kind": "H_only_flat_CPL_approximation",
+        "physical_growth_prediction": False,
         "om": om,
         "A": A,
         "m": m,

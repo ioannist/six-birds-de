@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 import yaml
@@ -22,7 +23,7 @@ def dataset_exists(dataset_key: str) -> bool:
 
 def run_availability_check() -> Path:
     script = Path("scripts/check_des_y6_3x2pt_availability.py")
-    subprocess.run(["python", str(script)], check=True)
+    subprocess.run([sys.executable, str(script)], check=True)
     return Path("docs/experiments/y6_3x2pt_availability.json")
 
 
@@ -35,11 +36,12 @@ def main() -> None:
         report_path = run_availability_check()
         run_dir = manifest.create_run_dir("des_y6_3x2pt_smoke", seed=123)
         if "placeholder" in dataset_key:
-            blocked_reason = "placeholder config; waiting for public Y6 3×2pt artifacts"
+            blocked_reason = "placeholder dataset key; register a chosen Y6 release before running"
         else:
             blocked_reason = f"dataset_key {dataset_key} not in registry"
         metrics = {
             "available": False,
+            "availability_scope": "local_registry",
             "blocked_reason": blocked_reason,
             "availability_report": str(report_path),
         }
@@ -58,7 +60,7 @@ def main() -> None:
 
     subprocess.run(
         [
-            "python",
+            sys.executable,
             "experiments/run_3x2pt_smoke_like.py",
             "--config",
             str(cfg_path),

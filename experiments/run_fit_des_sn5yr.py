@@ -36,7 +36,7 @@ def main() -> None:
     hd = load_des_sn5yr_hubble_diagram(raw_dir, n_cov=cov_sys_tmp["N"])
 
     z = hd["z"]
-    mu = hd["mu"]
+    mu = hd["mu_cosmological"]
     mu_err = hd["mu_err"]
 
     cov_stat = load_des_sn5yr_covariance(raw_dir, kind="stat", mu_err=mu_err)
@@ -97,6 +97,7 @@ def main() -> None:
     sigma_median = float(np.median(np.sqrt(np.diag(cov))))
 
     metrics = {
+        "sn_redshift_convention": hd["redshift_convention"],
         "hubble_diagram_file": hd["filename"],
         "hubble_diagram_columns": hd["columns"],
         "mu_err_col": hd["mu_err_col"],

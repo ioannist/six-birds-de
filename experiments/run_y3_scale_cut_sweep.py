@@ -219,6 +219,9 @@ def main() -> int:
     _plot_params(run_dir / "params_vs_xmin.png", x_used_arr, series)
 
     metrics = {
+        "audit_kind": "injected_residual_protocol",
+        "independent_prediction": False,
+        "empirical_closure_evidence": False,
         "n_data_full": int(y_full.size),
         "x_min_values_used": x_used_arr.tolist(),
     }

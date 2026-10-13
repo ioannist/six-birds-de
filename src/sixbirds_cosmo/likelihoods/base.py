@@ -25,6 +25,7 @@ class Dataset:
     param_names: List[str] | None = None
     meta: Dict[str, object] = field(default_factory=dict)
     loglike_is_minus_half_chi2: bool = True
+    n_profiled_parameters: int = 0
 
     def loglike(self, theta: np.ndarray) -> float:
         """Return log-likelihood at parameters theta."""

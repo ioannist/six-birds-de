@@ -56,7 +56,7 @@ anchors:
     H0: 70.0
   bao:
     dataset_key: des_y6_bao_release
-    curve_kind: combined
+    curve_kind: fid
     H0_fid: 67.4
     om_fid: 0.315
     ol_fid: 0.685

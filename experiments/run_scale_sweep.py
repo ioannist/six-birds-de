@@ -20,6 +20,8 @@ def rms_distance(u: np.ndarray, v: np.ndarray) -> float:
 
 def rk4_step(a: np.ndarray, adot: np.ndarray, rho0: np.ndarray, dt: float, g4pi: float) -> tuple[np.ndarray, np.ndarray]:
     def accel(a_in: np.ndarray) -> np.ndarray:
+        if not np.all(np.isfinite(a_in)) or np.any(a_in <= 0):
+            raise ValueError("patch scale factor left the positive ODE domain")
         return -(g4pi / 3.0) * rho0 / (a_in ** 2)
 
     k1a = adot
@@ -37,8 +39,7 @@ def rk4_step(a: np.ndarray, adot: np.ndarray, rho0: np.ndarray, dt: float, g4pi:
     a_next = a + (dt / 6.0) * (k1a + 2.0 * k2a + 2.0 * k3a + k4a)
     adot_next = adot + (dt / 6.0) * (k1v + 2.0 * k2v + 2.0 * k3v + k4v)
 
-    eps = 1e-12
-    a_next = np.clip(a_next, eps, None)
+    accel(a_next)
     return a_next, adot_next
 
 

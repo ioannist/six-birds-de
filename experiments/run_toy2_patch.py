@@ -88,6 +88,10 @@ def main() -> None:
     assert hetero_Q_peak > 1e-3
 
     metrics = {
+        "density_weighting": "volume",
+        "Q_identity": "6*volume_weighted_var_H",
+        "friedmann_density_coefficient": "2*g4pi/3",
+        "energy_relative_error_max": float(np.max(hetero["energy_relative_error"])),
         "homogeneous_Q_max_abs": homogeneous_Q_max_abs,
         "hetero_Q_peak": hetero_Q_peak,
         "hetero_Q_mean_late": hetero_Q_mean_late,

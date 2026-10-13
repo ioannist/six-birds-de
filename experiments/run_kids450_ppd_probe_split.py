@@ -153,6 +153,9 @@ def main() -> int:
     )
 
     metrics = {
+        "audit_kind": "injected_residual_protocol",
+        "independent_prediction": False,
+        "empirical_closure_evidence": False,
         "dataset_name": "kids450_vuitert18_3x2pt_bandpowers",
         "n_data": int(y.size),
         "n_A": int(idx_A.size),

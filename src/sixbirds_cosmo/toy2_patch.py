@@ -19,6 +19,9 @@ def _resolve_params(params: dict) -> dict[str, float]:
     f_void = float(params["f_void"])
     kappa_scale = float(params["kappa_scale"])
 
+    if not np.all(np.isfinite([dt, g4pi, rho_mean, delta_rho, f_void, kappa_scale])):
+        raise ValueError("patch parameters must be finite")
+
     if dt <= 0:
         raise ValueError("dt must be positive")
     if g4pi <= 0:
@@ -58,8 +61,15 @@ def _init_rho0(N: int, rho_void: float, rho_wall: float, f_void: float, seed: in
 
 
 def simulate_patches(N: int, steps: int, params: dict, seed: int) -> dict[str, Any]:
-    """Simulate patch dynamics and compute domain-averaged quantities."""
-    if N <= 0 or steps <= 0:
+    """Integrate decelerating dust patches with RK4.
+
+    The first integral is H_i^2 = (2 g4pi/3) rho_i + kappa_i/a_i^2;
+    this is consistent with ddot a_i = -(g4pi/3) rho_i a_i.
+    Domain density and H variance are volume weighted, and Q = 6 Var_w(H).
+    Changing seed only permutes a fixed two-population ensemble. It does not
+    produce a new expansion history at fixed N and parameters.
+    """
+    if not isinstance(N, (int, np.integer)) or not isinstance(steps, (int, np.integer)) or N <= 0 or steps <= 0:
         raise ValueError("N and steps must be positive")
 
     resolved = _resolve_params(params)
@@ -80,6 +90,8 @@ def simulate_patches(N: int, steps: int, params: dict, seed: int) -> dict[str, A
     adot = H0.copy()
 
     def accel(a_in: np.ndarray) -> np.ndarray:
+        if not np.all(np.isfinite(a_in)) or np.any(a_in <= 0):
+            raise ValueError("patch scale factor left the positive domain; reduce dt or time range")
         return -(g4pi / 3.0) * rho0 / (a_in ** 2)
 
     t = np.linspace(0.0, dt * steps, steps + 1)
@@ -89,8 +101,13 @@ def simulate_patches(N: int, steps: int, params: dict, seed: int) -> dict[str, A
     ddot_aD = np.zeros(steps + 1, dtype=float)
     Q = np.zeros(steps + 1, dtype=float)
     var_H = np.zeros(steps + 1, dtype=float)
+    energy_relative_error = np.zeros(steps + 1, dtype=float)
+    energy0 = H0**2
 
     def record(i: int, a_in: np.ndarray, adot_in: np.ndarray) -> None:
+        accel(a_in)  # Enforce the ODE domain at every recorded state.
+        if not np.all(np.isfinite(adot_in)):
+            raise ValueError("nonfinite patch velocity encountered")
         V = np.sum(a_in ** 3)
         dotV = np.sum(3.0 * a_in ** 2 * adot_in)
         ddotV = np.sum(3.0 * (2.0 * a_in * (adot_in ** 2) + a_in ** 2 * accel(a_in)))
@@ -103,7 +120,11 @@ def simulate_patches(N: int, steps: int, params: dict, seed: int) -> dict[str, A
         Q[i] = 3.0 * ddot_aD_over_aD + g4pi * rhoD[i]
         H_i = adot_in / a_in
         w = (a_in ** 3) / V
-        var_H[i] = np.sum(w * (H_i ** 2)) - (np.sum(w * H_i) ** 2)
+        var_H[i] = np.sum(w * (H_i - HD[i]) ** 2)
+        # Centered variance is nonnegative and avoids cancellation near homogeneity.
+        Q[i] = 6.0 * var_H[i]
+        energy = adot_in**2 - (2.0 / 3.0) * g4pi * rho0 / a_in
+        energy_relative_error[i] = np.max(np.abs(energy - kappa) / energy0)
 
     record(0, a, adot)
 
@@ -137,6 +158,10 @@ def simulate_patches(N: int, steps: int, params: dict, seed: int) -> dict[str, A
         "seed": int(seed),
         "N": int(N),
         "steps": int(steps),
+        "realized_f_void": float(round(f_void * N) / N),
+        "realized_rho_mean": float(np.mean(rho0)),
+        "density_weighting": "volume",
+        "friedmann_density_coefficient": "2*g4pi/3",
     }
 
     return {
@@ -150,4 +175,5 @@ def simulate_patches(N: int, steps: int, params: dict, seed: int) -> dict[str, A
         "params_used": params_used,
         "rho0": rho0,
         "kappa": kappa,
+        "energy_relative_error": energy_relative_error,
     }

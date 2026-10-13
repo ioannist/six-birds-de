@@ -87,6 +87,7 @@ def main() -> None:
     plt.close(fig)
 
     metrics = {
+        "distance_kind": "comoving_c_equals_one",
         "matter_only_H0": fit_A.params["H0"],
         "lcdm_H0": fit_B.params["H0"],
         "lcdm_omega_lambda": fit_B.params["omega_lambda"],

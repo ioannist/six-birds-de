@@ -10,7 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import pandas as pd  # noqa: E402
 from scipy.optimize import minimize  # noqa: E402
-from scipy.linalg import cho_factor, cho_solve  # noqa: E402
+from scipy.linalg import cho_solve  # noqa: E402
 
 from sixbirds_cosmo import manifest
 from sixbirds_cosmo.cosmo_background import distance_modulus, transverse_comoving_distance
@@ -22,9 +22,10 @@ from sixbirds_cosmo.datasets.des_sn5yr import (
     prepare_cov_solve,
 )
 from sixbirds_cosmo.datasets.des_y3_2pt import build_y3_block_index, load_des_y3_2pt_fits
-from sixbirds_cosmo.datasets.des_y6_bao import load_alpha_likelihood_curve, load_bao_fiducial_info
+from sixbirds_cosmo.datasets.des_y6_bao import evaluate_alpha_chi2, load_alpha_likelihood_curve, load_bao_fiducial_info
 from sixbirds_cosmo.lss.config import load_and_resolve_lss_config, load_yaml_config
 from sixbirds_cosmo.lss.ppd_probe_split import get_probe_split_indices
+from sixbirds_cosmo.numerics import factor_covariance
 from sixbirds_cosmo.reporting import write_run_markdown_stub
 from sixbirds_cosmo.rewrite_background import (
     distance_modulus_rewrite,
@@ -48,16 +49,6 @@ def _zscore(x: np.ndarray) -> np.ndarray:
     return z
 
 
-def _combine_alpha_curves(curves: list[dict]) -> dict:
-    alpha_all = np.unique(np.concatenate([c["alpha_grid"] for c in curves]))
-    alpha_all = np.sort(alpha_all)
-    total = np.zeros_like(alpha_all)
-    notes = []
-    for c in curves:
-        interp = np.interp(alpha_all, c["alpha_grid"], c["delta_chi2_grid"])
-        total += interp
-        notes.append({"filename": c["filename"], **c.get("notes", {})})
-    return {"alpha_grid": alpha_all, "delta_chi2_grid": total, "notes": notes}
 
 
 def _z_eff_from_bins(block_index: pd.DataFrame, z0: float, dz: float) -> np.ndarray:
@@ -94,10 +85,11 @@ def _z_eff_from_bins(block_index: pd.DataFrame, z0: float, dz: float) -> np.ndar
 
 
 def _compute_sn_bundle(raw_dir: Path, cov_kind: str):
-    cov_tmp = load_des_sn5yr_covariance(raw_dir, kind="stat+sys")
+    kind = "stat+sys" if cov_kind == "total" else cov_kind
+    cov_tmp = load_des_sn5yr_covariance(raw_dir, kind=kind)
     hd = load_des_sn5yr_hubble_diagram(raw_dir, n_cov=cov_tmp["N"])
     mu_err = hd.get("mu_err")
-    cov_info = load_des_sn5yr_covariance(raw_dir, kind="stat+sys", mu_err=mu_err)
+    cov_info = load_des_sn5yr_covariance(raw_dir, kind=kind, mu_err=mu_err)
     cov = cov_info["cov"]
     cho = prepare_cov_solve(cov)["cho"]
     return hd, cov, cho
@@ -118,11 +110,7 @@ def _chi2_sn_rewrite(z, mu_obs, cho, H0, om, A, m):
 
 
 def _chi2_bao(alpha_grid, delta_chi2_grid, alpha_pred):
-    alpha_min = float(alpha_grid.min())
-    alpha_max = float(alpha_grid.max())
-    alpha_eval = float(np.clip(alpha_pred, alpha_min, alpha_max))
-    chi2 = float(np.interp(alpha_eval, alpha_grid, delta_chi2_grid))
-    return chi2
+    return evaluate_alpha_chi2(alpha_pred, alpha_grid, delta_chi2_grid)
 
 
 def _chi2_from_resid(resid: np.ndarray, cho) -> float:
@@ -195,7 +183,7 @@ def main() -> int:
     sn_raw = Path(fetch(sn_cfg.get("dataset_key", "des_sn5yr_distances")))
     sn_hd, sn_cov, sn_cho = _compute_sn_bundle(sn_raw, sn_cfg.get("cov_kind", "total"))
     z_sn = sn_hd["z"]
-    mu_sn = sn_hd["mu"]
+    mu_sn = sn_hd["mu_cosmological"]
     H0_sn = float(sn_cfg.get("H0", 70.0))
 
     bao_raw = Path(fetch(bao_cfg.get("dataset_key", "des_y6_bao_release")))
@@ -204,7 +192,7 @@ def main() -> int:
         load_alpha_likelihood_curve(bao_raw, "aps"),
         load_alpha_likelihood_curve(bao_raw, "pcf"),
     ]
-    combined = _combine_alpha_curves(curves)
+    combined = load_alpha_likelihood_curve(bao_raw, "fid")
     alpha_grid = combined["alpha_grid"]
     delta_chi2_grid = combined["delta_chi2_grid"]
     z_eff_bao = load_bao_fiducial_info(bao_raw)["z_eff"]
@@ -213,8 +201,8 @@ def main() -> int:
     ol_fid_bao = float(bao_cfg.get("ol_fid", 0.685))
     dm_fid_bao = transverse_comoving_distance(z_eff_bao, H0_bao, om_fid_bao, ol_fid_bao)
 
-    cho_A = cho_factor(cov[np.ix_(idx_A, idx_A)], lower=True)
-    cho_B = cho_factor(cov[np.ix_(idx_B, idx_B)], lower=True)
+    cho_A = factor_covariance(cov[np.ix_(idx_A, idx_A)])
+    cho_B = factor_covariance(cov[np.ix_(idx_B, idx_B)])
 
     def lss_residual(theta, model):
         if model == "lcdm":
@@ -225,7 +213,9 @@ def main() -> int:
             om, A, m = map(float, theta)
             dm = transverse_comoving_distance_rewrite(z_eff, H0_lss, om, A, m)
             dm_fid = dm_fid_rw
-        ratio = np.maximum(dm / dm_fid, 1e-6)
+        ratio = dm / dm_fid
+        if not np.all(np.isfinite(ratio)) or np.any(ratio <= 0):
+            raise ValueError("surrogate distance ratio must be finite and positive")
         p_vec = np.array([p_probe.get(p, 1.0) for p in block_index["probe"].to_numpy()])
         s = np.power(ratio, -p_vec)
         resid = -r0 * s
@@ -357,6 +347,13 @@ def main() -> int:
         plt.close(fig)
 
     metrics = {
+        "sn_redshift_convention": sn_hd["redshift_convention"],
+        "bao_curve": "released_fid_consensus",
+        "bao_sound_horizon_ratio": "fixed",
+        "bao_H0": "fixed_to_fiducial",
+        "audit_kind": "injected_residual_protocol",
+        "independent_prediction": False,
+        "empirical_closure_evidence": False,
         "n_A": n_A,
         "n_B": n_B,
         "n_data": n_data,

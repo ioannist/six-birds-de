@@ -102,6 +102,9 @@ def main() -> None:
     assert beta_large_rm_max > 1e-3
 
     metrics = {
+        "mismatch_space": "lens",
+        "mismatch_norm": "absolute_mean_difference",
+        "idempotence_space": "microstate_L2",
         "beta_linear_case_rm_max": beta_linear_rm_max,
         "beta_small_rm_max": beta_small_rm_max,
         "beta_large_rm_max": beta_large_rm_max,

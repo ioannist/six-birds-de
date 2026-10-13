@@ -86,7 +86,7 @@ def parse_chain_header_comments(path: Path, *, max_lines: int = 200) -> Dict[str
 
 
 def load_chain_with_names(chain_path: Path, names: List[str] | None, *, name_source: str | None = None) -> Dict[str, Any]:
-    df = pd.read_csv(chain_path, delim_whitespace=True, comment="#", header=None)
+    df = pd.read_csv(chain_path, sep=r"\s+", comment="#", header=None)
     n_cols = df.shape[1]
     name_source = name_source
     if names is not None and len(names) == n_cols:

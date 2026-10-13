@@ -6,7 +6,8 @@ from typing import Dict, Tuple
 
 import numpy as np
 import pandas as pd
-from scipy.linalg import cho_factor, cho_solve
+from scipy.linalg import cho_solve
+from sixbirds_cosmo.numerics import factor_covariance, generalized_least_squares
 
 
 def get_probe_split_indices(block_index: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
@@ -41,7 +42,12 @@ def build_surrogate_theory(
     beta_x: float,
     kappa_probe: Dict[str, float],
 ) -> np.ndarray:
-    """Construct probe-dependent surrogate theory vector t0."""
+    """Construct an observed-vector-centered injection for protocol tests.
+
+    This is not an independent prediction: all entries of y, including test
+    entries, are used. Residuals and fitted coefficients are independent of the
+    measured central values. Use a separate fixed reference for predictive tests.
+    """
     sigma = np.sqrt(np.diag(cov))
     x = block_index["x"].to_numpy(dtype=float)
     x_z = _zscore_x(x)
@@ -85,23 +91,14 @@ def fit_linear_correction(
     B_train = B[idx]
     r_train = resid[idx]
 
-    L = cho_factor(cov_train, lower=True)
-    # Solve for p via generalized least squares: (B^T C^-1 B) p = B^T C^-1 r
-    Cinv_B = cho_solve(L, B_train)
-    Cinv_r = cho_solve(L, r_train)
-    normal = B_train.T @ Cinv_B
-    rhs = B_train.T @ Cinv_r
-    p_hat = np.linalg.solve(normal, rhs)
-    res_train = r_train - B_train @ p_hat
-    chi2 = float(res_train @ cho_solve(L, res_train))
-    return p_hat, chi2
+    return generalized_least_squares(r_train, B_train, cov_train)
 
 
 def eval_metrics(y: np.ndarray, cov: np.ndarray, t: np.ndarray, idx: np.ndarray) -> Dict[str, float]:
     idx = np.asarray(idx, dtype=int)
     resid = (y - t)[idx]
     cov_sub = cov[np.ix_(idx, idx)]
-    L = cho_factor(cov_sub, lower=True)
+    L = factor_covariance(cov_sub)
     chi2 = float(resid @ cho_solve(L, resid))
     n = resid.size
     rmse = float(np.sqrt(np.mean(resid**2))) if n else 0.0

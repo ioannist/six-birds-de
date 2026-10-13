@@ -169,6 +169,9 @@ def main() -> int:
     )
 
     metrics = {
+        "audit_kind": "injected_residual_protocol",
+        "independent_prediction": False,
+        "empirical_closure_evidence": False,
         "n_data": n_data,
         "n_A": n_A,
         "n_B": n_B,

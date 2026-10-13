@@ -419,6 +419,9 @@ def main() -> int:
     plt.close(fig)
 
     metrics = {
+        "audit_kind": "injected_residual_protocol",
+        "independent_prediction": False,
+        "empirical_closure_evidence": False,
         "n_scenarios_requested": int(n_scenarios_requested),
         "n_scenarios_run": int(len(scenarios)),
         "n_ok": int(len(ok_df["scenario_id"].unique())),

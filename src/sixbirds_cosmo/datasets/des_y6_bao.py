@@ -159,13 +159,13 @@ def load_alpha_likelihood_curve(raw_dir: Path, kind: str) -> Dict[str, Any]:
     alpha_grid = alpha_grid[sort_idx]
     col2 = col2[sort_idx]
 
-    if col2.min() >= -1e-6 and np.all(col2 >= -1e-6):
-        delta_chi2 = col2.copy()
-        mode = "delta_chi2"
-    else:
-        delta_chi2 = -2.0 * (col2 - np.max(col2))
-        mode = "lnL_converted"
-
+    # The release README declares this column to be Delta chi-square. Its
+    # meaning is not inferred from its sign (log likelihoods can be positive).
+    if not np.all(np.isfinite(alpha_grid)) or not np.all(np.isfinite(col2)):
+        raise ValueError("Likelihood curve must be finite.")
+    if np.any(np.diff(alpha_grid) <= 0):
+        raise ValueError("Likelihood alpha grid must be strictly increasing.")
+    delta_chi2 = col2.copy()
     delta_chi2 = delta_chi2 - np.min(delta_chi2)
 
     return {
@@ -173,8 +173,21 @@ def load_alpha_likelihood_curve(raw_dir: Path, kind: str) -> Dict[str, Any]:
         "delta_chi2_grid": delta_chi2,
         "kind": kind,
         "filename": str(path),
-        "notes": {"mode": mode},
+        "notes": {"mode": "delta_chi2", "combination": "released_consensus" if kind == "fid" else "single_statistic"},
     }
+
+
+def evaluate_alpha_chi2(alpha: float, alpha_grid: np.ndarray, delta_chi2: np.ndarray) -> float:
+    """Interpolate within released support; never flatten tails by edge filling."""
+    alpha_grid = np.asarray(alpha_grid, dtype=float)
+    delta_chi2 = np.asarray(delta_chi2, dtype=float)
+    if alpha_grid.ndim != 1 or len(alpha_grid) < 2 or delta_chi2.shape != alpha_grid.shape:
+        raise ValueError("Likelihood grid and chi-square must be matching vectors.")
+    if not np.all(np.isfinite(alpha_grid)) or not np.all(np.isfinite(delta_chi2)) or np.any(np.diff(alpha_grid) <= 0):
+        raise ValueError("Likelihood grid must be finite and strictly increasing.")
+    if not np.isfinite(alpha) or alpha < alpha_grid[0] or alpha > alpha_grid[-1]:
+        return float("inf")
+    return float(np.interp(alpha, alpha_grid, delta_chi2))
 
 
 def load_bao_fiducial_info(raw_dir: Path) -> Dict[str, Any]:
@@ -203,7 +216,9 @@ def load_bao_fiducial_info(raw_dir: Path) -> Dict[str, Any]:
             break
 
     if z_eff is None:
-        z_eff = 0.85
+        # Released Likelihood/README.md specifies z_eff=0.851.
+        z_eff = 0.851
+        source = "DES Y6 BAO Likelihood/README.md (release convention)"
 
     return {"z_eff": z_eff, "z_eff_source": source, "fid_model_notes": {}}
 
@@ -219,7 +234,7 @@ def _validate_distance_like(z: float, alpha: float) -> None:
 class DESY6BAOAlphaDataset(Dataset):
     alpha_grid: np.ndarray = field(default_factory=lambda: np.array([]))
     delta_chi2_grid: np.ndarray = field(default_factory=lambda: np.array([]))
-    z_eff: float = 0.85
+    z_eff: float = 0.851
     om_fid: float = 0.315
     ol_fid: float = 0.685
     H0_fid: float = 67.4
@@ -252,22 +267,8 @@ class DESY6BAOAlphaDataset(Dataset):
         if alpha is None:
             return -0.5 * 1e6
 
-        alpha_min = float(self.alpha_grid.min())
-        alpha_max = float(self.alpha_grid.max())
-        clamped = False
-        if alpha < alpha_min:
-            alpha_eval = alpha_min
-            clamped = True
-        elif alpha > alpha_max:
-            alpha_eval = alpha_max
-            clamped = True
-        else:
-            alpha_eval = alpha
-
-        if clamped:
-            self.notes["alpha_clamped"] = True
-
-        chi2 = float(np.interp(alpha_eval, self.alpha_grid, self.delta_chi2_grid))
+        chi2 = evaluate_alpha_chi2(alpha, self.alpha_grid, self.delta_chi2_grid)
+        self.notes["alpha_outside_support"] = not np.isfinite(chi2)
         return -0.5 * chi2
 
 
@@ -322,6 +323,6 @@ class BAODataset(Dataset):
                 raise ValueError(f"Unknown obs_type: {obs}")
 
         residual = np.asarray(self.data, dtype=float) - np.asarray(predictions, dtype=float)
-        inv_cov = np.linalg.inv(np.asarray(self.cov, dtype=float))
-        chi2 = float(residual.T @ inv_cov @ residual)
+        from sixbirds_cosmo.likelihoods.gaussian_vector import chi2_gaussian
+        chi2, _ = chi2_gaussian(residual, self.cov)
         return -0.5 * chi2

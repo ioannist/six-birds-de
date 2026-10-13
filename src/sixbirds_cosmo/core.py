@@ -22,6 +22,8 @@ def default_distance(a: object, b: object) -> float:
         return float(abs(a - b))
 
     if _is_array_like(a) and _is_array_like(b):
+        if np.shape(a) != np.shape(b):
+            raise ValueError("distance requires arrays with the same shape")
         try:
             diff = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
         except Exception as exc:  # pragma: no cover - defensive
@@ -103,7 +105,11 @@ def idempotence_defect(
 def route_mismatch(
     T: Callable[[X], X], E: PackagingOperator[X, Y], x: X, *, space: str = "auto"
 ) -> float:
-    """Compute the distance between E(T(x)) and T(E(x))."""
+    """Compute the distance between E(T(x)) and T(E(x)).
+
+    Nonzero state-space mismatch alone does not rule out an observable macro
+    law f(T(x))=S(f(x)); a common-fiber witness is needed for that conclusion.
+    """
     space = _resolve_space(space, E)
     left = E(T(x))
     right = T(E(x))

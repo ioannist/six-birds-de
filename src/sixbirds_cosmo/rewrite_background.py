@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import numpy as np
 from scipy.integrate import cumulative_trapezoid, quad
+from sixbirds_cosmo.cosmo_background import _positive_scale
 
 
 def _as_array(z: np.ndarray | float) -> tuple[np.ndarray, bool]:
     z_arr = np.asarray(z, dtype=float)
+    if not np.all(np.isfinite(z_arr)) or np.any(z_arr <= -1):
+        raise ValueError("Redshift must be finite and greater than -1.")
     return z_arr, z_arr.ndim == 0
 
 
@@ -42,6 +45,7 @@ def E_rewrite(z: np.ndarray | float, om: float, A: float, m: float) -> np.ndarra
 
 def H_rewrite(z: np.ndarray | float, H0: float, om: float, A: float, m: float) -> np.ndarray | float:
     """H(z) in km/s/Mpc for rewrite background."""
+    _positive_scale(H0)
     return H0 * E_rewrite(z, om, A, m)
 
 
@@ -59,6 +63,10 @@ def comoving_distance_rewrite(
     atol: float = 0.0,
 ) -> np.ndarray | float:
     """Comoving distance D_C(z) in Mpc for rewrite background."""
+    _positive_scale(H0)
+    _positive_scale(c_km_s)
+    if n_grid < 2:
+        raise ValueError("n_grid must be at least two.")
     z_arr, scalar = _as_array(z)
     if np.any(z_arr < 0.0):
         raise ValueError("Redshift z must be >= 0 for distance calculations.")
@@ -141,5 +149,7 @@ def distance_modulus_rewrite(
     """Distance modulus mu(z) for rewrite background."""
     dl = luminosity_distance_rewrite(z, H0, om, A, m, **kwargs)
     dl_arr = np.asarray(dl, dtype=float)
+    if np.any(dl_arr <= 0) or not np.all(np.isfinite(dl_arr)):
+        raise ValueError("Distance modulus requires a finite positive luminosity distance.")
     mu = 5.0 * np.log10(dl_arr) + 25.0
     return _reshape_output(mu, dl_arr.shape, dl_arr.ndim == 0)

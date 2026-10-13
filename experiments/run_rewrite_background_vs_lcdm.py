@@ -29,6 +29,7 @@ from sixbirds_cosmo.datasets.des_sn5yr import (
     prepare_cov_solve,
 )
 from sixbirds_cosmo.datasets.des_y6_bao import (
+    evaluate_alpha_chi2,
     load_alpha_likelihood_curve,
     load_bao_fiducial_info,
 )
@@ -41,15 +42,6 @@ from sixbirds_cosmo.rewrite_background import (
 from sixbirds_cosmo.reporting import write_run_markdown_stub
 
 
-def combine_curves(curves: list[dict]) -> dict:
-    grids = [curve["alpha_grid"] for curve in curves]
-    union = np.unique(np.concatenate(grids))
-    sum_delta = np.zeros_like(union, dtype=float)
-    for curve in curves:
-        delta = np.interp(union, curve["alpha_grid"], curve["delta_chi2_grid"])
-        sum_delta += delta
-    sum_delta = sum_delta - np.min(sum_delta)
-    return {"alpha_grid": union, "delta_chi2_grid": sum_delta}
 
 
 def estimate_sigma(alpha_grid: np.ndarray, delta_chi2: np.ndarray) -> float:
@@ -107,19 +99,8 @@ def alpha_pred_rewrite(z_eff: float, H0_fid: float, om: float, A: float, m: floa
 
 
 def chi2_bao(alpha_pred: float, alpha_grid: np.ndarray, delta_chi2: np.ndarray) -> tuple[float, bool]:
-    alpha_min = float(alpha_grid.min())
-    alpha_max = float(alpha_grid.max())
-    clamped = False
-    if alpha_pred < alpha_min:
-        alpha_eval = alpha_min
-        clamped = True
-    elif alpha_pred > alpha_max:
-        alpha_eval = alpha_max
-        clamped = True
-    else:
-        alpha_eval = alpha_pred
-    chi2 = float(np.interp(alpha_eval, alpha_grid, delta_chi2))
-    return chi2, clamped
+    chi2 = evaluate_alpha_chi2(alpha_pred, alpha_grid, delta_chi2)
+    return chi2, not np.isfinite(chi2)
 
 
 def grid_contour(ax, X, Y, chi2_grid, levels):
@@ -187,7 +168,7 @@ def main() -> None:
     cov_sys = load_des_sn5yr_covariance(raw_sn, kind="stat+sys", mu_err=mu_err)
 
     z_sn = hd["z"]
-    mu_sn = hd["mu"]
+    mu_sn = hd["mu_cosmological"]
     cov = cov_sys["cov"]
     cho_info = prepare_cov_solve(cov)
     cho = cho_info["cho"]
@@ -199,7 +180,7 @@ def main() -> None:
         "aps": load_alpha_likelihood_curve(raw_bao, "aps"),
         "pcf": load_alpha_likelihood_curve(raw_bao, "pcf"),
     }
-    combined = combine_curves([curves["acf"], curves["aps"], curves["pcf"]])
+    combined = load_alpha_likelihood_curve(raw_bao, "fid")
     alpha_grid = combined["alpha_grid"]
     delta_combined = combined["delta_chi2_grid"]
     alpha_hat = float(alpha_grid[np.argmin(delta_combined)])
@@ -257,22 +238,22 @@ def main() -> None:
         loglike_is_minus_half_chi2: bool = True
         last_M_hat: float | None = None
         last_alpha_pred: float | None = None
-        alpha_clamped: bool = False
+        alpha_outside_support: bool = False
 
         def loglike(self, theta):
             om, ol = float(theta[0]), float(theta[1])
             try:
                 chi2_sn, M_hat = chi2_sn_lcdm(z_sn, mu_sn, cho, om, ol, H0=70.0)
                 alpha = alpha_pred_lcdm(z_eff, H0_fid, om, ol, dm_fid)
-                chi2_bao, clamped = chi2_bao(alpha, alpha_grid, delta_combined)
+                chi2_b, clamped = chi2_bao(alpha, alpha_grid, delta_combined)
             except Exception:
                 return -0.5 * 1e12
-            if not (np.isfinite(chi2_sn) and np.isfinite(alpha) and np.isfinite(chi2_bao)):
+            if not (np.isfinite(chi2_sn) and np.isfinite(alpha) and np.isfinite(chi2_b)):
                 return -0.5 * 1e12
             self.last_M_hat = M_hat
             self.last_alpha_pred = alpha
-            self.alpha_clamped = clamped
-            return -0.5 * (chi2_sn + chi2_bao)
+            self.alpha_outside_support = clamped
+            return -0.5 * (chi2_sn + chi2_b)
 
     @dataclass
     class SNBAORewrite(Dataset):
@@ -282,22 +263,22 @@ def main() -> None:
         loglike_is_minus_half_chi2: bool = True
         last_M_hat: float | None = None
         last_alpha_pred: float | None = None
-        alpha_clamped: bool = False
+        alpha_outside_support: bool = False
 
         def loglike(self, theta):
             om, A, m = float(theta[0]), float(theta[1]), float(theta[2])
             try:
                 chi2_sn, M_hat = chi2_sn_rewrite(z_sn, mu_sn, cho, om, A, m, H0=70.0)
                 alpha = alpha_pred_rewrite(z_eff, H0_fid, om, A, m, dm_fid)
-                chi2_bao, clamped = chi2_bao(alpha, alpha_grid, delta_combined)
+                chi2_b, clamped = chi2_bao(alpha, alpha_grid, delta_combined)
             except Exception:
                 return -0.5 * 1e12
-            if not (np.isfinite(chi2_sn) and np.isfinite(alpha) and np.isfinite(chi2_bao)):
+            if not (np.isfinite(chi2_sn) and np.isfinite(alpha) and np.isfinite(chi2_b)):
                 return -0.5 * 1e12
             self.last_M_hat = M_hat
             self.last_alpha_pred = alpha
-            self.alpha_clamped = clamped
-            return -0.5 * (chi2_sn + chi2_bao)
+            self.alpha_outside_support = clamped
+            return -0.5 * (chi2_sn + chi2_b)
 
     sn_lcdm = SNOnlyLCDM()
     sn_rw = SNOnlyRewrite()
@@ -564,6 +545,10 @@ def main() -> None:
     manifest.save_table(df_summary, summary_path)
 
     metrics = {
+        "sn_redshift_convention": hd["redshift_convention"],
+        "bao_curve": "released_fid_consensus",
+        "bao_sound_horizon_ratio": "fixed",
+        "bao_H0": "fixed_to_fiducial",
         "alpha_hat": alpha_hat,
         "alpha_sigma_est": sigma_est,
         "delta_aic_sn": delta_aic_sn,
@@ -578,8 +563,8 @@ def main() -> None:
         "rw_snbao_bounds_hit": hit_bounds(fit_rw_snbao["theta_hat"], [(0.05, 1.5), (0.0, 2.0), (0.0, 6.0)]),
         "alpha_pred_lcdm_snbao": alpha_pred_lcdm_snbao,
         "alpha_pred_rw_snbao": alpha_pred_rw_snbao,
-        "alpha_clamped_lcdm_snbao": alpha_clamped_lcdm,
-        "alpha_clamped_rw_snbao": alpha_clamped_rw,
+        "alpha_outside_support_lcdm_snbao": alpha_clamped_lcdm,
+        "alpha_outside_support_rw_snbao": alpha_clamped_rw,
     }
 
     config = {

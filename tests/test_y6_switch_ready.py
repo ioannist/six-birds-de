@@ -1,18 +1,18 @@
 import json
 from pathlib import Path
-import subprocess
+from experiments import run_des_y6_3x2pt_smoke as smoke
 
 
-def test_y6_smoke_blocked_mode_writes_metrics():
-    subprocess.run(["python", "experiments/run_des_y6_3x2pt_smoke.py"], check=True)
-    results_dir = Path("results/des_y6_3x2pt_smoke")
-    assert results_dir.exists()
-    run_dirs = [p for p in results_dir.iterdir() if p.is_dir()]
-    assert run_dirs
-    latest = max(run_dirs, key=lambda p: p.stat().st_mtime)
-    metrics_path = latest / "metrics.json"
+def test_y6_smoke_blocked_mode_writes_metrics(tmp_path, monkeypatch):
+    monkeypatch.setattr(smoke, "dataset_exists", lambda key: False)
+    monkeypatch.setattr(smoke, "run_availability_check", lambda: tmp_path / "availability.json")
+    monkeypatch.setattr(smoke.manifest, "create_run_dir", lambda *args, **kwargs: tmp_path)
+    monkeypatch.setattr(smoke.manifest, "_repo_root", lambda: tmp_path)
+    smoke.main()
+    metrics_path = tmp_path / "metrics.json"
     assert metrics_path.exists()
     metrics = json.loads(metrics_path.read_text())
     assert metrics.get("available") is False
+    assert metrics.get("availability_scope") == "local_registry"
     blocked_reason = metrics.get("blocked_reason")
     assert isinstance(blocked_reason, str) and blocked_reason

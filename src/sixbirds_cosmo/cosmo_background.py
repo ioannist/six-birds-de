@@ -17,7 +17,14 @@ from scipy.integrate import cumulative_trapezoid, quad
 
 def _as_array(z: np.ndarray | float) -> Tuple[np.ndarray, bool]:
     z_arr = np.asarray(z, dtype=float)
+    if not np.all(np.isfinite(z_arr)) or np.any(z_arr <= -1):
+        raise ValueError("Redshift must be finite and greater than -1.")
     return z_arr, z_arr.ndim == 0
+
+
+def _positive_scale(H0: float) -> None:
+    if not np.isfinite(H0) or H0 <= 0:
+        raise ValueError("H0 must be finite and positive.")
 
 
 def _reshape_output(values: np.ndarray, shape: tuple[int, ...], scalar: bool) -> np.ndarray | float:
@@ -32,12 +39,16 @@ def E_lcdm(z: np.ndarray | float, om: float, ol: float) -> np.ndarray | float:
     if np.any(z_arr < -1.0):
         raise ValueError("Redshift z must be >= -1.")
     ok = 1.0 - om - ol
-    ez = np.sqrt(om * (1.0 + z_arr) ** 3 + ok * (1.0 + z_arr) ** 2 + ol)
+    E2 = om * (1.0 + z_arr) ** 3 + ok * (1.0 + z_arr) ** 2 + ol
+    if np.any(E2 <= 0) or not np.all(np.isfinite(E2)):
+        raise ValueError("Non-positive or nonfinite E^2 encountered in LCDM.")
+    ez = np.sqrt(E2)
     return _reshape_output(ez, z_arr.shape, scalar)
 
 
 def H_lcdm(z: np.ndarray | float, H0: float, om: float, ol: float) -> np.ndarray | float:
     """Hubble rate H(z) in km/s/Mpc for LCDM with curvature."""
+    _positive_scale(H0)
     return H0 * E_lcdm(z, om, ol)
 
 
@@ -54,6 +65,10 @@ def comoving_distance(
     n_grid: int = 8192,
 ) -> np.ndarray | float:
     """Comoving distance D_C(z) in Mpc."""
+    _positive_scale(H0)
+    _positive_scale(c_km_s)
+    if n_grid < 2:
+        raise ValueError("n_grid must be at least two.")
     z_arr, scalar = _as_array(z)
     if np.any(z_arr < 0.0):
         raise ValueError("Redshift z must be >= 0 for distance calculations.")
@@ -141,12 +156,16 @@ def E_wcdm(z: np.ndarray | float, om: float, w: float) -> np.ndarray | float:
     if np.any(z_arr < -1.0):
         raise ValueError("Redshift z must be >= -1.")
     ol = 1.0 - om
-    ez = np.sqrt(om * (1.0 + z_arr) ** 3 + ol * (1.0 + z_arr) ** (3.0 * (1.0 + w)))
+    E2 = om * (1.0 + z_arr) ** 3 + ol * (1.0 + z_arr) ** (3.0 * (1.0 + w))
+    if np.any(E2 <= 0) or not np.all(np.isfinite(E2)):
+        raise ValueError("Non-positive or nonfinite E^2 encountered in wCDM.")
+    ez = np.sqrt(E2)
     return _reshape_output(ez, z_arr.shape, scalar)
 
 
 def H_wcdm(z: np.ndarray | float, H0: float, om: float, w: float) -> np.ndarray | float:
     """Hubble rate H(z) in km/s/Mpc for flat wCDM."""
+    _positive_scale(H0)
     return H0 * E_wcdm(z, om, w)
 
 
@@ -163,6 +182,10 @@ def luminosity_distance_wcdm(
     n_grid: int = 8192,
 ) -> np.ndarray | float:
     """Luminosity distance D_L(z) in Mpc for flat wCDM."""
+    _positive_scale(H0)
+    _positive_scale(c_km_s)
+    if n_grid < 2:
+        raise ValueError("n_grid must be at least two.")
     z_arr, scalar = _as_array(z)
     if np.any(z_arr < 0.0):
         raise ValueError("Redshift z must be >= 0 for distance calculations.")
@@ -204,5 +227,7 @@ def distance_modulus(
     """Distance modulus mu(z) from luminosity distance."""
     dl = luminosity_distance(z, H0, om, ol, **kwargs)
     dl_arr = np.asarray(dl, dtype=float)
+    if np.any(dl_arr <= 0) or not np.all(np.isfinite(dl_arr)):
+        raise ValueError("Distance modulus requires a finite positive luminosity distance.")
     mu = 5.0 * np.log10(dl_arr) + 25.0
     return _reshape_output(mu, dl_arr.shape, dl_arr.ndim == 0)

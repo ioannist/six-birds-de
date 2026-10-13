@@ -11,10 +11,11 @@ from typing import Any, Dict, Tuple
 
 import numpy as np
 import pandas as pd
-from scipy.linalg import cho_factor, cho_solve
+from scipy.linalg import cho_solve
 
 from sixbirds_cosmo.cosmo_background import luminosity_distance, luminosity_distance_wcdm
 from sixbirds_cosmo.likelihoods.base import Dataset
+from sixbirds_cosmo.numerics import factor_covariance
 
 
 MU_ERR_CANDIDATES = ["MUERR", "muerr", "MU_ERR", "MUERR_FINAL", "SIGMU", "sigma_mu"]
@@ -66,7 +67,7 @@ def _find_mu_error_column(columns: list[str]) -> str | None:
 def _read_hd_table(path: Path) -> pd.DataFrame:
     if path.suffix.lower() == ".csv":
         return pd.read_csv(path)
-    return pd.read_csv(path, delim_whitespace=True)
+    return pd.read_csv(path, sep=r"\s+")
 
 
 def select_hd_file_matching_cov(raw_dir: Path, n_cov: int) -> Path:
@@ -139,16 +140,38 @@ def load_des_sn5yr_hubble_diagram(raw_dir: Path, n_cov: int | None = None) -> Di
     z = df[z_col].to_numpy(dtype=float)
     mu = df[mu_col].to_numpy(dtype=float)
     mu_err = df[mu_err_col].to_numpy(dtype=float) if mu_err_col else None
+    if "zHEL" not in df:
+        raise ValueError("Release zHEL column is required for the SN luminosity-distance convention.")
+    z_hel = df["zHEL"].to_numpy(dtype=float)
+    correction = heliocentric_mu_correction(z, z_hel)
 
     return {
         "z": z,
         "mu": mu,
+        "z_hel": z_hel,
+        "heliocentric_mu_correction": correction,
+        "mu_cosmological": mu - correction,
+        "redshift_convention": "zHD radial distance; (1+zHEL) luminosity prefactor",
         "mu_err": mu_err,
         "mu_err_col": mu_err_col,
         "n": int(len(z)),
         "columns": columns,
         "filename": str(hd_path),
     }
+
+
+def heliocentric_mu_correction(z: np.ndarray, z_hel: np.ndarray) -> np.ndarray:
+    """Convert mu_th(zHD) to the release convention for luminosity distances.
+
+    D_L=(1+zHEL)*D_M(zHD), so delta mu=5 log10[(1+zHEL)/(1+zHD)].
+    Subtracting this known correction from observed mu gives exactly the same
+    residual as adding it to the prediction; the covariance stays unchanged.
+    """
+    z = np.asarray(z, dtype=float)
+    z_hel = np.asarray(z_hel, dtype=float)
+    if z.shape != z_hel.shape or not np.all(np.isfinite(z)) or not np.all(np.isfinite(z_hel)) or np.any(z <= 0) or np.any(z_hel <= -1):
+        raise ValueError("SN redshifts must match, be finite, with zHD>0 and zHEL>-1")
+    return 5 * np.log10((1 + z_hel) / (1 + z))
 
 
 def _parse_cov_dense(text: str) -> np.ndarray:
@@ -173,7 +196,10 @@ def _parse_cov_vector(text: str) -> np.ndarray:
 def _parse_cov_vector_with_header(lines: list[str]) -> np.ndarray:
     header = lines[0].strip()
     try:
-        n_header = int(float(header))
+        n_value = float(header)
+        n_header = int(n_value)
+        if n_header <= 0 or n_header != n_value:
+            raise ValueError("Header size must be a positive integer.")
     except ValueError as exc:
         raise ValueError("Header does not contain an integer size.") from exc
     values = [float(x) for line in lines[1:] for x in line.split() if x.strip()]
@@ -197,6 +223,8 @@ def parse_triplet_cov(path: Path, *, assume_symmetric: bool = True) -> Dict[str,
 
     if not triplets:
         raise ValueError("No triplets found in covariance file.")
+    if any(i < 0 or j < 0 or not np.isfinite(v) for i, j, v in triplets):
+        raise ValueError("Triplet indices must be nonnegative and entries finite.")
 
     min_i = min(i for i, _, _ in triplets)
     max_i = max(i for i, _, _ in triplets)
@@ -218,15 +246,16 @@ def parse_triplet_cov(path: Path, *, assume_symmetric: bool = True) -> Dict[str,
     n = max(max_i_n, max_j_n) + 1
     cov = np.zeros((n, n), dtype=float)
 
+    seen = {}
     for i, j, val in norm_triplets:
-        existing = cov[i, j]
-        if existing != 0.0 and abs(existing - val) > 1e-12:
+        if (i, j) in seen and not np.isclose(seen[i, j], val, rtol=1e-10, atol=0.0):
             raise ValueError("Duplicate triplet entries are inconsistent.")
+        seen[i, j] = val
         cov[i, j] = val
         if assume_symmetric:
-            existing_sym = cov[j, i]
-            if existing_sym != 0.0 and abs(existing_sym - val) > 1e-12:
+            if (j, i) in seen and not np.isclose(seen[j, i], val, rtol=1e-10, atol=0.0):
                 raise ValueError("Duplicate symmetric triplets are inconsistent.")
+            seen[j, i] = val
             cov[j, i] = val
 
     return {
@@ -283,25 +312,16 @@ def load_des_sn5yr_covariance(
         if cov.shape[0] != cov.shape[1]:
             raise ValueError("Dense covariance is not square.")
 
-    diag = np.diag(cov)
-    matrix_kind = "covariance"
-    if mu_err is not None and np.allclose(diag, 0.0):
-        if len(mu_err) != cov.shape[0]:
-            raise ValueError("mu_err length does not match covariance size for diag build.")
-        cov = np.diag(mu_err**2)
-        matrix_kind = "diag_from_muerr"
-        diag = np.diag(cov)
-    if mu_err is not None and np.median(diag) >= 0.5 and np.median(diag) <= 2.0:
-        if len(mu_err) != cov.shape[0]:
-            raise ValueError("mu_err length does not match covariance size for rescaling.")
-        cov = cov * np.outer(mu_err, mu_err)
-        matrix_kind = "correlation_rescaled"
-
-    if kind == "stat+sys" and mu_err is not None and matrix_kind == "covariance":
-        if len(mu_err) != cov.shape[0]:
-            raise ValueError("mu_err length does not match covariance size for stat+sys add.")
+    # The version 1.3 README specifies STATONLY as zeros and STAT+SYS as the
+    # additional systematics. MUERR_FINAL supplies the statistical diagonal.
+    # Never guess covariance-vs-correlation semantics from entry magnitudes.
+    matrix_kind = "systematics_only" if kind == "stat+sys" else "statistical_extra"
+    if mu_err is not None:
+        mu_err = np.asarray(mu_err, dtype=float)
+        if mu_err.shape != (cov.shape[0],) or not np.all(np.isfinite(mu_err)) or np.any(mu_err <= 0):
+            raise ValueError("mu_err must be a finite positive vector matching covariance size.")
         cov = cov + np.diag(mu_err**2)
-        matrix_kind = "systematics_plus_stat"
+        matrix_kind = "systematics_plus_stat" if kind == "stat+sys" else "statistical_total"
 
     result = {
         "cov": cov,
@@ -311,29 +331,13 @@ def load_des_sn5yr_covariance(
         "matrix_kind_detected": matrix_kind,
     }
     if triplet_info:
-        result.update(triplet_info)
+        result.update({key: val for key, val in triplet_info.items() if key != "cov"})
     return result
 
 
 def prepare_cov_solve(cov: np.ndarray, *, jitter0: float = 0.0) -> Dict[str, Any]:
-    jitter = jitter0
-    for _ in range(10):
-        try:
-            cho = cho_factor(cov + jitter * np.eye(cov.shape[0]), lower=True)
-            if jitter > 1e-6:
-                raise RuntimeError("Cholesky required excessive jitter.")
-            return {"cho": cho, "jitter": jitter, "psd_correction": False, "min_eig": None}
-        except Exception:
-            jitter = 1e-12 if jitter == 0.0 else jitter * 10.0
-            if jitter > 1e-6:
-                break
-
-    evals, evecs = np.linalg.eigh(cov)
-    min_eig = float(evals[0])
-    evals_clipped = np.clip(evals, 1e-12, None)
-    cov_psd = (evecs * evals_clipped) @ evecs.T
-    cho = cho_factor(cov_psd, lower=True)
-    return {"cho": cho, "jitter": 0.0, "psd_correction": True, "min_eig": min_eig}
+    cho = factor_covariance(cov, jitter=jitter0)
+    return {"cho": cho, "jitter": jitter0, "psd_correction": False, "min_eig": None}
 
 
 def chi2_profiled_over_M(resid0: np.ndarray, cho: Tuple[np.ndarray, bool]) -> Tuple[float, float]:
@@ -343,18 +347,21 @@ def chi2_profiled_over_M(resid0: np.ndarray, cho: Tuple[np.ndarray, bool]) -> Tu
     denom = float(ones @ invC_ones)
     numer = float(ones @ invC_resid)
     M_hat = numer / denom
-    chi2 = float(resid0 @ invC_resid) - numer**2 / denom
+    centered = resid0 - M_hat * ones
+    chi2 = float(centered @ cho_solve(cho, centered))
     return chi2, M_hat
 
 
 @dataclass
 class DESSN5YRDistanceDataset(Dataset):
+    n_profiled_parameters: int = 1
     z: np.ndarray = field(default_factory=lambda: np.array([]))
     mu: np.ndarray = field(default_factory=lambda: np.array([]))
     cov: np.ndarray = field(default_factory=lambda: np.array([[]]))
     cov_kind: str = ""
     model_kind: str = "flat_lcdm"
     H0_fixed: float = 70.0
+    z_hel: np.ndarray | None = None
     last_M_hat: float | None = None
     cho: Tuple[np.ndarray, bool] | None = None
 
@@ -370,6 +377,8 @@ class DESSN5YRDistanceDataset(Dataset):
             raise ValueError("model_kind must be 'flat_lcdm' or 'flat_wcdm'.")
 
         mu_theory = 5.0 * np.log10(np.asarray(dl, dtype=float)) + 25.0
+        if self.z_hel is not None:
+            mu_theory = mu_theory + heliocentric_mu_correction(self.z, self.z_hel)
         resid0 = self.mu - mu_theory
 
         if self.cho is None:

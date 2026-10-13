@@ -24,15 +24,6 @@ from sixbirds_cosmo.infer.fit import fit_map
 from sixbirds_cosmo.reporting import write_run_markdown_stub
 
 
-def combine_curves(curves: list[dict]) -> dict:
-    grids = [curve["alpha_grid"] for curve in curves]
-    union = np.unique(np.concatenate(grids))
-    sum_delta = np.zeros_like(union, dtype=float)
-    for curve in curves:
-        delta = np.interp(union, curve["alpha_grid"], curve["delta_chi2_grid"])
-        sum_delta += delta
-    sum_delta = sum_delta - np.min(sum_delta)
-    return {"alpha_grid": union, "delta_chi2_grid": sum_delta}
 
 
 def estimate_sigma(alpha_grid: np.ndarray, delta_chi2: np.ndarray) -> float | None:
@@ -83,7 +74,7 @@ def main() -> None:
     for kind in ["acf", "aps", "pcf", "fid"]:
         curves[kind] = load_alpha_likelihood_curve(dataset_dir, kind)
 
-    combined = combine_curves([curves["acf"], curves["aps"], curves["pcf"]])
+    combined = curves["fid"]
 
     alpha_grid = combined["alpha_grid"]
     delta_combined = combined["delta_chi2_grid"]
@@ -127,6 +118,9 @@ def main() -> None:
     delta_aic = fit_ocdm["aic"] - fit_flat["aic"]
 
     metrics = {
+        "bao_curve": "released_fid_consensus",
+        "bao_sound_horizon_ratio": "fixed",
+        "bao_H0": "fixed_to_fiducial",
         "z_eff": z_eff,
         "alpha_hat_combined": alpha_hat,
         "alpha_sigma_est_combined": sigma_est,
@@ -162,7 +156,7 @@ def main() -> None:
         "theta0": theta0.tolist(),
         "z_eff": z_eff,
         "z_eff_source": fid_info.get("z_eff_source"),
-        "fit_curve": "combined_acf_aps_pcf",
+        "fit_curve": "released_fid_consensus",
     }
 
     manifest.write_config(run_dir, config)

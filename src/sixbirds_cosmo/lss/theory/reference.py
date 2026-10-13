@@ -52,13 +52,15 @@ class ReferenceVectorBackend:
 
     def predict(self, theta: np.ndarray, block_index: pd.DataFrame) -> np.ndarray:
         ref = np.asarray(self._load(), dtype=float)
-        if len(ref) == len(block_index):
-            return ref
+        if ref.ndim != 1 or not np.all(np.isfinite(ref)):
+            raise ValueError("Reference vector must be one-dimensional and finite.")
         if "i" not in block_index.columns:
+            if len(ref) == len(block_index):
+                return ref
             raise ValueError("block_index must include column 'i' for subsetting.")
         idx = block_index["i"].to_numpy()
         if not np.issubdtype(idx.dtype, np.integer):
-            idx = idx.astype(int)
-        if idx.min() < 0 or idx.max() >= len(ref):
+            raise ValueError("block_index i values must be integers.")
+        if len(idx) and (idx.min() < 0 or idx.max() >= len(ref)):
             raise ValueError("block_index i values out of bounds for reference vector.")
         return ref[idx]

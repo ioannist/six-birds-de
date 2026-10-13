@@ -112,6 +112,9 @@ def main() -> None:
     plt.close(fig2)
 
     metrics = {
+        "audit_kind": "injected_residual_protocol",
+        "independent_prediction": False,
+        "empirical_closure_evidence": False,
         "split": split,
         "n_data": n,
         "n_A": int(len(idxA)),

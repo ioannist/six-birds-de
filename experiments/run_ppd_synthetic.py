@@ -235,6 +235,13 @@ def main() -> None:
     hetero_rmse_ratio = [row["ratio"] for row in hetero_rmse_rows]
     hetero_rmse_ratio_median = float(np.median(hetero_rmse_ratio))
     metrics = {
+        "proxy_information": "external_calibration_on_identical_generator_history",
+        "variance_prediction_rule": "thresholded_linear_amplitude_ratio_times_template",
+        "A_cut": 0.1,
+        "audit_kind": "calibrated_generator_proxy",
+        "generator_replication": "same_two_population_history_with_new_distance_noise",
+        "independent_heterogeneity_realizations": False,
+        "distance_kind": "comoving_c_equals_one",
         "A_ref": A_ref,
         "seed_template": seed_template,
         "hetero_rmse_rows": hetero_rmse_rows,

@@ -5,32 +5,34 @@ from __future__ import annotations
 from typing import Tuple
 
 import numpy as np
-from scipy.linalg import cho_factor, cho_solve
+from scipy.linalg import cho_solve
+from sixbirds_cosmo.numerics import factor_covariance
 
 
 def apply_mask(y: np.ndarray, cov: np.ndarray, mask: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Apply an index mask to a data vector and covariance."""
     y = np.asarray(y, dtype=float)
     cov = np.asarray(cov, dtype=float)
-    mask = np.asarray(mask, dtype=int)
+    mask = np.asarray(mask)
+    if mask.dtype == bool:
+        if mask.shape != y.shape:
+            raise ValueError("boolean mask must match the data vector")
+        mask = np.flatnonzero(mask)
+    elif not np.issubdtype(mask.dtype, np.integer):
+        raise ValueError("mask must contain boolean flags or integer indices")
+    if mask.ndim != 1 or np.any(mask < 0) or np.any(mask >= len(y)) or len(np.unique(mask)) != len(mask):
+        raise ValueError("mask must contain distinct in-range indices")
     y_masked = y[mask]
     cov_masked = cov[np.ix_(mask, mask)]
     return y_masked, cov_masked
 
 
 def chi2_gaussian(resid: np.ndarray, cov: np.ndarray, *, jitter: float = 0.0) -> Tuple[float, float]:
-    """Compute chi2 via Cholesky solve with optional jitter ladder."""
+    """Compute chi2 with an explicitly chosen covariance jitter."""
     resid = np.asarray(resid, dtype=float)
     cov = np.asarray(cov, dtype=float)
-    jitter_levels = [jitter, 1e-15, 1e-12, 1e-10, 1e-8, 1e-6]
-    last_exc: Exception | None = None
-    for j in jitter_levels:
-        try:
-            cho = cho_factor(cov + j * np.eye(cov.shape[0]), lower=True)
-            sol = cho_solve(cho, resid)
-            chi2 = float(resid @ sol)
-            return chi2, j
-        except Exception as exc:  # pragma: no cover - defensive
-            last_exc = exc
-            continue
-    raise RuntimeError("Cholesky failed up to jitter=1e-6.") from last_exc
+    if resid.ndim != 1 or cov.shape != (len(resid), len(resid)) or not np.all(np.isfinite(resid)):
+        raise ValueError("residual must be finite and match covariance dimensions")
+    cho = factor_covariance(cov, jitter=jitter)
+    sol = cho_solve(cho, resid)
+    return float(resid @ sol), jitter

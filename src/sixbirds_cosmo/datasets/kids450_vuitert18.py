@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-from scipy.linalg import cho_factor
+from sixbirds_cosmo.numerics import factor_covariance
 
 
 ELL_BINS = [200, 331, 548, 906, 1500]
@@ -88,9 +88,16 @@ def _parse_triplet_cov(path: Path, n_expected: int) -> Tuple[np.ndarray, float]:
         )
 
     cov = np.zeros((n_expected, n_expected), dtype=float)
+    seen = {}
     for i, j, val in triplets:
         ii = i + offset
         jj = j + offset
+        if not np.isfinite(val):
+            raise ValueError("Covariance entries must be finite.")
+        key = (min(ii, jj), max(ii, jj))
+        if key in seen and not np.isclose(seen[key], val, rtol=1e-10, atol=0):
+            raise ValueError("Covariance contains inconsistent duplicate triplets.")
+        seen[key] = val
         cov[ii, jj] = val
         cov[jj, ii] = val
 
@@ -98,15 +105,8 @@ def _parse_triplet_cov(path: Path, n_expected: int) -> Tuple[np.ndarray, float]:
     if symmetry > 1e-12:
         raise ValueError(f"Covariance symmetry check failed: max|C-C^T|={symmetry}")
 
-    jitter_used = 0.0
-    for jitter in [0.0, 1e-12, 1e-10, 1e-8, 1e-6]:
-        try:
-            cho_factor(cov + jitter * np.eye(n_expected), lower=True)
-            jitter_used = jitter
-            break
-        except Exception:
-            continue
-    return cov, jitter_used
+    factor_covariance(cov)
+    return cov, 0.0
 
 
 def _build_block_index(data_vector: np.ndarray) -> pd.DataFrame:

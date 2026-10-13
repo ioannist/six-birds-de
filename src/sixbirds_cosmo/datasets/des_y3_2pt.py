@@ -397,7 +397,7 @@ def load_des_y3_chain_txt(path: Path, *, max_rows: int | None = None) -> Dict[st
 
     df = pd.read_csv(
         path,
-        delim_whitespace=True,
+        sep=r"\s+",
         comment="#",
         header=header,
         nrows=max_rows,

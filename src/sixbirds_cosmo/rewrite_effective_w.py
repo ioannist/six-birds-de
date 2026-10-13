@@ -10,6 +10,8 @@ from scipy.optimize import least_squares
 
 def _as_array(z: np.ndarray | float) -> tuple[np.ndarray, bool]:
     z_arr = np.asarray(z, dtype=float)
+    if not np.all(np.isfinite(z_arr)) or np.any(z_arr <= -1):
+        raise ValueError("Redshift must be finite and greater than -1.")
     return z_arr, z_arr.ndim == 0
 
 
@@ -35,6 +37,8 @@ def E_w0wa(z: np.ndarray | float, om: float, w0: float, wa: float) -> np.ndarray
 
 def H_w0wa(z: np.ndarray | float, H0: float, om: float, w0: float, wa: float) -> np.ndarray | float:
     """H(z) for flat CPL w0-wa model."""
+    if not np.isfinite(H0) or H0 <= 0:
+        raise ValueError("H0 must be finite and positive.")
     return H0 * E_w0wa(z, om, w0, wa)
 
 
@@ -61,14 +65,25 @@ def fit_effective_w0wa(
     """Fit w0-wa by minimizing squared error in log E(z)."""
     z_grid = np.asarray(z_grid, dtype=float)
     H_rw = np.asarray(H_rw, dtype=float)
+    if z_grid.ndim != 1 or len(z_grid) < 2 or H_rw.shape != z_grid.shape or not np.all(np.isfinite(z_grid)) or not np.all(np.isfinite(H_rw)) or np.any(H_rw <= 0):
+        raise ValueError("fit grids must be matching finite vectors with positive H")
     if om is None:
         raise ValueError("om must be provided for effective w0-wa fit.")
+    if not np.isfinite(om) or not 0 <= om < 1:
+        raise ValueError("flat CPL fit requires 0 <= om < 1")
     if H0 is None:
-        H0 = float(H_rw[0])
+        zero = np.flatnonzero(z_grid == 0)
+        if len(zero) != 1:
+            raise ValueError("H0 must be provided unless the grid contains z=0 exactly once")
+        H0 = float(H_rw[zero[0]])
+    if not np.isfinite(H0) or H0 <= 0:
+        raise ValueError("H0 must be finite and positive")
     E_rw = H_rw / H0
     if weights is None:
         weights = np.ones_like(E_rw)
     weights = np.asarray(weights, dtype=float)
+    if weights.shape != z_grid.shape or not np.all(np.isfinite(weights)) or np.any(weights < 0) or np.count_nonzero(weights) < 2:
+        raise ValueError("weights must match the grid with at least two positive entries")
     sqrt_w = np.sqrt(weights)
 
     def residuals(theta: np.ndarray) -> np.ndarray:
@@ -90,6 +105,7 @@ def fit_effective_w0wa(
     comp = compare_H_models(z_grid, H_rw, H_approx)
 
     return {
+        "bridge_kind": "H_only_flat_CPL_approximation",
         "w0_hat": w0_hat,
         "wa_hat": wa_hat,
         "success": bool(result.success),

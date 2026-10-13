@@ -22,6 +22,7 @@ from sixbirds_cosmo.datasets.des_sn5yr import (
     load_des_sn5yr_hubble_diagram,
 )
 from sixbirds_cosmo.datasets.des_y6_bao import (
+    evaluate_alpha_chi2,
     DESY6BAOAlphaDataset,
     load_alpha_likelihood_curve,
     load_bao_fiducial_info,
@@ -30,15 +31,6 @@ from sixbirds_cosmo.infer.fit import fit_map
 from sixbirds_cosmo.reporting import write_run_markdown_stub
 
 
-def combine_curves(curves: list[dict]) -> dict:
-    grids = [curve["alpha_grid"] for curve in curves]
-    union = np.unique(np.concatenate(grids))
-    sum_delta = np.zeros_like(union, dtype=float)
-    for curve in curves:
-        delta = np.interp(union, curve["alpha_grid"], curve["delta_chi2_grid"])
-        sum_delta += delta
-    sum_delta = sum_delta - np.min(sum_delta)
-    return {"alpha_grid": union, "delta_chi2_grid": sum_delta}
 
 
 def estimate_sigma(alpha_grid: np.ndarray, delta_chi2: np.ndarray) -> float:
@@ -100,7 +92,7 @@ def main() -> None:
     cov_sys = load_des_sn5yr_covariance(raw_sn, kind="stat+sys", mu_err=mu_err)
 
     z_sn = hd["z"]
-    mu_sn = hd["mu"]
+    mu_sn = hd["mu_cosmological"]
     cov = cov_sys["cov"]
     sn_sigma_median = float(np.median(np.sqrt(np.diag(cov))))
 
@@ -122,7 +114,7 @@ def main() -> None:
         "aps": load_alpha_likelihood_curve(raw_bao, "aps"),
         "pcf": load_alpha_likelihood_curve(raw_bao, "pcf"),
     }
-    combined = combine_curves([curves["acf"], curves["aps"], curves["pcf"]])
+    combined = load_alpha_likelihood_curve(raw_bao, "fid")
     alpha_grid = combined["alpha_grid"]
     delta_combined = combined["delta_chi2_grid"]
     alpha_hat = float(alpha_grid[np.argmin(delta_combined)])
@@ -151,7 +143,7 @@ def main() -> None:
     alpha_pred_bao = bao_dataset.alpha_pred(om_hat_bao)
 
     alpha_pred_from_sn = bao_dataset.alpha_pred(om_hat_sn)
-    delta_chi2_pred_sn = float(np.interp(alpha_pred_from_sn, alpha_grid, delta_combined))
+    delta_chi2_pred_sn = evaluate_alpha_chi2(alpha_pred_from_sn, alpha_grid, delta_combined)
     bias_alpha = float(alpha_pred_from_sn - alpha_hat)
     rmse_alpha = abs(bias_alpha)
     zscore_alpha = bias_alpha / sigma_est
@@ -258,6 +250,11 @@ def main() -> None:
     manifest.save_table(df_binned, binned_path)
 
     metrics = {
+        "reverse_audit": "SN_shape_score_with_intercept_profiled_on_test_data",
+        "sn_redshift_convention": hd["redshift_convention"],
+        "bao_curve": "released_fid_consensus",
+        "bao_sound_horizon_ratio": "fixed",
+        "bao_H0": "fixed_to_fiducial",
         "sn_n": len(z_sn),
         "sn_sigma_median": sn_sigma_median,
         "bao_alpha_hat": alpha_hat,

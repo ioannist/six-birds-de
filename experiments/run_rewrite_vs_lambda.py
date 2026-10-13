@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
+from itertools import permutations
 
 from sixbirds_cosmo import manifest
 from sixbirds_cosmo.infer_distance import (
@@ -114,7 +115,10 @@ def main() -> None:
 
     spearman = spearmanr(delta_grid, A_list)
     spearman_rho = float(spearman.correlation)
-    spearman_pvalue = float(spearman.pvalue)
+    # With three settings, an asymptotic t approximation reports a spurious
+    # zero at |rho|=1. Enumerate all pairings for the exact two-sided p-value.
+    null_rhos = [float(spearmanr(delta_grid, order).correlation) for order in permutations(A_list)]
+    spearman_pvalue = float(np.mean(np.abs(null_rhos) >= abs(spearman_rho) - 1e-12))
     A_monotone = all(A_list[i + 1] > A_list[i] for i in range(len(A_list) - 1))
 
     fig2, ax2 = plt.subplots()
@@ -125,6 +129,11 @@ def main() -> None:
     plt.close(fig2)
 
     metrics = {
+        "rewrite_family": "subtractive_generator_proxy",
+        "rewrite_H_present": fit_R["H_present"],
+        "rewrite_H0_convention": "matter_coefficient_sqrt_not_present_Hubble_rate",
+        "proxy_information": "generator_heterogeneity_shape_supplied",
+        "distance_kind": "comoving_c_equals_one",
         "chi2_matter_only": fit_A.chi2,
         "aic_matter_only": fit_A.aic,
         "chi2_lcdm": fit_B.chi2,
@@ -138,6 +147,7 @@ def main() -> None:
         "sweep_rows": sweep_rows,
         "spearman_rho": spearman_rho,
         "spearman_pvalue": spearman_pvalue,
+        "spearman_pvalue_method": "exact_two_sided_pairing_permutations",
         "A_monotone_increasing": A_monotone,
     }
 

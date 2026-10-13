@@ -5,7 +5,8 @@ from __future__ import annotations
 from typing import Dict, Tuple
 
 import numpy as np
-from scipy.linalg import cho_factor, cho_solve
+from scipy.linalg import cho_solve
+from sixbirds_cosmo.numerics import factor_covariance, generalized_least_squares
 
 
 def make_directions(y: np.ndarray, cov: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -24,30 +25,14 @@ def make_directions(y: np.ndarray, cov: np.ndarray) -> Tuple[np.ndarray, np.ndar
 
 
 def _cho_with_jitter(cov: np.ndarray) -> Tuple[Tuple[np.ndarray, bool], float]:
-    jitter_levels = [0.0, 1e-15, 1e-12, 1e-10, 1e-8, 1e-6]
-    last_exc: Exception | None = None
-    for j in jitter_levels:
-        try:
-            cho = cho_factor(cov + j * np.eye(cov.shape[0]), lower=True)
-            return cho, j
-        except Exception as exc:
-            last_exc = exc
-            continue
-    raise RuntimeError("Cholesky failed up to jitter=1e-6.") from last_exc
+    return factor_covariance(cov), 0.0
 
 
 def _fit_linear_amplitudes(
     r0_A: np.ndarray, D_A: np.ndarray, cov_A: np.ndarray
 ) -> Tuple[np.ndarray, float, float]:
-    cho, jitter_used = _cho_with_jitter(cov_A)
-    invC_D = cho_solve(cho, D_A)
-    invC_r0 = cho_solve(cho, r0_A)
-    lhs = D_A.T @ invC_D
-    rhs = D_A.T @ invC_r0
-    amps = -np.linalg.solve(lhs, rhs)
-    resid_A = r0_A + D_A @ amps
-    chi2_A = float(resid_A @ cho_solve(cho, resid_A))
-    return amps, chi2_A, jitter_used
+    amps, chi2_A = generalized_least_squares(-r0_A, D_A, cov_A)
+    return amps, chi2_A, 0.0
 
 
 def fit_amplitudes_on_block(
@@ -112,7 +97,11 @@ def ppd_fit_predict(
     *,
     r0_amp: float = 0.1,
 ) -> Dict[str, object]:
-    """Fit on A, evaluate chi2/RMSE on B for the stub model."""
+    """Fit on A, score the prescribed injection on B (not survey prediction).
+
+    y is used only for its length: the residual r0 is prescribed from covariance
+    and metadata. The two-template model can cancel it exactly by construction.
+    """
     fit = fit_amplitudes_on_block(y, cov, idxA, model_kind, r0_amp=r0_amp)
     d1 = fit["d1"]
     d2 = fit["d2"]
@@ -132,6 +121,8 @@ def ppd_fit_predict(
     rmse_B = float(np.sqrt(np.mean(resid_full[idxB] ** 2)))
 
     return {
+        "audit_kind": "injected_residual_protocol",
+        "independent_prediction": False,
         "amps": amps,
         "chi2_A": chi2_A,
         "chi2_B": chi2_B,
