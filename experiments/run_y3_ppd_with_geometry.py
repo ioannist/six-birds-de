@@ -22,7 +22,7 @@ from sixbirds_cosmo.datasets.des_sn5yr import (
     prepare_cov_solve,
 )
 from sixbirds_cosmo.datasets.des_y3_2pt import build_y3_block_index, load_des_y3_2pt_fits
-from sixbirds_cosmo.datasets.des_y6_bao import evaluate_alpha_chi2, load_alpha_likelihood_curve, load_bao_fiducial_info
+from sixbirds_cosmo.datasets.des_y6_bao import DES_Y6_BAO_TEMPLATE, evaluate_alpha_chi2, load_alpha_likelihood_curve, load_bao_fiducial_info
 from sixbirds_cosmo.lss.config import load_and_resolve_lss_config, load_yaml_config
 from sixbirds_cosmo.lss.ppd_probe_split import get_probe_split_indices
 from sixbirds_cosmo.numerics import factor_covariance
@@ -197,9 +197,9 @@ def main() -> int:
     alpha_grid = combined["alpha_grid"]
     delta_chi2_grid = combined["delta_chi2_grid"]
     z_eff_bao = load_bao_fiducial_info(bao_raw)["z_eff"]
-    H0_bao = float(bao_cfg.get("H0_fid", 67.4))
-    om_fid_bao = float(bao_cfg.get("om_fid", 0.315))
-    ol_fid_bao = float(bao_cfg.get("ol_fid", 0.685))
+    H0_bao = float(bao_cfg.get("H0_fid", DES_Y6_BAO_TEMPLATE["H0"]))
+    om_fid_bao = float(bao_cfg.get("om_fid", DES_Y6_BAO_TEMPLATE["om"]))
+    ol_fid_bao = float(bao_cfg.get("ol_fid", DES_Y6_BAO_TEMPLATE["ol"]))
     dm_fid_bao = transverse_comoving_distance(z_eff_bao, H0_bao, om_fid_bao, ol_fid_bao)
 
     cho_A = factor_covariance(cov[np.ix_(idx_A, idx_A)])

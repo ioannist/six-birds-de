@@ -30,6 +30,7 @@ from sixbirds_cosmo.datasets.des_sn5yr import (
 )
 from sixbirds_cosmo.datasets.des_y6_bao import (
     evaluate_alpha_chi2,
+    DES_Y6_BAO_TEMPLATE,
     load_alpha_likelihood_curve,
     load_bao_fiducial_info,
 )
@@ -167,9 +168,9 @@ def main() -> None:
     alpha_hat = float(alpha_grid[np.argmin(delta_combined)])
     sigma_est = estimate_sigma(alpha_grid, delta_combined)
 
-    H0_fid = 67.4
-    om_fid = 0.315
-    ol_fid = 0.685
+    H0_fid = DES_Y6_BAO_TEMPLATE["H0"]
+    om_fid = DES_Y6_BAO_TEMPLATE["om"]
+    ol_fid = DES_Y6_BAO_TEMPLATE["ol"]
     dm_fid = transverse_comoving_distance(z_eff, H0_fid, om_fid, ol_fid, method="trapz")
 
     # Fit functions

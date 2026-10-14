@@ -233,3 +233,12 @@ def test_failed_robustness_scenario_never_leaves_partial_green_rows(tmp_path, mo
     assert len(rows) == 4 and set(rows["status"]) == {"failed"}
     metrics = json.loads((tmp_path / "metrics.json").read_text())
     assert metrics["n_ok"] == 0 and metrics["n_failed"] == 1
+
+
+def test_bao_alpha_reference_is_release_template():
+    """alpha is defined relative to the DES Y6 BAO Planck template (Omega_m=0.31, h=0.676)."""
+    from sixbirds_cosmo.datasets.des_y6_bao import DES_Y6_BAO_TEMPLATE, DESY6BAOAlphaDataset
+
+    assert DES_Y6_BAO_TEMPLATE == {"om": 0.31, "ol": 0.69, "H0": 67.6}
+    ds = DESY6BAOAlphaDataset("alpha", model_kind="flat_lcdm")
+    assert ds.alpha_pred(0.31) == pytest.approx(1.0, abs=1e-12)

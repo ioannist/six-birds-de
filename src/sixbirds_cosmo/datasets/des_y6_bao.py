@@ -18,6 +18,13 @@ from sixbirds_cosmo.cosmo_background import (
 )
 from sixbirds_cosmo.likelihoods.base import Dataset
 
+# The released alpha is (D_M/r_d) relative to the analysis template cosmology,
+# "Planck" data-like setup of DES Y6 BAO (arXiv:2402.10696, Sec. IV):
+# flat LCDM with Omega_m=0.31, Omega_Lambda=0.69, h=0.676. The shape-only
+# mapping below holds H0 and r_d at these template values, so alpha depends
+# on the background shape alone.
+DES_Y6_BAO_TEMPLATE = {"om": 0.31, "ol": 0.69, "H0": 67.6}
+
 
 def _extract_zip(zip_path: Path, extract_dir: Path) -> None:
     extract_dir.mkdir(parents=True, exist_ok=True)
@@ -235,9 +242,9 @@ class DESY6BAOAlphaDataset(Dataset):
     alpha_grid: np.ndarray = field(default_factory=lambda: np.array([]))
     delta_chi2_grid: np.ndarray = field(default_factory=lambda: np.array([]))
     z_eff: float = 0.851
-    om_fid: float = 0.315
-    ol_fid: float = 0.685
-    H0_fid: float = 67.4
+    om_fid: float = DES_Y6_BAO_TEMPLATE["om"]
+    ol_fid: float = DES_Y6_BAO_TEMPLATE["ol"]
+    H0_fid: float = DES_Y6_BAO_TEMPLATE["H0"]
     model_kind: str = "flat_lcdm"
     notes: Dict[str, Any] = field(default_factory=dict)
 

@@ -57,6 +57,6 @@ anchors:
   bao:
     dataset_key: des_y6_bao_release
     curve_kind: fid
-    H0_fid: 67.4
-    om_fid: 0.315
-    ol_fid: 0.685
+    H0_fid: 67.6   # DES Y6 BAO Planck template (arXiv:2402.10696)
+    om_fid: 0.31
+    ol_fid: 0.69
