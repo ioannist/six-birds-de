@@ -6,10 +6,12 @@ __pycache__/
 *.egg-info/
 .venv/
 venv/
-.env/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
 
 # Build artifacts
 build/
@@ -30,3 +32,43 @@ data/processed/**
 !data/registry.yaml
 !data/registry.yml
 !data/registry.json
+
+# Secrets and credentials (never commit)
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials*.json
+.netrc
+.pypirc
+
+# AI agent / assistant local state and transcripts
+.claude/
+CLAUDE.local.md
+.codex/
+.cursor/
+.aider*
+.continue/
+.windsurf/
+.copilot/
+*.jsonl
+*.stderr
+
+# Local editor/OS noise
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Agent review working files (kept locally, not published)
+docs/paper/notes/
+
+# Build logs
+*.log
+
+# Third-party paper sources kept for local reference only
+docs/knowledge_base/dark_energy_survey.tex
