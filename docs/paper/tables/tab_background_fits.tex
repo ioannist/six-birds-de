@@ -1,16 +1,24 @@
 \begin{table}[t]
 \centering
-\caption{Background fits summary.}
+\small
+\caption{Background fits to the public DES SN5YR distance vector and DES Y6 BAO consensus likelihood. The ``dark-energy-like term'' column lists the parameter that plays that role in each model.}
 \label{tab:background_fits}
-\begin{tabular}{llll}
+\begin{tabular}{@{}llcccrr@{}}
 \toprule
- dataset & model & chi2 & aic \\
+Data & Model & $\Omega_m$ & Dark-energy-like term & $\Omega_k$ & $\chi^2$ & AIC \\
 \midrule
- SN & lcdm & 1639.53 & 1645.53 \\
- SN & rewrite & 1639.53 & 1647.53 \\
- SN+BAO & lcdm & 1642.63 & 1648.63 \\
- SN+BAO & rewrite & 1642.63 & 1650.63 \\
- BAO & lcdm & 6.23778e-09 & 2 \\
+\multirow{4}{*}{SN} & flat $\Lambda$CDM & 0.352 & $\Omega_\Lambda=1-\Omega_m$ & $0$ & 1640.08 & 1644.08 \\
+ & flat $w$CDM & 0.267 & $w=-0.80$ & $0$ & 1638.52 & 1644.52 \\
+ & $\Lambda$CDM, free $\Omega_k$ & 0.292 & $\Omega_\Lambda=0.552$ & +0.156 & 1639.10 & 1645.10 \\
+ & rewrite & 0.292 & $A=0.552,\ m=0^{\ast}$ & +0.156 & 1639.10 & 1647.10 \\
+\midrule
+\multirow{2}{*}{SN+BAO} & $\Lambda$CDM, free $\Omega_k$ & 0.300 & $\Omega_\Lambda=0.548$ & +0.152 & 1640.16 & 1646.16 \\
+ & rewrite & 0.300 & $A=0.548,\ m=0^{\ast}$ & +0.152 & 1640.16 & 1648.16 \\
+\midrule
+\multirow{2}{*}{BAO} & flat $\Lambda$CDM & 0.400 & $\Omega_\Lambda=1-\Omega_m$ & $0$ & 0.00 & 2.00 \\
+ & no $\Lambda$, open & 0.050$^{\dagger}$ & --- & +0.950 & 0.07 & 2.07 \\
 \bottomrule
 \end{tabular}
+\par\smallskip
+\parbox{0.92\linewidth}{\footnotesize SN: $n=1829$ supernovae; the profiled magnitude intercept is counted as a fitted parameter in the AIC. BAO: one compressed observable ($\alpha$ at $z_{\rm eff}=0.851$), with $H_0$ and the sound horizon fixed to the release's template cosmology. $^{\ast}$At the lower bound $m=0$ of the declared range $[0,6]$, where the rewrite family coincides with $\Lambda$CDM with free curvature. $^{\dagger}$At the lower bound $\Omega_m=0.05$.}
 \end{table}

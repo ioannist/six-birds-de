@@ -19,6 +19,9 @@ run_latexmk() {
 run_pdflatex() {
   (cd "$PAPER_DIR" && pdflatex -interaction=nonstopmode -halt-on-error \
     -output-directory "$BUILD_DIR" "main.tex")
+  (cd "$BUILD_DIR" && BIBINPUTS="$PAPER_DIR:" bibtex main)
+  (cd "$PAPER_DIR" && pdflatex -interaction=nonstopmode -halt-on-error \
+    -output-directory "$BUILD_DIR" "main.tex")
   (cd "$PAPER_DIR" && pdflatex -interaction=nonstopmode -halt-on-error \
     -output-directory "$BUILD_DIR" "main.tex")
 }
@@ -163,7 +166,7 @@ title = m.group(1).strip()
 short = title.split(":", 1)[0].strip()
 # Replace non-alphanumeric with underscores, collapse, and trim.
 short = re.sub(r"[^A-Za-z0-9]+", "_", short).strip("_")
-print(f"2026_Tsiokos_{short}_v1.pdf")
+print(f"2026_Tsiokos_{short}_v3.pdf")
 PY
 )"
 cp -f "$BUILD_DIR/sixbirds_dark_energy.pdf" "$BUILD_DIR/$HAL_NAME"

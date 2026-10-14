@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Held-out $\chi^2$ in the injected-residual probe-split exercise. The one-template and two-template columns are the baseline and extended linear correction families.}
+\label{tab:lss_protocol}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Vector & Training $\to$ held-out & One template & Two templates \\
+\midrule
+\multirow{2}{*}{DES Y3 (maglim)} & shear $\to$ clustering + GGL & 0.1165 & 0.0885 \\
+ & clustering + GGL $\to$ shear & 0.0674 & 0.0305 \\
+\midrule
+\multirow{2}{*}{KiDS-450 bandpowers} & shear $\to$ GGL + clustering & 0.0560 & 0.0495 \\
+ & GGL + clustering $\to$ shear & 0.0270 & 0.0205 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\parbox{0.92\linewidth}{\footnotesize DES Y3: $n_{\rm shear}=400$, $n_{\rm rest}=600$. KiDS-450: $n_{\rm shear}=50$, $n_{\rm rest}=50$. Scores are computed against an injected residual built from the covariance and block metadata; they are invariant to the measured central values and carry no cosmological information (Appendix~\ref{app:lss}).}
+\end{table}

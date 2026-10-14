@@ -1,0 +1,33 @@
+fig_background.pdf:
+  script: scripts/make_paper_figures.py
+  sha256: 3814fd0b1d3e6ae883e3626a6004d23989f3ba0cdc7ecac591fffc07204fc9ef
+  sources:
+  - results/fit_des_y6_bao/20261014T120546Z_39346c3187a3de10dcd41edc828a511080220084
+  - results/ppd_background/20261014T120547Z_39346c3187a3de10dcd41edc828a511080220084
+  - results/rewrite_background_vs_lcdm/20261014T120554Z_39346c3187a3de10dcd41edc828a511080220084
+  timestamp_utc: '2026-10-14T12:42:29.280440Z'
+fig_mechanism.pdf:
+  script: scripts/make_paper_figures.py
+  sha256: 385a7fae96d6ebdb347b4c5ca60b064d3fea62a8b0c487725a4b1f70eb7dc5f2
+  sources:
+  - results/toy1/20261013T185542Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77
+  - results/scale_sweep/20261013T185551Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77
+  timestamp_utc: '2026-10-14T12:42:27.593723Z'
+fig_synthetic_fits.pdf:
+  script: scripts/make_paper_figures.py
+  sha256: 87ea59e8311cc7a6c0ac4b6e023a5cf9e3f3265d8acda8d42719f85eaf7d10ac
+  sources:
+  - results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77
+  timestamp_utc: '2026-10-14T12:42:29.011398Z'
+fig_toy2.pdf:
+  script: scripts/make_paper_figures.py
+  sha256: 3974c623127d3203b78e54ca1aec04b69bc377625abb34338b1a1984101fae77
+  sources:
+  - results/toy2_patch/20261013T185543Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77
+  timestamp_utc: '2026-10-14T12:42:28.254637Z'
+fig_y3_blockmap.pdf:
+  script: scripts/make_paper_figures.py
+  sha256: a59612e2d2939189a6579b2af6f1f3458b237071f60ac984b8fcf3b8e9c26a7e
+  sources:
+  - results/des_y3_blockmap/20261013T190117Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77
+  timestamp_utc: '2026-10-14T12:42:31.735970Z'

@@ -1,46 +1,21 @@
 tab_background_fits.tex:
-  bytes: 385
-  generated_files:
-  - docs/paper/tables/tab_background_fits.csv
-  - docs/paper/tables/tab_background_fits.tex
-  metrics_files:
-  - results/rewrite_background_vs_lcdm/20260203T101804Z_nogit/metrics.json
-  - results/fit_des_y6_bao/20260203T075814Z_nogit/metrics.json
-  sha256: f383872e7f201e45468acb090f51072440b788fca3cb9fb7e3aba882bd69e17c
+  bytes: 1651
+  sha256: 6c34834ec9d15d8f4d1bf2de4b5ff5edfbda6062eb69202b21680c246e06b651
   sources:
-  - results/rewrite_background_vs_lcdm/20260203T101804Z_nogit
-  - results/fit_des_y6_bao/20260203T075814Z_nogit
-  timestamp_utc: '2026-02-04T15:07:49.808195Z'
-tab_synth_inference_compare.tex:
-  bytes: 340
-  generated_files:
-  - docs/paper/tables/tab_synth_inference_compare.csv
-  - docs/paper/tables/tab_synth_inference_compare.tex
-  metrics_files:
-  - results/rewrite_vs_lambda/20260202T194715Z_nogit/metrics.json
-  sha256: a7446f5906da530f27c859b0fb6636568c03647252ad2527cd9ce5bbda1c699a
+  - results/fit_des_sn5yr/20261013T185604Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77
+  - results/fit_des_y6_bao/20261014T120546Z_39346c3187a3de10dcd41edc828a511080220084
+  - results/rewrite_background_vs_lcdm/20261014T120554Z_39346c3187a3de10dcd41edc828a511080220084
+  timestamp_utc: '2026-10-14T12:11:43.893887Z'
+tab_lss_protocol.tex:
+  bytes: 1036
+  sha256: 89c424f6ed623b8d549f26718441cacc5e554ae55769f5ccf8315df49bf31066
   sources:
-  - results/rewrite_vs_lambda/20260202T194715Z_nogit
-  timestamp_utc: '2026-02-04T15:07:49.804856Z'
-tab_toy1_summary.tex:
-  bytes: 322
-  generated_files:
-  - docs/paper/tables/tab_toy1_summary.csv
-  - docs/paper/tables/tab_toy1_summary.tex
-  metrics_files:
-  - results/toy1/20260202T175625Z_nogit/metrics.json
-  sha256: cab6299a891529119b98b5ad580d4ccd8cbafafbaebe839314fff6395833d4bc
+  - results/y3_ppd_probe_split/20261013T190123Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77
+  - results/kids450_ppd_probe_split/20261013T190142Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77
+  timestamp_utc: '2026-10-14T12:11:43.894153Z'
+tab_synth_inference.tex:
+  bytes: 853
+  sha256: 3a506af81213751511a8e28cacf4bcf8e9e9c14bed0e0b9b2b4c06e0c42d8e40
   sources:
-  - results/toy1/20260202T175625Z_nogit
-  timestamp_utc: '2026-02-04T15:07:49.804349Z'
-tab_toy2_summary.tex:
-  bytes: 339
-  generated_files:
-  - docs/paper/tables/tab_toy2_summary.csv
-  - docs/paper/tables/tab_toy2_summary.tex
-  metrics_files:
-  - results/toy2_patch/20260202T182630Z_nogit/metrics.json
-  sha256: 3b6782cd76a64feaddb4f1dfb40faacc67dc1374c0492ffee2ae4693be65da78
-  sources:
-  - results/toy2_patch/20260202T182630Z_nogit
-  timestamp_utc: '2026-02-04T15:07:49.804610Z'
+  - results/rewrite_vs_lambda/20261013T185546Z_bfa9bdeba8652e7e08c666e1cf5d0a656985db77
+  timestamp_utc: '2026-10-14T12:11:43.889662Z'

@@ -7,43 +7,11 @@ from pathlib import Path
 import yaml
 
 
-FIG_SPECS = [
-    {
-        "dest_name": "fig_toy1_rm_summary_vs_beta.png",
-        "src_rel": "results/toy1/20260202T175625Z_nogit/rm_summary_vs_beta.png",
-    },
-    {
-        "dest_name": "fig_toy2_Q_vs_time.png",
-        "src_rel": "results/toy2_patch/20260202T182630Z_nogit/Q_vs_time.png",
-    },
-    {
-        "dest_name": "fig_infer_distance_fit.png",
-        "src_rel": "results/infer_distance/20260202T190430Z_nogit/distance_fit.png",
-    },
-    {
-        "dest_name": "fig_rewrite_vs_lambda_distance_fit.png",
-        "src_rel": "results/rewrite_vs_lambda/20260202T194715Z_nogit/rewrite_distance_fit.png",
-    },
-    {
-        "dest_name": "fig_ppd_synth_rmse_across_seeds.png",
-        "src_rel": "results/ppd_synthetic/20260202T201136Z_nogit/ppd_rmse_across_seeds.png",
-    },
-    {
-        "dest_name": "fig_des_sn5yr_mu_residuals.png",
-        "src_rel": "results/fit_des_sn5yr/20260205T121850Z_0e613291189050d851e90a930e75f83ee7085b9b/sn5yr_mu_residuals.png",
-    },
-    {
-        "dest_name": "fig_des_y6_bao_alpha_likelihood.png",
-        "src_rel": "results/fit_des_y6_bao/20260203T075814Z_nogit/alpha_likelihood.png",
-    },
-    {
-        "dest_name": "fig_ppd_background_bao_alpha.png",
-        "src_rel": "results/ppd_background/20260203T094137Z_nogit/ppd_bao_alpha.png",
-    },
-    {
-        "dest_name": "fig_y3_block_boundaries.png",
-        "src_rel": "results/des_y3_blockmap/20260204T045551Z_nogit/block_boundaries.png",
-    },
+# Raw run-bundle figures vendored as-is. The composed manuscript figures are
+# built separately by scripts/make_paper_figures.py from the same run bundles.
+# All manuscript figures are now composed by scripts/make_paper_figures.py from
+# the audited run bundles; no raw run-bundle figure is vendored unchanged.
+FIG_SPECS: list[dict] = [
 ]
 
 
