@@ -39,7 +39,7 @@
 % Cover-page footer style (matches sixbirds-mathematics)
 \fancypagestyle{firstpage}{%
   \fancyhf{}
-  \fancyfoot[C]{\scriptsize Automorph Inc., Wilmington, DE, USA \quad \texttt{ioannis@automorph.io} \quad DOI: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480} \quad \textcopyright\ 2026 \quad CC-BY 4.0 \quad Preprint --- not peer reviewed.}
+  \fancyfoot[C]{\scriptsize Automorph Inc., Wilmington, DE, USA \quad \texttt{ioannis@automorph.io} \quad DOI: \href{https://doi.org/10.5281/zenodo.23368267}{10.5281/zenodo.23368267} \quad \textcopyright\ 2026 \quad CC-BY 4.0 \quad Preprint --- not peer reviewed.}
   \renewcommand{\headrulewidth}{0pt}
   \renewcommand{\footrulewidth}{0pt}
 }
@@ -49,7 +49,7 @@
 \title{A Six Birds' Eye View of Dark Energy: Closure, Route Mismatch, and Audits for Apparent Acceleration}
 \author{Ioannis Tsiokos\,\orcidlink{0009-0009-7659-5964}}
 \affiliation{}
-\date{5 February 2026\\[4pt]{\small Version 2: 10 February 2026 \quad$\cdot$\quad Version 3: 14 October 2026 \quad$\cdot$\quad Zenodo v1: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480}}}
+\date{5 February 2026\\[4pt]{\small Version 2: 10 February 2026 \quad$\cdot$\quad Version 3: 14 October 2026}\\[2pt]{\small DOI: \href{https://doi.org/10.5281/zenodo.23368267}{10.5281/zenodo.23368267} \quad$\cdot$\quad Version 1 DOI: \href{https://doi.org/10.5281/zenodo.18494480}{10.5281/zenodo.18494480}}}
 
 \begin{document}
 \maketitle
@@ -59,7 +59,7 @@
 \begin{abstract}
 Late-time acceleration is inferred by fitting homogeneous Friedmann--Lema\^{i}tre--Robertson--Walker (FLRW) models to coarse summaries of an inhomogeneous universe. We ask when such a coarse description can be a closed dynamical law, and what a fitted dark-energy term means when it cannot. Using the lens, completion and packaging vocabulary of Six Birds Theory, we prove, with machine-checked Lean proofs, that an exact coarse law exists precisely when micro states with the same observable evolve to states with the same observable. Commutation of ``coarse-grain then evolve'' with ``evolve then coarse-grain'' is sufficient for closure but not necessary: measured on full states, non-commutation can occur while an exact coarse law exists, whereas measured on the observables it is an exact obstruction. Two toy models make the mechanism concrete. For nonlinear evolution observed through a mean, the observable mismatch equals the time step times the nonlinearity times the variance. For Newtonian dust patches that all decelerate, the volume average obeys $3\ddot a_{\mathcal D}/a_{\mathcal D}=6\,\mathrm{Var}_w(H)-g\rho_{\mathcal D}$, so a spread of expansion rates alone can make the average accelerate; an exact two-patch example, checked in Lean, has $\ddot a_{\mathcal D}/a_{\mathcal D}=5/3$. Flat $\Lambda$CDM fitted to synthetic distances from such an ensemble, which contains no cosmological constant, returns $\Omega_\Lambda\approx0.60$, and a correction shaped by the generator's heterogeneity fits equally well, although neither fit is statistically adequate. On public DES SN5YR and DES Y6 BAO data the pipeline recovers the published supernova-only parameters, and a correction $A(1+z)^{-m}$ to $H^2$ settles at the boundary $m=0$, where it is a cosmological constant. Probe-split runs on DES Y3 and KiDS-450 two-point vectors validate the data layer only. A fundamental cosmological constant is not ruled out; the paper states exactly when a coarse description can close and which audits could separate a closure correction from a fundamental component.
 \end{abstract}
-\noindent\textbf{keywords:} dark energy; coarse-graining; cosmological backreaction; closure; posterior predictive checks; data compression; six birds; cosmology
+\noindent\textbf{keywords:} dark energy; coarse-graining; cosmological backreaction; closure; route mismatch; posterior predictive checks; formal verification; emergence calculus; six birds; cosmology
 
 % ---------------------------------------------------------------------------
 \section{Introduction}\label{sec:intro}

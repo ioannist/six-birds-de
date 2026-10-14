@@ -1,0 +1,17 @@
+{
+  "action": "created new-version draft",
+  "concept_record_id": "18494479",
+  "dashboard_url": "https://zenodo.org/uploads/23368267",
+  "doi": "10.5281/zenodo.23368267",
+  "doi_reservation": {
+    "client": "datacite",
+    "identifier": "10.5281/zenodo.23368267",
+    "provider": "datacite",
+    "verified_via": "rdm_pid_table"
+  },
+  "draft_id": 23368267,
+  "recorded_at": "2026-10-14T12:53:52+00:00",
+  "source_doi": "10.5281/zenodo.18494480",
+  "source_record_id": 18494480,
+  "source_title": "A Six Birds' Eye View of Dark Energy: Closure, Route Mismatch, and Audits for Apparent Acceleration"
+}

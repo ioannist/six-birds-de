@@ -1,0 +1,163 @@
+{
+  "title": "A Six Birds' Eye View of Dark Energy: Closure, Route Mismatch, and Audits for Apparent Acceleration",
+  "description": "<p><strong>A Six Birds&rsquo; Eye View of Dark Energy</strong> asks when a homogeneous (FLRW) description of an inhomogeneous universe can be a closed dynamical law in its own right, and what a fitted dark-energy term means when it cannot. Using the lens, completion and packaging vocabulary of <strong>Six Birds Theory</strong>, the paper proves, with machine-checked <strong>Lean&nbsp;4</strong> proofs, that an exact coarse law exists precisely when micro states with the same observable evolve to states with the same observable (<em>fiber compatibility</em>). Commutation of &ldquo;coarse-grain then evolve&rdquo; with &ldquo;evolve then coarse-grain&rdquo; is sufficient for closure but not necessary: measured on full states, non-commutation can occur while an exact coarse law exists, whereas measured on the observables it is an exact obstruction.</p>\n<p>Two mechanism models make this concrete. For nonlinear evolution observed through a mean, the observable mismatch equals the time step times the nonlinearity times the variance. For Newtonian dust patches that all decelerate, the volume average obeys 3&auml;<sub>D</sub>/a<sub>D</sub> = 6&nbsp;Var<sub>w</sub>(H) &minus; g&rho;<sub>D</sub>, so a spread of expansion rates alone can make the average accelerate; an exact two-patch example, checked in Lean, has &auml;<sub>D</sub>/a<sub>D</sub> = 5/3. Flat &Lambda;CDM fitted to synthetic distances from such an ensemble, which contains no cosmological constant, returns &Omega;<sub>&Lambda;</sub> &asymp; 0.60, and a correction shaped by the generator&rsquo;s heterogeneity fits equally well, although neither fit is statistically adequate.</p>\n<p>On public <strong>DES SN5YR</strong> and <strong>DES Y6 BAO</strong> data, the provenance-tracked pipeline recovers the published supernova-only parameters, and a correction A(1+z)<sup>&minus;m</sup> to H<sup>2</sup> settles at the boundary m = 0, where it is a cosmological constant. Probe-split runs on DES Y3 and KiDS-450 two-point vectors validate the data layer only. A fundamental cosmological constant is not ruled out; the paper states exactly when a coarse description can close and which audits could separate a closure correction from a fundamental component.</p>\n<p><strong>Version 3</strong> rewrites the manuscript for readability and incorporates a mathematical audit of the code and proofs: the exact closure criterion and its Lean formalization, corrected toy-model equations, a BAO likelihood referenced to the release&rsquo;s template cosmology, multi-start background fits, and figures and tables regenerated from clean, recorded runs. Code, Lean sources and run provenance: <a href=\"https://github.com/ioannist/six-birds-de\">github.com/ioannist/six-birds-de</a>.</p>",
+  "publication_date": "2026-10-14",
+  "version": "Preprint v3.0",
+  "keywords": [
+    "dark energy",
+    "closure",
+    "route mismatch",
+    "fiber compatibility",
+    "coarse-graining",
+    "cosmological backreaction",
+    "apparent acceleration",
+    "Lambda-CDM",
+    "DES",
+    "posterior predictive checks",
+    "Lean 4",
+    "formal verification",
+    "emergence calculus",
+    "Six Birds Theory"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.5281/zenodo.18365949",
+      "relation": "cites",
+      "resource_type": "publication-preprint",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.18394536",
+      "relation": "cites",
+      "resource_type": "publication-preprint",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.18595154",
+      "relation": "cites",
+      "resource_type": "software",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.3847/2041-8213/ad6f9f",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.12720778",
+      "relation": "cites",
+      "resource_type": "dataset",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1103/PhysRevD.110.063515",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1103/PhysRevD.105.023520",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1093/mnras/sty551",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "https://kids.strw.leidenuniv.nl/",
+      "relation": "cites",
+      "resource_type": "dataset",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.1086/300499",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1086/307221",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1016/j.physrep.2013.05.001",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1023/A:1001800617177",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1023/A:1012061725841",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1088/0034-4885/74/11/112901",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1088/0264-9381/31/23/234003",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1088/1475-7516/2004/11/010",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1088/1367-2630/8/12/322",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1088/1367-2630/9/10/377",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1088/0264-9381/32/21/215021",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "https://www3.stat.sinica.edu.tw/statistica/j6n4/j6n41/j6n41.htm",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.1109/TAC.1974.1100705",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.1007/978-3-030-79876-5_37",
+      "relation": "cites",
+      "resource_type": "publication-conferencepaper",
+      "scheme": "doi"
+    }
+  ],
+  "notes": "Manuscript version 3 (14 October 2026). Manuscript version 2 (10 February 2026) was an editorial revision that was not deposited on Zenodo; version 1 is 10.5281/zenodo.18494480."
+}
